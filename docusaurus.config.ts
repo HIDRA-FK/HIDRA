@@ -16,7 +16,7 @@ const config: Config = {
 
   // GitHub Pages deployment config - JAVÍTVA!
   url: 'https://hidra-fk.github.io',
-  baseUrl: '/HIDRA/',
+  baseUrl: '/',
 
   organizationName: 'hidra-fk',
   projectName: 'HIDRA',
