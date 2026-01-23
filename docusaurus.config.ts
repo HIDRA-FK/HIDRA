@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // GitHub Pages deployment config - JAVÍTVA!
-  url: 'https://hidra-fk.github.io',
+  url: 'https://hidra-itmaterials.netlify.app',
   baseUrl: '/',
 
   organizationName: 'hidra-fk',
