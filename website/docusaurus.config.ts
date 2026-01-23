@@ -14,24 +14,18 @@ const config: Config = {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
   },
 
-  // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  // GitHub Pages deployment config - JAVÍTVA!
+  url: 'https://hidra-fk.github.io',
+  baseUrl: '/HIDRA/',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'your-github-org', // Cseréld a saját GitHub org/user nevedre
-  projectName: 'hidra-it-materials', // Cseréld a saját repo nevedre
+  organizationName: 'hidra-fk',
+  projectName: 'HIDRA',
+  trailingSlash: true,  // Fontos GitHub Pages-hez
 
   onBrokenLinks: 'throw',
 
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'hu', // Magyar alapértelmezett
+    defaultLocale: 'hu',
     locales: ['hu'],
   },
 
@@ -41,9 +35,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Távolítsd el vagy cseréld saját repo URL-re az "Edit this page" linkhez
-          // editUrl: 'https://github.com/your-org/hidra-it-materials/tree/main/packages/create-docusaurus/templates/shared/',
-          editUrl: undefined, // Ez eltávolítja az "Edit this page" linket mindenhol
+          editUrl: undefined,
         },
         blog: {
           showReadingTime: true,
@@ -51,10 +43,7 @@ const config: Config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          // Távolítsd el vagy cseréld saját repo URL-re
-          // editUrl: 'https://github.com/your-org/hidra-it-materials/tree/main/packages/create-docusaurus/templates/shared/',
-          editUrl: undefined, // Ez eltávolítja a blog "Edit this page" linket
-          // Useful options to enforce blogging best practices
+          editUrl: undefined,
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
@@ -67,7 +56,6 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
     image: 'img/l.jpg',
     colorMode: {
       respectPrefersColorScheme: true,
@@ -87,7 +75,7 @@ const config: Config = {
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/orgs/HIDRA-FK/repositories', // Cseréld saját GitHub repo URL-re
+          href: 'https://github.com/orgs/HIDRA-FK/repositories',
           label: 'GitHub',
           position: 'right',
         },
@@ -110,11 +98,11 @@ const config: Config = {
           items: [
             {
               label: 'HIDRA GYIK',
-              href: 'https://hidrakepzes.hu/gyik', // Opcionálisan cseréld HIDRA-specifikusra
+              href: 'https://hidrakepzes.hu/gyik',
             },
             {
               label: 'HIDRA Facebook',
-              href: 'https://www.facebook.com/felnottkepzes.hidra/?locale=hu_HU', // Add meg sajátot vagy távolítsd el
+              href: 'https://www.facebook.com/felnottkepzes.hidra/?locale=hu_HU',
             },
           ],
         },
@@ -122,12 +110,12 @@ const config: Config = {
           title: 'Továbbiak',
           items: [
             {
-              label: ' HIDRA Weboldal',
-              href: 'https://www./hidrakepzes.hu',
+              label: 'HIDRA Weboldal',
+              href: 'https://hidrakepzes.hu',  // Javítva a www./ hibát
             },
             {
               label: 'HIDRA GitHub',
-              href: 'https://github.com/orgs/HIDRA-FK/repositories', // Saját repo
+              href: 'https://github.com/orgs/HIDRA-FK/repositories',
             },
           ],
         },
