@@ -1,0 +1,181 @@
+---
+title: Gyakorlati feladat iskolai szerver
+sidebar_position: 5
+description: iskolai szerver
+---
+
+
+# Gyakorlati feladat – Iskolai Linux jogosultsági rendszer
+
+## Alaphelyzet
+
+Egy iskola belső Linux szerverén felhasználói jogosultsági rendszert kell kialakítani.
+A rendszer több szerepkört kezel, eltérő hozzáférési szabályokkal.
+
+---
+
+##  Felhasználói csoportok
+
+| Szerepkör   | Csoport neve  |
+| ----------- | ------------- |
+| Igazgatóság | `igazgatosag` |
+| Tanárok     | `tanarok`     |
+| Informatika | `informatika` |
+| Diákok      | `diakok`      |
+| Vendégek    | `vendegek`    |
+
+---
+
+## Felhasználók 
+
+### Igazgatóság
+
+| Felhasználónév | Csoport     | Jelszó         |
+| -------------- | ----------- | -------------- |
+| `igazgato`     | igazgatosag | `Igazgato2024` |
+
+---
+
+### Tanárok
+
+| Felhasználónév | Csoport | Jelszó     |
+| -------------- | ------- | ---------- |
+| `tanar1`       | tanarok | `Tanar123` |
+| `tanar2`       | tanarok | `Tanar123` |
+
+---
+
+### Informatika
+
+| Felhasználónév | Csoport     | Jelszó       |
+| -------------- | ----------- | ------------ |
+| `adminit`      | informatika | `AdminIT!23` |
+
+---
+
+### Diákok
+
+| Felhasználónév | Csoport | Jelszó     |
+| -------------- | ------- | ---------- |
+| `diak1`        | diakok  | `Diak2024` |
+| `diak2`        | diakok  | `Diak2024` |
+
+---
+
+### Vendégek
+
+| Felhasználónév | Csoport  | Jelszó      |
+| -------------- | -------- | ----------- |
+| `vendeg`       | vendegek | `Vendeg123` |
+
+---
+
+## Mappastruktúra
+
+A szerveren az alábbi mappák találhatók:
+
+| Mappa neve    | Rendeltetés                             |
+| ------------- | --------------------------------------- |
+| `remeny_iskola` | gyökér mappa (`/srv/remeny_iskola`)                    |
+| `igazgatosag_mappa` | vezetői dokumentumok                    |
+| `tanarok_mappa`     | tanári anyagok                          |
+| `informatika_mappa` | informatikai adminisztráció             |
+| `tananyagok_mappa`  | diákok számára elérhető tananyag        |
+| `nyilvanos_mappa`   | mindenki által megtekinthető információ |
+
+---
+
+## Fájlok
+
+### igazgatosag mappa
+
+* `koltsegvetes.txt`
+* `strategia.doc`
+
+---
+
+### tanarok mappa
+
+* `orarend.txt`
+* `dolgozatok.txt`
+
+---
+
+### informatika mappa
+
+* `szerver_jegyzet.txt`
+* `halozat.txt`
+
+---
+
+### tananyagok mappa
+
+* `matek.pdf`
+* `informatika.pdf`
+
+---
+
+### nyilvanos mappa
+
+* `iskola_rendje.txt`
+* `elerhetoseg.txt`
+
+---
+
+## Jogosultsági szabályok
+
+### Igazgatóság (`igazgato`)
+
+* MINDEN mappát lát
+* MINDEN fájlt megnyithat és módosíthat
+* Új fájlokat hozhat létre bárhol
+
+---
+
+### Tanárok (`tanar1`, `tanar2`)
+
+* Hozzáférnek a `tanarok` mappához (olvasás + írás)
+* Megtekinthetik a `tananyagok` mappa tartalmát
+* NEM férhetnek hozzá az `igazgatosag` és `informatika` mappákhoz
+
+---
+
+### Informatika (`adminit`)
+
+* MINDEN mappához hozzáfér
+* Karbantartási és adminisztrációs célból fájlokat módosíthat
+
+---
+
+### Diákok (`diak1`, `diak2`)
+
+* Csak a `tananyagok` mappát érhetik el
+* Fájlokat NEM hozhatnak létre
+* Fájlokat NEM módosíthatnak
+
+---
+
+### Vendég (`vendeg`)
+
+* Csak a `nyilvanos` mappát láthatja
+* Fájlokat kizárólag megtekinthet
+* Más mappákhoz nem férhet hozzá
+
+---
+
+## Ellenőrzés
+
+A rendszer akkor megfelelően működik, ha:
+
+* minden felhasználó be tud jelentkezni a saját jelszavával
+* tiltott mappák esetén a hozzáférés megtagadásra kerül
+* a fájlok csak az engedélyezett felhasználók számára elérhetők
+* az informatikai és igazgatósági felhasználó teljes hozzáféréssel rendelkezik
+
+---
+
+## Leadási állapot
+
+A feladat akkor tekinthető befejezettnek, ha az összes fenti **név**, **mappa**, **felhasználó**, **fájl** és **jogosultság** pontosan a leírás szerint működik.
+
+
