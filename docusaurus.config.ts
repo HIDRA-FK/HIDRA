@@ -5,25 +5,28 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'IT Materials',
-  tagline: 'Informatika tanuláshoz szakirodalmi összefoglaló',
+  title: 'HIDRA IT Tudástár',
+  tagline: 'Gyakorlati útmutatók és tananyagok fejlesztőknek',
   favicon: 'img/favicon.ico',
 
-  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
+  // Future flags
   future: {
-    v4: true, // Improve compatibility with the upcoming Docusaurus v4
+    v4: true,
   },
 
-  // GitHub Pages deployment config - JAVÍTVA!
+  // Production URL settings
   url: 'https://hidra-itmaterials.netlify.app',
   baseUrl: '/',
 
+  // GitHub / Deployment settings
   organizationName: 'hidra-fk',
   projectName: 'HIDRA',
-  trailingSlash: true,  // Fontos GitHub Pages-hez
+  trailingSlash: true,
 
   onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
 
+  // Localization
   i18n: {
     defaultLocale: 'hu',
     locales: ['hu'],
@@ -35,15 +38,20 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          editUrl: undefined,
+          routeBasePath: 'docs',
+          editUrl: 'https://github.com/HIDRA-FK/HIDRA/tree/main/',
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
         },
         blog: {
           showReadingTime: true,
+          blogTitle: 'Tech Blog & Hírek',
+          blogDescription: 'Aktuális informatikai trendek és HIDRA hírek',
+          postsPerPage: 5,
           feedOptions: {
             type: ['rss', 'atom'],
             xslt: true,
           },
-          editUrl: undefined,
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn',
@@ -56,12 +64,21 @@ const config: Config = {
   ],
 
   themeConfig: {
-    image: 'img/l.jpg',
+    image: 'img/social-card.jpg',
+    
+    metadata: [
+      {name: 'keywords', content: 'informatika, oktatás, programozás, webfejlesztés, hidra képzés'},
+      {name: 'twitter:card', content: 'summary_large_image'},
+    ],
+
     colorMode: {
+      defaultMode: 'dark',
+      disableSwitch: false,
       respectPrefersColorScheme: true,
     },
+
     navbar: {
-      title: 'HIDRA',
+      title: 'HIDRA Akadémia',
       logo: {
         alt: 'HIDRA Logo',
         src: 'img/l.jpg',
@@ -71,60 +88,80 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Tananyagok',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
+        {
+          to: '/blog', 
+          label: 'Szakmai Blog',
+          position: 'left'
+        },
+        // {
+        //   to: '/projects', 
+        //   label: 'Projektek',
+        //   position: 'left',
+        // },
         {
           href: 'https://github.com/orgs/HIDRA-FK/repositories',
           label: 'GitHub',
           position: 'right',
+          className: 'header-github-link',
         },
       ],
     },
+
     footer: {
       style: 'dark',
       links: [
         {
-          title: 'Dokumentáció',
+          title: 'Tanulás',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Kezdő lépések',
               to: '/docs/intro',
             },
+            // {
+            //   label: 'Technológiák',
+            //   to: '/docs/category/technologiak',
+            // },
           ],
         },
         {
-          title: 'Közösség',
+          title: 'Közösség & Kapcsolat',
           items: [
             {
-              label: 'HIDRA GYIK',
-              href: 'https://hidrakepzes.hu/gyik',
+              label: 'HIDRA Képzések',
+              href: 'https://hidrakepzes.hu',
             },
             {
-              label: 'HIDRA Facebook',
+              label: 'Facebook Közösség',
               href: 'https://www.facebook.com/felnottkepzes.hidra/?locale=hu_HU',
             },
+            {
+              label: 'Gyakori Kérdések',
+              href: 'https://hidrakepzes.hu/gyik',
+            },
           ],
         },
         {
-          title: 'Továbbiak',
+          title: 'Fejlesztés',
           items: [
             {
-              label: 'HIDRA Weboldal',
-              href: 'https://hidrakepzes.hu',  // Javítva a www./ hibát
+              label: 'Forráskód (GitHub)',
+              href: 'https://github.com/orgs/HIDRA-FK/repositories',
             },
             {
-              label: 'HIDRA GitHub',
-              href: 'https://github.com/orgs/HIDRA-FK/repositories',
+              label: 'Jelents hibát',
+              href: 'https://github.com/orgs/HIDRA-FK/issues',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} HIDRA IT Materials. Minden jog fenntartva.`,
+      copyright: `Copyright © ${new Date().getFullYear()} HIDRA Felnőttképzés. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: ['csharp', 'java', 'php', 'sql', 'bash', 'json'],
     },
   } satisfies Preset.ThemeConfig,
 };

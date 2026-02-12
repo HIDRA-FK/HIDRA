@@ -2,46 +2,30 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Junior rendszerüzemeltető
 
-Let's discover **Docusaurus in less than 5 minutes**.
+Ez a tananyag a **Junior rendszerüzemeltető** képzés szakmai és gyakorlati alapjaira épül.  
+Célja, hogy átfogó képet adjon a modern informatikai rendszerek működéséről, és megalapozza azt a gondolkodásmódot, amelyre a mindennapi rendszergazdai munka épül.
 
-## Getting Started
+A képzés nem egyetlen technológiára vagy eszközre koncentrál. A hangsúly azon van, hogy a tanuló megértse, **hogyan áll össze egy működő IT-környezet**, és hogyan kapcsolódnak egymáshoz az egyes elemek: operációs rendszerek, hálózatok, szerverek, adatbázisok, virtualizációs és felhőalapú megoldások.
 
-Get started by **creating a new site**.
+A tananyag gyakorlatorientált szemléletet követ. Az elméleti alapok mindig konkrét példákhoz és feladatokhoz kapcsolódnak, így a tanuló nem csak fogalmakkal találkozik, hanem **valós üzemeltetési helyzetekkel** is. A cél az, hogy a megszerzett tudás alkalmazható legyen egy valódi munkahelyi környezetben.
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+A képzés során külön hangsúlyt kap:
+- a szerverek és operációs rendszerek alapvető adminisztrációja,
+- a hálózati kommunikáció megértése,
+- az IT-szolgáltatások biztonságának alapjai,
+- az automatizálás és a shell-programozás,
+- valamint az adatbázis- és alkalmazásszerverek kezelése.
 
-### What you'll need
+A modern üzemeltetési környezetekhez igazodva a tananyag foglalkozik a **virtualizációval, konténerizációval és felhőalapú szolgáltatásokkal** is, nem elméleti szinten, hanem üzemeltetői nézőpontból.
 
-- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+A képzés végére a tanuló képes lesz:
+- különböző típusú szerverek és rendszerek alapvető telepítésére és üzemeltetésére,
+- egyszerűbb adminisztrációs feladatok automatizálására shell scriptek segítségével,
+- hálózati és rendszerhibák alapvető felismerésére és elhárítására,
+- adatbázis-szerverek kezelésére és felügyeletére,
+- virtualizált és felhőalapú erőforrások használatára,
+- valamint arra, hogy egy IT-rendszert **rendszerként**, ne különálló technológiák halmazaként kezeljen.
 
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+Ez az oldal a tananyag kiindulópontja. Innen indulva lépésről lépésre épül fel az a tudás és szemlélet, amely egy **junior rendszerüzemeltetőt** képessé tesz arra, hogy önállóan, felelősen és átlátható módon vegyen részt informatikai rendszerek üzemeltetésében.

@@ -1,0 +1,72 @@
+---
+title: Fejlesztői környezet kialakítása
+sidebar_position: 2
+description: Parancssori környezet, virtuális Linux szerver és kliens–szerver kapcsolat előkészítése.
+---
+
+# Fejlesztői környezet kialakítása
+
+Ebben a fejezetben a gyakorlati feladatok elvégzéséhez szükséges fejlesztői környezetet készítjük elő.  
+A további tananyag minden része erre a környezetre épül, ezért a fejezet lépéseinek pontos végrehajtása alapfeltétel.
+
+A fejezet célja annak bemutatása, hogyan lehet:
+- Windows alatt parancssori munkakörnyezetet használni,
+- virtuális környezetben Linux szervert telepíteni,
+- valamint kliensoldalról csatlakozni a szerverhez.
+
+A fejezet végére a tanuló rendelkezik egy működő Ubuntu Serverrel és egy olyan klienskörnyezettel, amelyből a későbbi gyakorlatok végrehajthatók.
+
+---
+
+## Parancssori munkakörnyezet Windows alatt
+
+A Linux szerverrel való munkavégzés parancssoron keresztül történik.  
+Windows operációs rendszeren ehhez egy külső terminálprogramot használunk, amely alkalmas Linux parancsok futtatására és SSH-kapcsolatok kezelésére.
+
+### Videó – Cmder telepítése és használata
+
+<div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+  <div style={{ width: 'min(960px, 100%)', aspectRatio: '16 / 9' }}>
+    <iframe
+      style={{ width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(148,163,184,.35)' }}
+      src="https://www.youtube.com/embed/RBSlDV_uy8Y?si=ToI5TqtM2O6X4uHO"
+      title="Cmder telepítése és használata"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+    ></iframe>
+  </div>
+</div>
+
+---
+
+## Linux szerver telepítése virtuális környezetben
+
+A gyakorlati feladatokat nem éles szerveren, hanem egy elkülönített virtuális környezetben végezzük.  
+Ehhez virtualizációs szoftvert használunk, amely lehetővé teszi egy Linux szerver futtatását a meglévő operációs rendszer mellett.
+
+A Linux szerver kezelése grafikus felület nélkül, távoli parancssoros kapcsolaton keresztül történik.  
+Ehhez a kliensoldali gépről SSH-kapcsolatot hozunk létre a szerverrel.
+
+### Videó – Ubuntu Server telepítése VirtualBox segítségével &&  Kapcsolódás Ubuntu Serverhez kliensről
+
+<div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+  <div style={{ width: 'min(960px, 100%)', aspectRatio: '16 / 9' }}>
+    <iframe
+      style={{ width: '100%', height: '100%', borderRadius: '12px', border: '1px solid rgba(148,163,184,.35)' }}
+      src="https://www.youtube.com/embed/wqm_DXh0PlQ?si=uU3PtlyhBO7pH6vX"
+      title="Ubuntu Server telepítése VirtualBoxban"
+      frameBorder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+    ></iframe>
+  </div>
+</div>
+
+---
+
+1) Nézd meg a videókat a megadott sorrendben.  
+2) Ellenőrizd, hogy a szerver fut, és kliensről elérhető.  
+3) Csak ezután térj át a következő fejezetre.
+
+A következő fejezetben a felhasználók, csoportok és jogosultságok tényleges kialakítása következik a létrehozott környezeten.

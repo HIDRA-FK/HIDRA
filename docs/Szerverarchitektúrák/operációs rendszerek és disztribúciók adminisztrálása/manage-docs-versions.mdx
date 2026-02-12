@@ -1,0 +1,33 @@
+---
+title: Felhasználók, csoportok és jogosultságok kezelése Linux szerveren
+sidebar_position: 1
+description: Felhasználók, csoportok, könyvtárak és jogosultságok kialakítása egy többfelhasználós Linux fájlszerveren.
+---
+
+# Felhasználók, csoportok és jogosultságok kezelése Linux szerveren
+
+Ebben a fejezetben egy Linux rendszeren alkalmazott felhasználói és jogosultsági modell felépítésével foglalkozunk. A bemutatott megoldás egy többfelhasználós fájlszerver működését írja le, ahol a felhasználók különböző szerepkörök szerint, eltérő hozzáférési jogokkal dolgoznak.
+
+A fejezet célja annak bemutatása, hogyan lehet felhasználókat és csoportokat létrehozni, valamint ezekhez könyvtárakat és jogosultságokat rendelni úgy, hogy a hozzáférések megfeleljenek egy valós szervezeti struktúrának.
+
+A gyakorlat során egy egységes jogosultsági modellt alakítunk ki, amelyben:
+- a vezetői szerepkör teljes hozzáféréssel rendelkezik,
+- az egyes részlegek elkülönített munkaterületeken dolgoznak,
+- valamint egy közös terület biztosítja az együttműködést.
+
+A fejezet végére világossá válik, hogy a Linux jogosultságkezelése nem elszigetelt parancsok halmaza, hanem egy következetes, logikusan felépített rendszer, amely minden hozzáférési döntést meghatároz.
+
+---
+
+## A fejezet felépítése
+
+A fejezet egymásra épülő lépésekből áll.  
+A beállítások sorrendje megegyezik azzal a logikával, ahogyan egy valódi Linux szerveren is kialakul egy jogosultsági rendszer.
+
+A fejezet során:
+- létrehozzuk a szükséges felhasználói csoportokat,
+- létrehozzuk és csoportokhoz rendeljük a felhasználókat,
+- kialakítjuk a könyvtárstruktúrát,
+- beállítjuk a tulajdonosokat és jogosultságokat,
+- kiterjesztett jogosultságokat alkalmazunk ott, ahol több csoport használ ugyanazon területet,
+- majd valós felhasználókkal ellenőrizzük a működést.

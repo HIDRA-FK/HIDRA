@@ -1,0 +1,471 @@
+---
+title: Felhasználók, csoportok és jogosultságok kialakítása Linux szerveren
+sidebar_position: 4
+description: Csoportok és felhasználók létrehozása, könyvtárstruktúra felépítése, jogosultságok és ACL beállítása, ellenőrzés és visszavonás.
+---
+
+## Felhasználók, csoportok és jogosultságok kialakítása Linux szerveren
+
+Egy Linux szerveren a jogosultságkezelés alapja **nem a mappa**, hanem a **felhasználó és a csoport**. A rendszer mindig azt vizsgálja, hogy ki próbál hozzáférni egy erőforráshoz, mely csoport(ok) tagja, és az adott mappán milyen jogosultságok vannak beállítva ezekre a szereplőkre. Emiatt a jogosultsági rendszer felépítése mindig a csoportok és felhasználók létrehozásával kezdődik, és csak ezt követi a könyvtárstruktúra és a jogosultságok kiosztása.
+
+### Csoportok létrehozása
+
+A csoportok logikai egységek, amelyek szervezeti vagy funkcionális szerepeket reprezentálnak. Egy vállalati vagy iskolai környezetben tipikusan külön csoportot kap a vezetés, az egyes részlegek, valamint az alsóbb jogosultsági szintű felhasználók.
+
+A `groupadd` parancs egy új csoportot hoz létre a rendszerben. Ez a művelet önmagában még nem ad semmilyen hozzáférést, csupán regisztrálja a csoportot, amelyet később mappákhoz és felhasználókhoz lehet rendelni.
+
+```bash
+groupadd management
+groupadd sales
+groupadd accounting
+groupadd students
+```
+
+Ezek a csoportok a szervezet hierarchiáját tükrözik. A `management` a legmagasabb jogosultsági szintet jelöli, a `sales` és az `accounting` egymással egyenrangú részlegek, míg a `students` az alsóbb szintű, korlátozott hozzáférésű felhasználókat képviseli.
+
+A csoportok létezése ellenőrizhető a rendszer adatbázisából:
+
+```bash
+getent group management sales accounting students
+```
+
+### Felhasználók létrehozása
+
+A felhasználók konkrét személyeket vagy fiókokat jelentenek, amelyekkel be lehet lépni a rendszerbe. A `useradd` parancs alapértelmezésben csak minimális fiókot hoz létre, ezért oktatási és vállalati környezetben mindig paraméterezni kell.
+
+Egy tipikus felhasználó létrehozása így néz ki:
+
+```bash
+useradd -m -g sales -s /bin/bash sales1
+```
+
+A `-m` kapcsoló hatására a rendszer létrehozza a felhasználó saját könyvtárát a `/home` alatt. Ez a mappa tartalmazza a felhasználó személyes fájljait és konfigurációit. Enélkül a felhasználó nem tudna normál módon dolgozni.
+
+A `-g sales` paraméter megadja a felhasználó elsődleges csoportját. Ez különösen fontos, mert az újonnan létrehozott fájlok alapértelmezett csoportját ez határozza meg. Ha ez hibás, a jogosultsági modell nem fog megfelelően működni.
+
+A `-s /bin/bash` kapcsoló meghatározza, hogy a felhasználó milyen parancsértelmezőt kap belépéskor. A bash az általánosan használt, teljes funkcionalitású shell, amely oktatási célokra is megfelelő.
+
+A rendszerben több felhasználó kerül létrehozásra a különböző csoportokhoz rendelve:
+
+```bash
+useradd -m -g management  -s /bin/bash boss1
+useradd -m -g sales       -s /bin/bash sales1
+useradd -m -g sales       -s /bin/bash sales2
+useradd -m -g accounting  -s /bin/bash acc1
+useradd -m -g accounting  -s /bin/bash acc2
+useradd -m -g students    -s /bin/bash student1
+useradd -m -g students    -s /bin/bash student2
+```
+
+A felhasználók adatai ellenőrizhetők az `id` paranccsal, amely megmutatja, hogy az adott fiók mely csoportok tagja.
+
+```bash
+id sales1
+```
+
+A létrehozott felhasználók jelszót kapnak a `passwd` paranccsal. Jelszó nélkül normál felhasználó nem tud belépni a rendszerbe.
+
+### Könyvtárstruktúra kialakítása
+
+A kiszolgált adatok helye Linux szerveren a fájlrendszer szabvány szerint a `/srv` könyvtár. Ide kerülnek azok az állományok, amelyeket a szerver szolgáltatások vagy felhasználók érnek el.
+
+A vállalati struktúrát egy központi mappa alá szervezzük:
+
+```bash
+mkdir -p /srv/compani/management_mappa
+mkdir -p /srv/compani/sales_mappa
+mkdir -p /srv/compani/accounting_mappa
+mkdir -p /srv/compani/shared_mappa
+```
+
+A `-p` kapcsoló biztosítja, hogy a parancs akkor is lefusson, ha a szülőkönyvtár még nem létezik.
+
+### Tulajdonos és jogosultságok beállítása
+
+Egy mappa mindig egy tulajdonoshoz és egy csoporthoz tartozik. A tulajdonos általában `root`, mert az adminisztráció nem kerülhet egy átlagos felhasználó kezébe. A csoport viszont az a részleg, amely dolgozik a mappában.
+
+```bash
+chown root:sales /srv/compani/sales_mappa
+```
+
+Ez azt jelenti, hogy a mappa adminisztratív tulajdonosa a root, de a sales csoport tagjai használhatják.
+
+A jogosultságok kiosztása a `chmod` paranccsal történik:
+
+```bash
+chmod 2770 /srv/compani/sales_mappa
+```
+
+A négy számjegy közül az első, a `2`, a setgid bitet jelöli. Ez biztosítja, hogy a mappában létrejövő új fájlok automatikusan örököljék a mappa csoportját. Megosztott munkakönyvtáraknál ez elengedhetetlen.
+
+A következő két számjegy, a `7` és `7`, a tulajdonos és a csoport teljes jogosultságát jelenti (olvasás, írás, belépés). Az utolsó `0` azt jelzi, hogy minden más felhasználó teljesen ki van zárva.
+
+Ugyanez a logika érvényes az accounting és management mappákra is.
+
+## Jogosultságok kiosztása a szervezeti modell szerint
+
+A könyvtárstruktúra és az alap jogosultságok létrehozása után a következő lépés annak biztosítása, hogy **minden felhasználói csoport pontosan ahhoz férjen hozzá, ami a szerepe alapján indokolt**, se többet, se kevesebbet.
+A cél egy hierarchikus, mégis elkülönített jogosultsági rendszer kialakítása.
+
+A kívánt jogosultsági modell a következő:
+
+* a **management** csoport minden mappához hozzáfér
+* a **sales** csoport csak a saját mappájához és a közös (shared) mappához fér hozzá
+* az **accounting** csoport csak a saját mappájához és a közös (shared) mappához fér hozzá
+* a **students** csoport kizárólag a közös (shared) mappát érheti el
+
+Ennek megvalósításához a hagyományos Linux jogosultságkezelés és az ACL (Access Control List) együttes használata szükséges.
+
+---
+
+## A management csoport teljes hozzáférésének biztosítása
+
+A management szerepe felügyeleti jellegű, ezért ennek a csoportnak **minden részleg mappájához teljes jogosultsággal kell rendelkeznie**, függetlenül attól, hogy az adott mappa melyik részleghez tartozik.
+
+Mivel egy mappának csak egy elsődleges csoportja lehet, a management hozzáférését **ACL segítségével** adjuk meg.
+
+### Hozzáférés a sales mappához
+
+```bash
+setfacl -m g:management:rwx /srv/compani/sales_mappa
+setfacl -d -m g:management:rwx /srv/compani/sales_mappa
+```
+
+Az első parancs az aktuális jogosultságot állítja be: a management csoport beléphet, írhat és törölhet.
+A második parancs az öröklést biztosítja, így a később létrejövő fájlokra és alkönyvtárakra is automatikusan érvényes lesz ez a jogosultság.
+
+### Hozzáférés az accounting mappához
+
+```bash
+setfacl -m g:management:rwx /srv/compani/accounting_mappa
+setfacl -d -m g:management:rwx /srv/compani/accounting_mappa
+```
+
+### Hozzáférés a shared mappához
+
+```bash
+setfacl -m g:management:rwx /srv/compani/shared_mappa
+setfacl -d -m g:management:rwx /srv/compani/shared_mappa
+```
+
+Ezzel a management csoport **teljes körű hozzáférést kapott minden releváns mappához**, miközben a mappák elsődleges csoportja továbbra is a megfelelő részleg marad.
+
+---
+
+## A sales és accounting csoportok jogosultságai
+
+A sales és accounting csoportok egymással **azonos jogosultsági szinten állnak**, de **egymás adataihoz nem férhetnek hozzá**.
+Mindkét csoport két mappát érhet el:
+
+* a saját részlegmappáját
+* a közös (shared) mappát
+
+### Saját mappák elérése
+
+A saját mappákhoz való hozzáférést már korábban biztosítottuk azzal, hogy:
+
+* a mappa csoportját a megfelelő részleghez rendeltük
+* `2770` jogosultságot állítottunk be
+
+Ez azt jelenti, hogy:
+
+* a sales csoport tagjai automatikusan hozzáférnek a `sales_mappa` tartalmához
+* az accounting csoport tagjai automatikusan hozzáférnek az `accounting_mappa` tartalmához
+* a másik részleg ki van zárva
+
+Ezért itt további beállítás nem szükséges.
+
+---
+
+## A shared mappa beállítása közös használatra
+
+A shared mappa olyan terület, amelyet **több csoport is használ**, ezért itt az ACL elengedhetetlen.
+
+### Sales hozzáférés biztosítása
+
+```bash
+setfacl -m g:sales:rwx /srv/compani/shared_mappa
+setfacl -d -m g:sales:rwx /srv/compani/shared_mappa
+```
+
+### Accounting hozzáférés biztosítása
+
+```bash
+setfacl -m g:accounting:rwx /srv/compani/shared_mappa
+setfacl -d -m g:accounting:rwx /srv/compani/shared_mappa
+```
+
+Ezzel a sales és accounting csoport tagjai a shared mappában:
+
+* beléphetnek
+* fájlokat hozhatnak létre
+* módosíthatnak és törölhetnek
+
+---
+
+## A students csoport kizárólagos hozzáférése a shared mappához
+
+A students csoport tagjai **nem férhetnek hozzá sem a management, sem a sales, sem az accounting mappákhoz**.
+Számukra kizárólag a shared mappa biztosít munkaterületet.
+
+Mivel a shared mappa elsődleges csoportja `students`, és a jogosultság `2770`, a students csoport automatikusan teljes hozzáférést kap ehhez a mappához, külön ACL nélkül is.
+
+Ez tudatos döntés: a students csoport **nem felügyeleti**, hanem **felhasználói** szerepet tölt be.
+
+---
+
+## Jogosultságok ellenőrzése
+
+A jogosultságokat mindig két szinten ellenőrizzük.
+
+### Strukturális ellenőrzés
+
+```bash
+ls -ld /srv/compani/*_mappa
+getfacl /srv/compani/shared_mappa
+```
+
+Ez megmutatja:
+
+* a tulajdonost
+* az alap jogosultságokat
+* az ACL-bejegyzéseket
+
+### Funkcionális ellenőrzés felhasználóként
+
+A valós működés ellenőrzéséhez a rendszerbe az adott felhasználóként lépünk be:
+
+```bash
+su - sales1
+touch /srv/compani/sales_mappa/proba.txt
+touch /srv/compani/shared_mappa/proba.txt
+touch /srv/compani/accounting_mappa/hiba.txt
+```
+
+Az első két parancsnak sikeresnek kell lennie, a harmadiknak jogosultsági hibát kell adnia.
+Ugyanez a logika érvényes az accounting és students felhasználók esetében is.
+
+## Jogosultsági tesztek felhasználónként
+
+A tesztelés során három dolgot vizsgálunk minden mappánál:
+
+1. be lehet-e lépni a mappába (`cd`)
+2. lehet-e fájlt létrehozni (`touch`)
+3. tiltott mappa esetén jogosultsági hibát kapunk-e
+
+---
+
+## 1. Management felhasználó tesztje (boss1)
+
+A management csoportnak **minden mappához hozzá kell férnie**.
+
+Belépés a felhasználóként:
+
+```bash
+su - boss1
+```
+
+### Belépési tesztek
+
+```bash
+cd /srv/compani/management_mappa
+cd /srv/compani/sales_mappa
+cd /srv/compani/accounting_mappa
+cd /srv/compani/shared_mappa
+```
+
+Elvárt eredmény:
+– minden `cd` parancs hiba nélkül lefut
+
+### Írási tesztek
+
+```bash
+touch /srv/compani/management_mappa/mgmt_test.txt
+touch /srv/compani/sales_mappa/mgmt_test.txt
+touch /srv/compani/accounting_mappa/mgmt_test.txt
+touch /srv/compani/shared_mappa/mgmt_test.txt
+```
+
+Elvárt eredmény:
+– minden fájl sikeresen létrejön
+
+Kilépés:
+
+```bash
+exit
+```
+
+---
+
+## 2. Sales felhasználó tesztje (sales1)
+
+A sales felhasználó:
+
+* beléphet a saját mappájába
+* beléphet a shared mappába
+* nem léphet be az accounting és management mappákba
+
+Belépés:
+
+```bash
+su - sales1
+```
+
+### Engedélyezett mappák
+
+```bash
+cd /srv/compani/sales_mappa
+touch sales_ok.txt
+
+cd /srv/compani/shared_mappa
+touch shared_ok.txt
+```
+
+Elvárt eredmény:
+– mindkét művelet sikeres
+
+### Tiltott mappák
+
+```bash
+cd /srv/compani/accounting_mappa
+```
+
+```bash
+cd /srv/compani/management_mappa
+```
+
+Elvárt eredmény:
+– `Permission denied`
+
+Kilépés:
+
+```bash
+exit
+```
+
+---
+
+## 3. Accounting felhasználó tesztje (acc1)
+
+Az accounting felhasználó:
+
+* beléphet az accounting mappába
+* beléphet a shared mappába
+* nem férhet hozzá a sales és management mappákhoz
+
+Belépés:
+
+```bash
+su - acc1
+```
+
+### Engedélyezett mappák
+
+```bash
+cd /srv/compani/accounting_mappa
+touch acc_ok.txt
+
+cd /srv/compani/shared_mappa
+touch shared_ok.txt
+```
+
+Elvárt eredmény:
+– mindkét művelet sikeres
+
+### Tiltott mappák
+
+```bash
+cd /srv/compani/sales_mappa
+```
+
+```bash
+cd /srv/compani/management_mappa
+```
+
+Elvárt eredmény:
+– `Permission denied`
+
+Kilépés:
+
+```bash
+exit
+```
+
+---
+
+## 4. Students felhasználó tesztje (student1)
+
+A students felhasználó:
+
+* kizárólag a shared mappába léphet be
+* minden más mappából ki van zárva
+
+Belépés:
+
+```bash
+su - student1
+```
+
+### Engedélyezett mappa
+
+```bash
+cd /srv/compani/shared_mappa
+touch student_ok.txt
+```
+
+Elvárt eredmény:
+– belépés és fájllétrehozás sikeres
+
+### Tiltott mappák
+
+```bash
+cd /srv/compani/sales_mappa
+cd /srv/compani/accounting_mappa
+cd /srv/compani/management_mappa
+```
+
+Elvárt eredmény:
+– minden esetben `Permission denied`
+
+Kilépés:
+
+```bash
+exit
+```
+
+---
+
+## 5. Hibakeresési tesztek (ha valami nem működik)
+
+Ha egy felhasználó ott is belép, ahol nem kellene, vagy nem tud belépni oda, ahova kellene, az alábbi parancsokkal lehet feltárni az okot.
+
+### Teljes útvonal jogosultságellenőrzése
+
+```bash
+namei -l /srv/compani/sales_mappa
+```
+
+Ez megmutatja, hogy az útvonal **minden elemén** van-e belépési jog.
+
+### ACL ellenőrzés
+
+```bash
+getfacl /srv/compani/shared_mappa
+```
+
+Ez megmutatja:
+
+* mely csoportok kaptak extra jogot
+* van-e öröklés beállítva
+
+---
+
+## Összegző 
+
+* management: minden mappába belép és ír
+* sales: sales + shared, máshová nem
+* accounting: accounting + shared, máshová nem
+* students: csak shared
+
+Ha a fenti tesztek mind az elvárt eredményt adják, akkor a jogosultsági rendszer **helyesen van kialakítva**, és megfelel egy valós szerverüzemeltetési környezet követelményeinek.
+

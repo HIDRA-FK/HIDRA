@@ -21,7 +21,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
+            Irány a tananyagokhoz! 🚀
           </Link>
         </div>
       </div>
@@ -33,8 +33,9 @@ export default function Home(): ReactNode {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      // A title itt jelenik meg a böngésző fülön: "Főoldal | HIDRA IT Tudástár"
+      title={`Főoldal`}
+      description="HIDRA IT Oktatási Portál - Webfejlesztés és Programozás">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

@@ -1,0 +1,279 @@
+---
+title: Linux Jogosultságok - Parancsok
+sidebar_position: 5
+description: Teljes parancscsomag csoportok, felhasználók, könyvtárstruktúra, ACL jogosultságok és tesztek beállításához
+---
+
+# Linux Jogosultságok - Parancscsomag
+
+<details>
+<summary>0. Csoportok és felhasználók létrehozása</summary>
+
+```bash
+# CSOPORTOK
+groupadd management
+groupadd sales
+groupadd accounting
+groupadd students
+
+# FELHASZNÁLÓK (home mappával, alap csoporttal, bash shell-lel)
+useradd -m -g management  -s /bin/bash boss1
+useradd -m -g sales       -s /bin/bash sales1
+useradd -m -g sales       -s /bin/bash sales2
+useradd -m -g accounting  -s /bin/bash acc1
+useradd -m -g accounting  -s /bin/bash acc2
+useradd -m -g students    -s /bin/bash student1
+useradd -m -g students    -s /bin/bash student2
+
+# JELSZÓK BEÁLLÍTÁSA
+passwd boss1
+passwd sales1
+passwd sales2
+passwd acc1
+passwd acc2
+passwd student1
+passwd student2
+```
+
+**Ellenőrzés:**
+```bash
+getent group management sales accounting students
+id boss1
+id sales1
+id acc1
+id student1
+```
+
+</details>
+
+<details>
+<summary>1. Könyvtárstruktúra létrehozása</summary>
+
+```bash
+mkdir -p /srv/compani/{management_mappa,sales_mappa,accounting_mappa,shared_mappa}
+```
+
+**Ellenőrzés:**
+```bash
+tree -d /srv/compani 2>/dev/null || find /srv/compani -maxdepth 1 -type d -print
+```
+
+</details>
+
+<details>
+<summary>2. Jogosultságok beállítása - Sales mappa</summary>
+
+```bash
+chown root:sales /srv/compani/sales_mappa
+chmod 2770 /srv/compani/sales_mappa
+
+# management kapjon teljes hozzáférést
+setfacl -m g:management:rwx /srv/compani/sales_mappa
+# alapértelmezett öröklés (új fájlokra/mappákra)
+setfacl -d -m g:management:rwx /srv/compani/sales_mappa
+```
+
+**Ellenőrzés:**
+```bash
+ls -ld /srv/compani/sales_mappa
+getfacl /srv/compani/sales_mappa | sed -n '1,25p'
+```
+
+</details>
+
+<details>
+<summary>3. Jogosultságok beállítása - Accounting mappa</summary>
+
+```bash
+chown root:accounting /srv/compani/accounting_mappa
+chmod 2770 /srv/compani/accounting_mappa
+
+setfacl -m g:management:rwx /srv/compani/accounting_mappa
+setfacl -d -m g:management:rwx /srv/compani/accounting_mappa
+```
+
+**Ellenőrzés:**
+```bash
+ls -ld /srv/compani/accounting_mappa
+getfacl /srv/compani/accounting_mappa | sed -n '1,25p'
+```
+
+</details>
+
+<details>
+<summary>4. Jogosultságok beállítása - Management mappa</summary>
+
+```bash
+chown root:management /srv/compani/management_mappa
+chmod 2770 /srv/compani/management_mappa
+```
+
+**Ellenőrzés:**
+```bash
+ls -ld /srv/compani/management_mappa
+```
+
+</details>
+
+<details>
+<summary>5. Jogosultságok beállítása - Shared mappa</summary>
+
+```bash
+chown root:students /srv/compani/shared_mappa
+chmod 2770 /srv/compani/shared_mappa
+
+# sales + accounting + management kapjon hozzáférést
+setfacl -m g:sales:rwx /srv/compani/shared_mappa
+setfacl -m g:accounting:rwx /srv/compani/shared_mappa
+setfacl -m g:management:rwx /srv/compani/shared_mappa
+
+# öröklés (új fájlokra/mappákra)
+setfacl -d -m g:sales:rwx /srv/compani/shared_mappa
+setfacl -d -m g:accounting:rwx /srv/compani/shared_mappa
+setfacl -d -m g:management:rwx /srv/compani/shared_mappa
+```
+
+**Ellenőrzés:**
+```bash
+getfacl /srv/compani/shared_mappa | sed -n '1,40p'
+```
+
+</details>
+
+<details>
+<summary>6. Tesztelés - Sales felhasználó</summary>
+
+```bash
+su - sales1
+
+# SALES: saját mappába írhat
+touch /srv/compani/sales_mappa/sales1_ok.txt
+
+# ACCOUNTING: ne férjen hozzá (hibát kell dobjon)
+touch /srv/compani/accounting_mappa/sales1_should_fail.txt
+
+# SHARED: férjen hozzá
+touch /srv/compani/shared_mappa/sales1_shared_ok.txt
+
+exit
+```
+
+</details>
+
+<details>
+<summary>7. Tesztelés - Accounting felhasználó</summary>
+
+```bash
+su - acc1
+
+touch /srv/compani/accounting_mappa/acc1_ok.txt
+touch /srv/compani/sales_mappa/acc1_should_fail.txt
+touch /srv/compani/shared_mappa/acc1_shared_ok.txt
+
+exit
+```
+
+</details>
+
+<details>
+<summary>8. Tesztelés - Students felhasználó</summary>
+
+```bash
+su - student1
+
+touch /srv/compani/shared_mappa/student1_ok.txt
+touch /srv/compani/sales_mappa/student1_should_fail.txt
+
+exit
+```
+
+</details>
+
+<details>
+<summary>9. Tesztelés - Management felhasználó</summary>
+
+```bash
+su - boss1
+
+touch /srv/compani/management_mappa/boss1_ok.txt
+touch /srv/compani/sales_mappa/boss1_ok.txt
+touch /srv/compani/accounting_mappa/boss1_ok.txt
+touch /srv/compani/shared_mappa/boss1_ok.txt
+
+exit
+```
+
+</details>
+
+<details>
+<summary>10. Hibaelhárítás - Permission denied esetén</summary>
+
+```bash
+namei -l /srv/compani/sales_mappa
+ls -ld /srv /srv/compani /srv/compani/sales_mappa
+getfacl /srv/compani/sales_mappa | sed -n '1,80p'
+```
+
+</details>
+
+<details>
+<summary>11. Visszavonás - ACL-ek eltávolítása</summary>
+
+```bash
+setfacl -b /srv/compani/sales_mappa
+setfacl -b /srv/compani/accounting_mappa
+setfacl -b /srv/compani/shared_mappa
+```
+
+**Ellenőrzés:**
+```bash
+getfacl /srv/compani/shared_mappa | sed -n '1,30p'
+```
+
+</details>
+
+<details>
+<summary>12. Visszavonás - Mappák törlése</summary>
+
+```bash
+rm -rf /srv/compani
+```
+
+</details>
+
+<details>
+<summary>13. Visszavonás - Felhasználók törlése</summary>
+
+```bash
+userdel -r boss1
+userdel -r sales1
+userdel -r sales2
+userdel -r acc1
+userdel -r acc2
+userdel -r student1
+userdel -r student2
+```
+
+**Ellenőrzés:**
+```bash
+getent passwd boss1 sales1 sales2 acc1 acc2 student1 student2
+```
+
+</details>
+
+<details>
+<summary>14. Visszavonás - Csoportok törlése</summary>
+
+```bash
+groupdel management
+groupdel sales
+groupdel accounting
+groupdel students
+```
+
+**Ellenőrzés:**
+```bash
+getent group management sales accounting students
+```
+
+</details>
