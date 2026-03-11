@@ -1,0 +1,431 @@
+---
+title: Bash tömbműveletek ciklussal
+sidebar_position: 3
+description: Bash tömbműveletek és ciklusos példák
+---
+
+# Bash tömbműveletek ciklussal – példasor
+
+## 1. Tömb létrehozása és bejárása
+
+ Leírás
+
+A tömb létrehozása után a `for` ciklus segítségével végig lehet menni az összes elemen.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+gyumolcsok=("alma" "körte" "szilva")
+
+for gyumolcs in "${gyumolcsok[@]}"
+do
+    echo $gyumolcs
+done
+````
+
+ Expected output
+
+```text
+alma
+körte
+szilva
+```
+
+ Magyarázat
+
+A `gyumolcsok` tömb három elemet tartalmaz.
+A `for` ciklus a tömb összes elemén végighalad, és minden ismétléskor az aktuális elemet a `gyumolcs` változóba teszi. Ezután az `echo` kiírja azt.
+
+---
+
+## 2. Egy elem lekérése, majd kiírása
+
+ Leírás
+
+A tömb egyetlen elemét index alapján is el lehet érni.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szinek=("piros" "kék" "zöld")
+
+echo ${szinek[0]}
+```
+
+ Expected output
+
+```text
+piros
+```
+
+ Magyarázat
+
+A tömb első elemének indexe `0`.
+Ez a művelet nem igényel ciklust, mert itt csak egyetlen konkrét elemet kérünk le.
+
+---
+
+## 3. Az összes elem kiírása ciklussal
+
+ Leírás
+
+A tömb minden eleme külön sorban is megjeleníthető.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+allatok=("kutya" "macska" "nyúl")
+
+for allat in "${allatok[@]}"
+do
+    echo $allat
+done
+```
+
+ Expected output
+
+```text
+kutya
+macska
+nyúl
+```
+
+ Magyarázat
+
+A `for` ciklus a `"${allatok[@]}"` kifejezés segítségével végigmegy az összes tömbelemen, és azokat sorban kiírja.
+
+---
+
+## 4. Elemek számának meghatározása
+
+ Leírás
+
+Meg lehet állapítani, hogy a tömb hány elemet tartalmaz.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+tantargyak=("matek" "magyar" "töri" "angol")
+
+echo ${#tantargyak[@]}
+```
+
+ Expected output
+
+```text
+4
+```
+
+ Magyarázat
+
+A `${#tantargyak[@]}` a tömb elemszámát adja vissza.
+Ez is olyan művelet, amelyhez nem szükséges ciklus, mert itt nem az elemek feldolgozása, hanem a darabszám meghatározása a cél.
+
+---
+
+## 5. Új elem hozzáadása, majd kiírása ciklussal
+
+ Leírás
+
+A tömb végéhez új elem adható, majd a teljes tömb bejárható.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+etelek=("leves" "rizs" "tészta")
+etelek+=("saláta")
+
+for etel in "${etelek[@]}"
+do
+    echo $etel
+done
+```
+
+ Expected output
+
+```text
+leves
+rizs
+tészta
+saláta
+```
+
+ Magyarázat
+
+Az `etelek+=("saláta")` új elemet tesz a tömb végére.
+Ezután a `for` ciklus már a módosított tömb minden elemét kiírja.
+
+---
+
+## 6. Több új elem hozzáadása, majd kiírása ciklussal
+
+ Leírás
+
+Egyszerre több új elem is hozzáadható a tömbhöz.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+napok=("hétfő" "kedd")
+napok+=("szerda" "csütörtök")
+
+for nap in "${napok[@]}"
+do
+    echo $nap
+done
+```
+
+ Expected output
+
+```text
+hétfő
+kedd
+szerda
+csütörtök
+```
+
+ Magyarázat
+
+A `+=` operátor után több új elem is szerepelhet.
+A ciklus ezután a kibővített tömb elemein megy végig.
+
+---
+
+## 7. Egy elem módosítása, majd kiírása ciklussal
+
+ Leírás
+
+A tömb egyik meglévő eleme felülírható.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+italok=("víz" "tea" "kávé")
+italok[1]="limonádé"
+
+for ital in "${italok[@]}"
+do
+    echo $ital
+done
+```
+
+ Expected output
+
+```text
+víz
+limonádé
+kávé
+```
+
+ Magyarázat
+
+Az `italok[1]` a második elemet jelenti.
+A módosítás után a ciklus már az új értéket írja ki.
+
+---
+
+## 8. Egy elem törlése, majd kiírása ciklussal
+
+ Leírás
+
+A tömb egy adott eleme eltávolítható.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+viragok=("rózsa" "tulipán" "liliom")
+unset viragok[1]
+
+for virag in "${viragok[@]}"
+do
+    echo $virag
+done
+```
+
+ Expected output
+
+```text
+rózsa
+liliom
+```
+
+ Magyarázat
+
+Az `unset viragok[1]` törli a második elemet.
+A `for` ciklus ezután már csak a megmaradt elemeket járja be.
+
+---
+
+## 9. A teljes tömb törlése
+
+ Leírás
+
+A teljes tömb is megszüntethető.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+jarmuvek=("autó" "busz" "vonat")
+unset jarmuvek
+
+for jarmu in "${jarmuvek[@]}"
+do
+    echo $jarmu
+done
+```
+
+ Expected output
+
+ Magyarázat
+
+Az `unset jarmuvek` törli az egész tömböt.
+Mivel a tömbnek ezután nincs eleme, a `for` ciklus sem hajt végre egyetlen ismétlést sem.
+
+---
+
+## 10. Az indexek lekérése ciklussal
+
+ Leírás
+
+A tömb indexei külön is bejárhatók.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szerszamok=("kalapács" "fogó" "csavarhúzó")
+
+for index in "${!szerszamok[@]}"
+do
+    echo $index
+done
+```
+
+ Expected output
+
+```text
+0
+1
+2
+```
+
+ Magyarázat
+
+A `${!szerszamok[@]}` a tömb indexeit adja vissza.
+A ciklus most nem az elemeket, hanem az indexeket járja be.
+
+---
+
+## 11. Indexek és értékek együtt
+
+ Leírás
+
+A ciklus segítségével az index és a hozzá tartozó elem együtt is kiírható.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+nevek=("Anna" "Béla" "Csilla")
+
+for index in "${!nevek[@]}"
+do
+    echo "$index - ${nevek[$index]}"
+done
+```
+
+ Expected output
+
+```text
+0 - Anna
+1 - Béla
+2 - Csilla
+```
+
+ Magyarázat
+
+A ciklus az indexeken megy végig, és minden indexhez kiírja a megfelelő tömbelemet is.
+
+---
+
+## 12. Több művelet egy példában
+
+ Leírás
+
+A tömbön több változtatás is végrehajtható, majd a végeredmény ciklussal kiírható.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+nevek=("Anna" "Béla" "Csilla")
+nevek+=("Dávid")
+nevek[1]="Bence"
+
+for nev in "${nevek[@]}"
+do
+    echo $nev
+done
+
+echo ${#nevek[@]}
+```
+
+ Expected output
+
+```text
+Anna
+Bence
+Csilla
+Dávid
+4
+```
+
+ Magyarázat
+
+Ebben a példában:
+
+* létrejön a tömb,
+* új elem kerül bele,
+* egy meglévő elem módosul,
+* a ciklus kiírja az összes elemet,
+* végül külön sorban megjelenik az elemszám is.
+
+---
+
+# Összefoglalás
+
+A tömbökkel végzett műveletek közül több közvetlenül egyetlen elemre vagy az elemszámra irányul, ezekhez nem mindig kell ciklus. Amikor azonban a tömb összes elemét szeretnénk feldolgozni vagy megjeleníteni, a `for` ciklus a legkézenfekvőbb megoldás.
+
+A leggyakoribb párosítás:
+
+```bash
+for elem in "${tomb[@]}"
+do
+    echo $elem
+done
+```
+
+Ez teszi lehetővé, hogy a program a tömb elemein sorban végighaladjon, és ugyanazt a műveletet hajtsa végre mindegyiken.
+
+```

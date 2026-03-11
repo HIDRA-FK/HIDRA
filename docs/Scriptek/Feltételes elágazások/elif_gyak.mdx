@@ -1,0 +1,147 @@
+---
+title: Gyakorló példák
+sidebar_position: 7
+---
+
+# Gyakorló példák `elif` szerkezethez
+
+
+---
+
+## 1. Pozitív, nulla vagy negatív
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+if [ $szam -gt 0 ]
+then
+    echo "A szám pozitív."
+elif [ $szam -eq 0 ]
+then
+    echo "A szám nulla."
+else
+    echo "A szám negatív."
+fi
+````
+
+Ez a program megvizsgálja, hogy a megadott szám pozitív, nulla vagy negatív.
+
+---
+
+## 2. Jegy értékelése
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy jegyet:"
+read jegy
+
+if [ $jegy -eq 5 ]
+then
+    echo "Jeles."
+elif [ $jegy -eq 4 ]
+then
+    echo "Jó."
+elif [ $jegy -eq 3 ]
+then
+    echo "Közepes."
+elif [ $jegy -eq 2 ]
+then
+    echo "Elégséges."
+else
+    echo "Elégtelen."
+fi
+```
+
+Ez a program egy jegy alapján kiírja annak szöveges értékelését.
+
+---
+
+## 3. Életkor alapján kategória
+
+```bash
+#!/bin/bash
+
+echo "Hány éves vagy?"
+read kor
+
+if [ $kor -lt 14 ]
+then
+    echo "Gyerek vagy."
+elif [ $kor -lt 18 ]
+then
+    echo "Tini vagy."
+else
+    echo "Felnőtt vagy."
+fi
+```
+
+Ez a példa életkor alapján sorolja be a felhasználót egy kategóriába.
+
+---
+
+## 4. Két szám összehasonlítása
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -gt $b ]
+then
+    echo "Az első szám nagyobb."
+elif [ $a -lt $b ]
+then
+    echo "A második szám nagyobb."
+else
+    echo "A két szám egyenlő."
+fi
+```
+
+Ez a program összehasonlít két számot, és megmondja, melyik a nagyobb, vagy hogy egyenlőek-e.
+
+---
+
+## 5. Hónap száma alapján évszak
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy hónap számot 1 és 12 között:"
+read honap
+
+if [ $honap -eq 12 ]
+then
+    echo "Tél van."
+elif [ $honap -le 2 ]
+then
+    echo "Tél van."
+elif [ $honap -le 5 ]
+then
+    echo "Tavasz van."
+elif [ $honap -le 8 ]
+then
+    echo "Nyár van."
+else
+    echo "Ősz van."
+fi
+```
+
+Ez a program a hónap száma alapján meghatározza az évszakot.
+
+---
+
+## Mire figyelj?
+
+* A `[` és `]` jelek körül mindig legyen szóköz.
+* Az `elif` újabb feltételt vizsgál.
+* Az `else` csak akkor fut le, ha egyik előző feltétel sem volt igaz.
+* A teljes szerkezetet mindig `fi` zárja le.
+

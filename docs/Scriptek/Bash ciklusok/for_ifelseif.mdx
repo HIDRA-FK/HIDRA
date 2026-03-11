@@ -1,0 +1,447 @@
+---
+title: Tömb bejárása feltételes elágazással Bash-ben
+sidebar_position: 4
+description: Bash tömbök bejárása for ciklussal és feltételes elágazásokkal
+---
+
+# Tömb bejárása feltételes elágazással Bashban
+
+Amikor egy tömb elemein végighaladunk, nem mindig elegendő egyszerűen csak kiírni az értékeket. Sok esetben meg kell vizsgálni, hogy egy elem megfelel-e valamilyen feltételnek.
+
+A program ilyenkor:
+
+- sorban veszi a tömb elemeit,
+    
+- minden elemet megvizsgál,
+    
+- a feltételtől függően különböző műveletet hajt végre.
+    
+
+---
+
+## 1. Számok vizsgálata: nagyobb-e 10-nél
+
+ Leírás
+
+A program végigmegy egy számtömb elemein, és kiírja, hogy az adott szám nagyobb-e 10-nél.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szamok=(5 12 8 20)
+
+for szam in "${szamok[@]}"
+do
+    if [ $szam -gt 10 ]
+    then
+        echo "$szam nagyobb mint 10"
+    fi
+done
+````
+
+ Expected output
+
+```text
+12 nagyobb mint 10
+20 nagyobb mint 10
+```
+
+ Magyarázat
+
+A `for` ciklus sorban végigmegy a `szamok` tömb elemein.
+Az `if` minden számnál megvizsgálja, hogy nagyobb-e 10-nél.
+Csak azok a számok íródnak ki, amelyek megfelelnek a feltételnek.
+
+---
+
+## 2. Számok vizsgálata: páros vagy páratlan
+
+ Leírás
+
+A program minden számról eldönti, hogy páros vagy páratlan.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szamok=(3 4 7 10)
+
+for szam in "${szamok[@]}"
+do
+    if [ $((szam % 2)) -eq 0 ]
+    then
+        echo "$szam páros"
+    else
+        echo "$szam páratlan"
+    fi
+done
+```
+
+ Expected output
+
+```text
+3 páratlan
+4 páros
+7 páratlan
+10 páros
+```
+
+ Magyarázat
+
+A maradékos osztást a `$((szam % 2))` kifejezés végzi.
+Ha a maradék 0, akkor a szám páros, különben páratlan.
+Az `if ... else` szerkezet ezért kétféle kimenetet tud adni.
+
+---
+
+## 3. Szövegek vizsgálata: egy adott szó keresése
+
+ Leírás
+
+A program végigmegy egy tömbön, és megnézi, hogy van-e benne egy adott szó.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+gyumolcsok=("alma" "körte" "szilva" "barack")
+
+for gyumolcs in "${gyumolcsok[@]}"
+do
+    if [ "$gyumolcs" = "szilva" ]
+    then
+        echo "Megtaláltam: $gyumolcs"
+    fi
+done
+```
+
+ Expected output
+
+```text
+Megtaláltam: szilva
+```
+
+ Magyarázat
+
+A ciklus minden elemet sorban megvizsgál.
+Az `if` azt ellenőrzi, hogy az aktuális elem egyenlő-e a `szilva` szóval.
+Amikor igen, a program kiírja az eredményt.
+
+---
+
+## 4. Szövegek vizsgálata: nem kívánt elem szűrése
+
+ Leírás
+
+A program csak azokat az elemeket írja ki, amelyek nem egyeznek meg egy megadott szóval.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+allatok=("kutya" "macska" "egér" "nyúl")
+
+for allat in "${allatok[@]}"
+do
+    if [ "$allat" != "egér" ]
+    then
+        echo $allat
+    fi
+done
+```
+
+ Expected output
+
+```text
+kutya
+macska
+nyúl
+```
+
+ Magyarázat
+
+A `!=` operátor azt vizsgálja, hogy két szöveg különbözik-e egymástól.
+Ezért a program minden olyan elemet kiír, amely nem `egér`.
+
+---
+
+## 5. Jegyek minősítése
+
+ Leírás
+
+A program egy jegyeket tartalmazó tömb elemein megy végig, és minden jegyhez szöveges minősítést ír ki.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+jegyek=(5 4 3 2 1)
+
+for jegy in "${jegyek[@]}"
+do
+    if [ $jegy -eq 5 ]
+    then
+        echo "$jegy - jeles"
+    elif [ $jegy -eq 4 ]
+    then
+        echo "$jegy - jó"
+    elif [ $jegy -eq 3 ]
+    then
+        echo "$jegy - közepes"
+    elif [ $jegy -eq 2 ]
+    then
+        echo "$jegy - elégséges"
+    else
+        echo "$jegy - elégtelen"
+    fi
+done
+```
+
+ Expected output
+
+```text
+5 - jeles
+4 - jó
+3 - közepes
+2 - elégséges
+1 - elégtelen
+```
+
+ Magyarázat
+
+A program minden tömbelemet külön megvizsgál.
+Az `if`, `elif` és `else` ágak közül mindig az egyik lefut, így minden jegyhez megfelelő szöveg társul.
+
+---
+
+## 6. Csak pozitív számok kiírása
+
+ Leírás
+
+A program csak a pozitív számokat írja ki a tömbből.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szamok=(-3 7 0 12 -1 5)
+
+for szam in "${szamok[@]}"
+do
+    if [ $szam -gt 0 ]
+    then
+        echo $szam
+    fi
+done
+```
+
+ Expected output
+
+```text
+7
+12
+5
+```
+
+ Magyarázat
+
+A `-gt 0` feltétel azt vizsgálja, hogy az aktuális szám nagyobb-e 0-nál.
+Csak a pozitív számok kerülnek kiírásra.
+
+---
+
+## 7. Nullák külön kezelése
+
+ Leírás
+
+A program külön jelzi, ha egy tömbelem 0.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+ertekek=(4 0 9 0 2)
+
+for ertek in "${ertekek[@]}"
+do
+    if [ $ertek -eq 0 ]
+    then
+        echo "Nulla"
+    else
+        echo "$ertek nem nulla"
+    fi
+done
+```
+
+ Expected output
+
+```text
+4 nem nulla
+Nulla
+9 nem nulla
+Nulla
+2 nem nulla
+```
+
+ Magyarázat
+
+Minden egyes elemnél eldől, hogy nulla-e vagy sem.
+A program ettől függően kétféle szöveget ír ki.
+
+---
+
+## 8. Adott kezdőbetűs szavak keresése
+
+ Leírás
+
+A program csak azokat a szavakat írja ki, amelyek `k` betűvel kezdődnek.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szavak=("kutya" "alma" "körte" "barack" "kenyér")
+
+for szo in "${szavak[@]}"
+do
+    if [[ "$szo" == k* ]]
+    then
+        echo $szo
+    fi
+done
+```
+
+ Expected output
+
+```text
+kutya
+körte
+kenyér
+```
+
+ Magyarázat
+
+A `[[ ... ]]` szerkezetben a `k*` minta azt jelenti, hogy a szó `k` betűvel kezdődik.
+A ciklus minden elemre elvégzi ezt az ellenőrzést.
+
+---
+
+## 9. Rövid és hosszú szavak elkülönítése
+
+ Leírás
+
+A program eldönti, hogy egy szó rövid vagy hosszú.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szavak=("fa" "asztal" "ég" "szekrény")
+
+for szo in "${szavak[@]}"
+do
+    if [ ${#szo} -le 3 ]
+    then
+        echo "$szo rövid szó"
+    else
+        echo "$szo hosszú szó"
+    fi
+done
+```
+
+ Expected output
+
+```text
+fa rövid szó
+asztal hosszú szó
+ég rövid szó
+szekrény hosszú szó
+```
+
+ Magyarázat
+
+A `${#szo}` a szó hosszát adja meg.
+Ha ez legfeljebb 3, akkor rövid szónak tekintjük, különben hosszúnak.
+
+---
+
+## 10. Több feltétel egyszerre
+
+ Leírás
+
+A program kiírja azokat a számokat, amelyek 5-nél nagyobbak és 20-nál kisebbek.
+
+ Példa
+
+```bash
+#!/bin/bash
+
+szamok=(2 7 15 22 19 4)
+
+for szam in "${szamok[@]}"
+do
+    if [ $szam -gt 5 ] && [ $szam -lt 20 ]
+    then
+        echo $szam
+    fi
+done
+```
+
+ Expected output
+
+```text
+7
+15
+19
+```
+
+ Magyarázat
+
+A program két feltételt vizsgál egyszerre:
+
+* nagyobb legyen 5-nél,
+
+* kisebb legyen 20-nál.
+
+Csak azok a számok íródnak ki, amelyek mindkét feltételnek megfelelnek.
+
+---
+
+# Összefoglalás
+
+Amikor egy tömb elemein végighaladunk, a feltételes elágazás segítségével minden elemről külön döntést lehet hozni. A leggyakoribb forma:
+
+```bash
+for elem in "${tomb[@]}"
+do
+    if [ feltetel ]
+    then
+        utasitas
+    fi
+done
+```
+
+vagy:
+
+```bash
+for elem in "${tomb[@]}"
+do
+    if [ feltetel ]
+    then
+        utasitas1
+    else
+        utasitas2
+    fi
+done
+```
+

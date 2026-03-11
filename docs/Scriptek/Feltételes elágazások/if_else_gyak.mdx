@@ -1,0 +1,158 @@
+---
+title: Gyakorló példák
+sidebar_position: 5
+---
+
+## Gyakorló példák `if-else` szerkezethez
+
+---
+
+### `-eq` → egyenlő
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -eq $b ]
+then
+    echo "A két szám egyenlő."
+else
+    echo "A két szám nem egyenlő."
+fi
+````
+
+Ez a program azt vizsgálja, hogy a két szám ugyanaz-e.
+
+Ha igen, akkor kiírja, hogy egyenlőek, különben azt, hogy nem egyenlőek.
+
+---
+
+### `-ne` → nem egyenlő
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -ne $b ]
+then
+    echo "A két szám nem egyenlő."
+else
+    echo "A két szám egyenlő."
+fi
+```
+
+Ez a program azt vizsgálja, hogy a két szám különbözik-e.
+
+Ha igen, akkor a `then` ág fut le, ha nem, akkor az `else`.
+
+---
+
+### `-gt` → nagyobb mint
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -gt $b ]
+then
+    echo "Az első szám nagyobb."
+else
+    echo "Az első szám nem nagyobb."
+fi
+```
+
+Itt azt ellenőrizzük, hogy az első szám nagyobb-e a másodiknál.
+
+Ha igen, akkor ezt kiírja, különben azt, hogy nem nagyobb.
+
+---
+
+### `-lt` → kisebb mint
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -lt $b ]
+then
+    echo "Az első szám kisebb."
+else
+    echo "Az első szám nem kisebb."
+fi
+```
+
+Ez a példa azt vizsgálja, hogy az első szám kisebb-e a második számnál.
+
+---
+
+### `-ge` → nagyobb vagy egyenlő
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -ge $b ]
+then
+    echo "Az első szám nagyobb vagy egyenlő."
+else
+    echo "Az első szám kisebb."
+fi
+```
+
+A `-ge` operátor akkor igaz, ha az első szám nagyobb, vagy pontosan ugyanannyi, mint a második.
+
+---
+
+### `-le` → kisebb vagy egyenlő
+
+```bash
+#!/bin/bash
+
+echo "Add meg az első számot:"
+read a
+
+echo "Add meg a második számot:"
+read b
+
+if [ $a -le $b ]
+then
+    echo "Az első szám kisebb vagy egyenlő."
+else
+    echo "Az első szám nagyobb."
+fi
+```
+
+A `-le` operátor akkor igaz, ha az első szám kisebb, vagy pontosan egyenlő a másodikkal.
+
+
+## Mire figyelj?
+
+* A `[` és `]` jelek körül mindig legyen szóköz.
+* A `then` az `if` után következik.
+* Az `else` ág akkor fut le, ha a feltétel hamis.
+* A szerkezetet mindig `fi` zárja le.

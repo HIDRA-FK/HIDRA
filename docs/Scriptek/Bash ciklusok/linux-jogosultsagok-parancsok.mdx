@@ -1,0 +1,28 @@
+---
+title: Ciklusok Bash-ben
+sidebar_position: 1
+description: Bash ciklusok alapjai
+---
+
+A **tömbök** több adat együttes tárolását teszik lehetővé, de sok feladatnál nem elegendő pusztán eltárolni az elemeket. Gyakran szükség van arra is, hogy a program ezeket az adatokat **egymás után feldolgozza**, például kiírja, megvizsgálja vagy valamilyen műveletet hajtson végre rajtuk.
+
+Ha minden egyes elemmel külön utasítás foglalkozna, akkor a program gyorsan hosszúvá, ismétlődővé és nehezen átláthatóvá válna. Minél több adat szerepel, annál kevésbé hatékony az a megoldás, amelyben ugyanazt a műveletet újra és újra külön sorokban kell leírni.
+
+Ezt a problémát oldják meg a **ciklusok**. A ciklus olyan vezérlési szerkezet, amely lehetővé teszi, hogy egy utasítást vagy utasításcsoportot **többször végrehajtson** a program. Így az ismétlődő feladatokat nem kell minden alkalommal külön megfogalmazni, elegendő egyszer leírni a végrehajtandó műveletet.
+
+A ciklusok használata különösen hasznos akkor, amikor:
+
+- több elemet kell egymás után feldolgozni,
+- egy műveletet meghatározott számú alkalommal kell elvégezni,
+- egy műveletet addig kell ismételni, amíg egy feltétel teljesül.
+
+A ciklusok alkalmazásával a programok:
+
+- rövidebbek,
+- átláthatóbbak,
+- könnyebben módosíthatók,
+- hatékonyabban kezelik az ismétlődő feladatokat.
+
+A Bash nyelvben többféle ciklus létezik. Ezek közül a leggyakrabban használtak a `for`, a `while` és az `until` ciklusok. Mindegyik ugyanazt az alapelvet követi: egy meghatározott utasítássor **ismételt végrehajtását** teszik lehetővé, de eltérő helyzetekben célszerű őket használni.
+
+A ciklusok megértése fontos lépés a programozásban, mert segítségükkel a program nemcsak adatokat tud tárolni, hanem azokat szervezetten és automatikusan fel is tudja dolgozni. Ez teremti meg az alapját a bonyolultabb feladatok, például listák bejárása, adatellenőrzés vagy ismétlődő műveletek megoldásának.

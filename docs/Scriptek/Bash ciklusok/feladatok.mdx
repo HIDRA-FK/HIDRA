@@ -1,0 +1,384 @@
+---
+title: Feladatok
+sidebar_position: 5
+description: Kreatív Bash feladatok for ciklussal és feltételes elágazással
+---
+
+
+## 1. feladat – Fájltípusok felismerése
+
+ Feladat
+
+Adott egy tömb fájlnevekkel. A program járja be a tömböt, és írja ki minden elemről, hogy:
+
+- dokumentum, ha `.pdf` végű,
+- kép, ha `.png` végű,
+- egyéb fájl minden más esetben.
+
+ Expected output
+
+```text
+jegyzet.pdf - dokumentum
+kep.png - kép
+zene.mp3 - egyéb fájl
+vizsga.pdf - dokumentum
+ikon.png - kép
+adat.csv - egyéb fájl
+````
+
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+fajlok=("jegyzet.pdf" "kep.png" "zene.mp3" "vizsga.pdf" "ikon.png" "adat.csv")
+
+for fajl in "${fajlok[@]}"
+do
+    if [[ "$fajl" == *.pdf ]]
+    then
+        echo "$fajl - dokumentum"
+    elif [[ "$fajl" == *.png ]]
+    then
+        echo "$fajl - kép"
+    else
+        echo "$fajl - egyéb fájl"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 2. feladat – Belépési napló ellenőrzése
+
+ Feladat
+
+Adott egy tömb felhasználónevekkel. A program vizsgálja meg az egyes neveket, és írja ki:
+
+* `Tiltott belépés`, ha a név `root`,
+* `Vendég hozzáférés`, ha a név `guest`,
+* `Normál belépés` minden más esetben.
+
+ Expected output
+
+```text
+anna - Normál belépés
+guest - Vendég hozzáférés
+root - Tiltott belépés
+bela - Normál belépés
+guest - Vendég hozzáférés
+dani - Normál belépés
+```
+
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+belepesek=("anna" "guest" "root" "bela" "guest" "dani")
+
+for nev in "${belepesek[@]}"
+do
+    if [ "$nev" = "root" ]
+    then
+        echo "$nev - Tiltott belépés"
+    elif [ "$nev" = "guest" ]
+    then
+        echo "$nev - Vendég hozzáférés"
+    else
+        echo "$nev - Normál belépés"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 3. feladat – Termek állapotának kiértékelése
+
+ Feladat
+
+Adott egy számtömb, amely különböző tantermek szabad helyeinek számát tartalmazza. A program írja ki:
+
+* `megtelt`, ha az érték `0`,
+* `majdnem tele`, ha az érték 1 és 5 közé esik,
+* `van még hely` minden más esetben.
+
+ Expected output
+
+```text
+0 - megtelt
+3 - majdnem tele
+12 - van még hely
+1 - majdnem tele
+0 - megtelt
+8 - van még hely
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+szabadHelyek=(0 3 12 1 0 8)
+
+for hely in "${szabadHelyek[@]}"
+do
+    if [ $hely -eq 0 ]
+    then
+        echo "$hely - megtelt"
+    elif [ $hely -ge 1 ] && [ $hely -le 5 ]
+    then
+        echo "$hely - majdnem tele"
+    else
+        echo "$hely - van még hely"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 4. feladat – Üzenetek moderálása
+
+ Feladat
+
+Adott egy üzeneteket tartalmazó tömb. A program írja ki:
+
+* `Tiltott szó`, ha az üzenet tartalmazza a `spam` szót,
+* `Figyelem: túl rövid`, ha az üzenet hossza legfeljebb 3 karakter,
+* `Rendben` minden más esetben.
+
+ Expected output
+
+```text
+hello - Rendben
+ok - Figyelem: túl rövid
+spam ajanlat - Tiltott szó
+szia - Rendben
+no - Figyelem: túl rövid
+talalkozunk holnap - Rendben
+```
+
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+uzenetek=("hello" "ok" "spam ajanlat" "szia" "no" "talalkozunk holnap")
+
+for uzenet in "${uzenetek[@]}"
+do
+    if [[ "$uzenet" == *spam* ]]
+    then
+        echo "$uzenet - Tiltott szó"
+    elif [ ${#uzenet} -le 3 ]
+    then
+        echo "$uzenet - Figyelem: túl rövid"
+    else
+        echo "$uzenet - Rendben"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 5. feladat – Csomagméretek besorolása
+
+ Feladat
+
+Adott egy tömb csomagsúlyokkal kilogrammban. A program írja ki:
+
+* `könnyű csomag`, ha a súly legfeljebb 2,
+* `közepes csomag`, ha a súly 3 és 10 közé esik,
+* `nehéz csomag`, ha a súly 10-nél nagyobb.
+
+ Expected output
+
+```text
+1 kg - könnyű csomag
+4 kg - közepes csomag
+12 kg - nehéz csomag
+2 kg - könnyű csomag
+9 kg - közepes csomag
+15 kg - nehéz csomag
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+csomagok=(1 4 12 2 9 15)
+
+for suly in "${csomagok[@]}"
+do
+    if [ $suly -le 2 ]
+    then
+        echo "$suly kg - könnyű csomag"
+    elif [ $suly -le 10 ]
+    then
+        echo "$suly kg - közepes csomag"
+    else
+        echo "$suly kg - nehéz csomag"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 6. feladat – Vizsgaeredmények státusza
+
+ Feladat
+
+Adott egy pontszámokat tartalmazó tömb. A program írja ki:
+
+* `kiváló`, ha a pontszám legalább 90,
+* `megfelelt`, ha a pontszám legalább 50, de 90 alatt van,
+* `nem felelt meg`, ha 50 alatt van.
+
+ Expected output
+
+```text
+95 pont - kiváló
+72 pont - megfelelt
+43 pont - nem felelt meg
+88 pont - megfelelt
+50 pont - megfelelt
+27 pont - nem felelt meg
+```
+
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+pontok=(95 72 43 88 50 27)
+
+for pont in "${pontok[@]}"
+do
+    if [ $pont -ge 90 ]
+    then
+        echo "$pont pont - kiváló"
+    elif [ $pont -ge 50 ]
+    then
+        echo "$pont pont - megfelelt"
+    else
+        echo "$pont pont - nem felelt meg"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 7. feladat – Webcímek ellenőrzése bővített logikával
+
+ Feladat
+
+Adott egy tömb webcímekkel. A program írja ki:
+
+* `biztonságos oldal`, ha `https://` kezdetű,
+* `nem biztonságos oldal`, ha `http://` kezdetű,
+* `ismeretlen protokoll` minden más esetben.
+
+ Expected output
+
+```text
+https://iskola.hu - biztonságos oldal
+http://pelda.hu - nem biztonságos oldal
+ftp://tar.hu - ismeretlen protokoll
+https://openai.com - biztonságos oldal
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cimek=("https://iskola.hu" "http://pelda.hu" "ftp://tar.hu" "https://openai.com")
+
+for cim in "${cimek[@]}"
+do
+    if [[ "$cim" == https://* ]]
+    then
+        echo "$cim - biztonságos oldal"
+    elif [[ "$cim" == http://* ]]
+    then
+        echo "$cim - nem biztonságos oldal"
+    else
+        echo "$cim - ismeretlen protokoll"
+    fi
+done
+```
+
+</details>
+
+---
+
+## 8. feladat – Rendelések állapotának jelölése
+
+ Feladat
+
+Adott egy tömb rendelésszámokkal. A program írja ki:
+
+* `sürgős`, ha a rendelés száma 1000 alatt van,
+* `normál`, ha 1000 és 5000 közé esik,
+* `nagy rendelés`, ha 5000 fölött van.
+
+ Expected output
+
+```text
+450 - sürgős
+1200 - normál
+7600 - nagy rendelés
+980 - sürgős
+3200 - normál
+5100 - nagy rendelés
+```
+
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+rendelesek=(450 1200 7600 980 3200 5100)
+
+for rendeles in "${rendelesek[@]}"
+do
+    if [ $rendeles -lt 1000 ]
+    then
+        echo "$rendeles - sürgős"
+    elif [ $rendeles -le 5000 ]
+    then
+        echo "$rendeles - normál"
+    else
+        echo "$rendeles - nagy rendelés"
+    fi
+done
+```
+
+</details>
+

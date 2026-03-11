@@ -1,0 +1,408 @@
+---
+title: Listás feladatok
+sidebar_position: 2
+description: Bash tömbös feladatok megoldásai
+---
+
+---
+
+## 1. feladat – Tömb létrehozása
+
+ Feladat
+
+Hozz létre egy `szamok` nevű tömböt az alábbi elemekkel:
+
+- 10
+- 20
+- 30
+
+Ezután írasd ki az összes elemet.
+
+ Expected output
+
+```text
+10 20 30
+````
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+szamok=(10 20 30)
+echo ${szamok[@]}
+```
+
+</details>
+
+---
+
+## 2. feladat – Első elem lekérése
+
+ Feladat
+
+Hozz létre egy `ertekek` nevű tömböt az alábbi elemekkel:
+
+* 5
+* 15
+* 25
+
+Írasd ki a tömb első elemét.
+
+ Expected output
+
+```text
+5
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+ertekek=(5 15 25)
+echo ${ertekek[0]}
+```
+
+</details>
+
+---
+
+## 3. feladat – Második elem lekérése
+
+ Feladat
+
+Hozz létre egy `pontok` nevű tömböt az alábbi elemekkel:
+
+* 7
+* 14
+* 21
+
+Írasd ki a tömb második elemét.
+
+ Expected output
+
+```text
+14
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+pontok=(7 14 21)
+echo ${pontok[1]}
+```
+
+</details>
+
+---
+
+## 4. feladat – Az összes elem kiírása
+
+ Feladat
+
+Hozz létre egy `jegyek` nevű tömböt az alábbi elemekkel:
+
+* 2
+* 3
+* 4
+
+Írasd ki az összes elemet.
+
+ Expected output
+
+```text
+2 3 4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+jegyek=(2 3 4)
+echo ${jegyek[@]}
+```
+
+</details>
+
+---
+
+## 5. feladat – Elemek számának meghatározása
+
+ Feladat
+
+Hozz létre egy `honapok` nevű tömböt az alábbi elemekkel:
+
+* 1
+* 2
+* 3
+* 4
+
+Írasd ki, hogy hány elemet tartalmaz a tömb.
+
+ Expected output
+
+```text
+4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+honapok=(1 2 3 4)
+echo ${#honapok[@]}
+```
+
+</details>
+
+---
+
+## 6. feladat – Új elem hozzáadása
+
+ Feladat
+
+Hozz létre egy `meretek` nevű tömböt az alábbi elemekkel:
+
+* 100
+* 200
+* 300
+
+Adj hozzá egy új elemet: `400`, majd írasd ki az összes elemet.
+
+ Expected output
+
+```text
+100 200 300 400
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+meretek=(100 200 300)
+meretek+=(400)
+echo ${meretek[@]}
+```
+
+</details>
+
+---
+
+## 7. feladat – Több elem hozzáadása
+
+ Feladat
+
+Hozz létre egy `szamjegyek` nevű tömböt az alábbi elemekkel:
+
+* 1
+* 2
+
+Adj hozzá még két elemet:
+
+* 3
+* 4
+
+Ezután írasd ki az összes elemet.
+
+ Expected output
+
+```text
+1 2 3 4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+szamjegyek=(1 2)
+szamjegyek+=(3 4)
+echo ${szamjegyek[@]}
+```
+
+</details>
+
+---
+
+## 8. feladat – Egy elem módosítása
+
+ Feladat
+
+Hozz létre egy `adatok` nevű tömböt az alábbi elemekkel:
+
+* 8
+* 16
+* 24
+
+Módosítsd a második elemet `18` értékre, majd írasd ki az összes elemet.
+
+ Expected output
+
+```text
+8 18 24
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+adatok=(8 16 24)
+adatok[1]=18
+echo ${adatok[@]}
+```
+
+</details>
+
+---
+
+## 9. feladat – Egy elem törlése
+
+ Feladat
+
+Hozz létre egy `szintek` nevű tömböt az alábbi elemekkel:
+
+* 11
+* 22
+* 33
+
+Töröld a második elemet, majd írasd ki a megmaradt elemeket.
+
+ Expected output
+
+```text
+11 33
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+szintek=(11 22 33)
+unset szintek[1]
+echo ${szintek[@]}
+```
+
+</details>
+
+---
+
+## 10. feladat – A teljes tömb törlése
+
+ Feladat
+
+Hozz létre egy `jarmuszamok` nevű tömböt az alábbi elemekkel:
+
+* 1
+* 2
+* 3
+
+Töröld a teljes tömböt, majd írasd ki az összes elemét.
+
+ Expected output
+
+```text
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+jarmuszamok=(1 2 3)
+unset jarmuszamok
+echo ${jarmuszamok[@]}
+```
+
+</details>
+
+---
+
+## 11. feladat – Az indexek lekérése
+
+ Feladat
+
+Hozz létre egy `tarhelyek` nevű tömböt az alábbi elemekkel:
+
+* 128
+* 256
+* 512
+
+Írasd ki a tömb indexeit.
+
+ Expected output
+
+```text
+0 1 2
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+tarhelyek=(128 256 512)
+echo ${!tarhelyek[@]}
+```
+
+</details>
+
+---
+
+## 12. feladat – Több művelet egy feladatban
+
+ Feladat
+
+Hozz létre egy `szamlista` nevű tömböt az alábbi elemekkel:
+
+* 50
+* 60
+* 70
+
+Ezután:
+
+* add hozzá: `80`
+* módosítsd a második elemet `65` értékre
+* írasd ki az összes elemet
+* írasd ki az elemszámot
+
+ Expected output
+
+```text
+50 65 70 80
+4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+szamlista=(50 60 70)
+szamlista+=(80)
+szamlista[1]=65
+echo ${szamlista[@]}
+echo ${#szamlista[@]}
+```
+
+</details>
+```

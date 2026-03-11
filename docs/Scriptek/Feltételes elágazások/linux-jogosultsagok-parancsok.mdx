@@ -1,0 +1,270 @@
+---
+title: A feltételek szerepe a programozásban
+sidebar_position: 1
+description: Bevezető a feltételek működésébe gyakorlati példákkal
+---
+
+# A feltételek szerepe a programozásban
+
+A programozás egyik alapvető célja, hogy a program **különböző helyzetekre különböző módon reagáljon**. Ehhez a programnak képesnek kell lennie **döntéseket hozni**. Ezeket a döntéseket **feltételek segítségével** hozzuk meg.
+
+Egy feltétel mindig azt vizsgálja, hogy **egy állítás igaz vagy hamis**.
+
+Például:
+
+* egy szám **nagyobb-e mint 10**
+* két szám **egyenlő-e**
+* egy fájl **létezik-e**
+* egy felhasználó **rendszergazda-e**
+
+A program a feltétel kiértékelése után dönti el, hogy **melyik utasítást hajtsa végre**.
+
+---
+
+## Alapötlet röviden
+
+| Fogalom | Jelentés |
+| ------- | -------- |
+| feltétel | egy vizsgálat, amely igaz vagy hamis lehet |
+| igaz | a feltétel teljesül |
+| hamis | a feltétel nem teljesül |
+| döntés | a program a feltétel alapján választ |
+
+---
+
+## 1. A feltétel fogalma
+
+A **feltétel** egy olyan logikai vizsgálat, amelynek eredménye kétféle lehet:
+
+* **igaz**
+* **hamis**
+
+Példa egy hétköznapi feltételre:
+
+> Ha esik az eső, akkor esernyőt viszek.
+
+Itt a feltétel:
+
+```text
+esik az eső
+````
+
+Ha igaz → esernyőt viszek
+Ha hamis → nem viszek esernyőt
+
+A programok pontosan ugyanígy működnek.
+
+<details>
+<summary><strong>Mit jelent ez programozási szempontból?</strong></summary>
+
+A program egy adott helyzetet megvizsgál, majd eldönti, hogy végrehajtson-e egy műveletet.
+Vagyis nem mindig ugyanaz történik, hanem az eredménytől függően más és más ág következhet.
+
+</details>
+
+---
+
+## 2. A feltételek működése a programban
+
+A program először **kiértékeli a feltételt**, majd ennek eredményétől függően dönt.
+
+Általános logika:
+
+```text
+ha feltétel igaz
+    végrehajtjuk az utasításokat
+ha feltétel hamis
+    más történik vagy semmi
+```
+
+Ez a működés minden programozási nyelvben megjelenik.
+
+### Egyszerű folyamat
+
+| Lépés | Mi történik?                         |
+| ----- | ------------------------------------ |
+| 1.    | a program megvizsgál egy feltételt   |
+| 2.    | eldönti, hogy az igaz vagy hamis     |
+| 3.    | ennek megfelelően folytatja a futást |
+
+---
+
+## 3. A feltételek alapja: összehasonlítás
+
+A feltételek legtöbbször **két értéket hasonlítanak össze**.
+
+Példák:
+
+```text
+a = b
+a > b
+a < b
+a >= b
+a <= b
+```
+
+Ezekkel a vizsgálatokkal eldönthető például:
+
+* nagyobb szám
+* kisebb szám
+* egyenlőség
+* különbözőség
+
+### Gyakori összehasonlítások
+
+| Kifejezés | Jelentés                    |
+| --------- | --------------------------- |
+| `a = b`   | a két érték egyenlő         |
+| `a > b`   | az `a` nagyobb              |
+| `a < b`   | az `a` kisebb               |
+| `a >= b`  | az `a` nagyobb vagy egyenlő |
+| `a <= b`  | az `a` kisebb vagy egyenlő  |
+
+---
+
+## 4. Gyakorlati példák
+
+### Példa 1 – Életkor ellenőrzése
+
+Egy program eldöntheti, hogy valaki **nagykorú-e**.
+
+Feltétel:
+
+```text
+életkor >= 18
+```
+
+Ha a feltétel igaz → nagykorú
+Ha hamis → kiskorú
+
+---
+
+### Példa 2 – Vizsgajegy ellenőrzése
+
+Egy program ellenőrizheti, hogy a jegy **megfelelő-e**.
+
+Feltétel:
+
+```text
+jegy >= 2
+```
+
+Ha igaz → a tanuló átment
+Ha hamis → megbukott
+
+---
+
+### Példa 3 – Páros szám vizsgálata
+
+Feltétel:
+
+```text
+szám maradéka 2-vel osztva = 0
+```
+
+Ha igaz → páros szám
+Ha hamis → páratlan szám
+
+<details>
+<summary><strong>További hétköznapi példák</strong></summary>
+
+* Ha a bolt nyitva van, bemegyek.
+* Ha a jelszó helyes, bejelentkezhetek.
+* Ha van internetkapcsolat, betölt az oldal.
+* Ha a fájl létezik, a program megnyitja.
+
+</details>
+
+---
+
+## 5. Feltételek Bash-ben
+
+Bash-ben a feltételek általában **tesztkifejezések** segítségével jelennek meg.
+
+Példa:
+
+```bash
+[ 5 -gt 3 ]
+```
+
+Ez azt vizsgálja, hogy:
+
+```text
+5 nagyobb-e mint 3
+```
+
+Az eredmény **igaz**, ezért a feltétel teljesül.
+
+### Ugyanez változókkal
+
+```bash
+[ $a -eq $b ]
+```
+
+Ez azt ellenőrzi, hogy az `a` és `b` változó értéke megegyezik-e.
+
+---
+
+## 6. Gyakori összehasonlító operátorok Bash-ben
+
+| Operátor | Jelentés             |
+| -------- | -------------------- |
+| `-eq`    | egyenlő              |
+| `-ne`    | nem egyenlő          |
+| `-gt`    | nagyobb mint         |
+| `-lt`    | kisebb mint          |
+| `-ge`    | nagyobb vagy egyenlő |
+| `-le`    | kisebb vagy egyenlő  |
+
+<details>
+<summary><strong>Rövid értelmezés példákkal</strong></summary>
+
+| Minta         | Jelentés                     |
+| ------------- | ---------------------------- |
+| `[ 5 -eq 5 ]` | 5 egyenlő 5-tel              |
+| `[ 8 -ne 3 ]` | 8 nem egyenlő 3-mal          |
+| `[ 9 -gt 4 ]` | 9 nagyobb mint 4             |
+| `[ 2 -lt 7 ]` | 2 kisebb mint 7              |
+| `[ 6 -ge 6 ]` | 6 nagyobb vagy egyenlő 6-tal |
+| `[ 3 -le 8 ]` | 3 kisebb vagy egyenlő 8-cal  |
+
+</details>
+
+---
+
+## 7. Mire használjuk a feltételeket?
+
+A feltételek segítségével a program képes:
+
+* **döntéseket hozni**
+* **különböző útvonalakon futni**
+* **hibákat ellenőrizni**
+* **felhasználói adatokat vizsgálni**
+* **különböző eseteket kezelni**
+
+Szinte minden program tartalmaz feltételeket.
+
+### Tipikus felhasználási területek
+
+| Terület       | Példa                       |
+| ------------- | --------------------------- |
+| bejelentkezés | helyes-e a jelszó           |
+| fájlkezelés   | létezik-e a fájl            |
+| számolás      | nagyobb-e az egyik szám     |
+| jogosultság   | hozzáférhet-e a felhasználó |
+| ellenőrzés    | érvényes-e a megadott adat  |
+
+---
+
+## 8. Egyszerű szemléltetés
+
+```text
+            feltétel
+               │
+        igaz ──┴── hamis
+          │         │
+     művelet A   művelet B
+```
+
+A program tehát **különböző irányokba folytatódhat** attól függően, hogy a feltétel igaz vagy hamis.
+

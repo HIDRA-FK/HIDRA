@@ -1,0 +1,237 @@
+---
+title: Az if–else szerkezet Bash-ben
+sidebar_position: 4
+description: Kétágú feltételes elágazás használata Bash scriptben
+---
+
+# `if–else` – Feltételes elágazás két lehetséges kimenettel
+
+Az előző fejezetben megismertük az **`if` szerkezetet**, amely csak akkor hajt végre egy utasítást, **ha a feltétel igaz**.
+
+Sok esetben azonban nem elegendő csak az igaz esetet kezelni. Gyakran szükség van arra is, hogy meghatározzuk, **mi történjen akkor, ha a feltétel hamis**.
+
+Erre szolgál az **`else` ág**.
+
+Az `if–else` szerkezet lehetővé teszi, hogy a program **két különböző művelet közül válasszon** a feltétel eredménye alapján.
+
+---
+
+## Az `if–else` működési elve
+
+Az `if–else` szerkezet két lehetséges ágat tartalmaz:
+
+| Ág | Mikor fut le |
+|---|---|
+| `if` ág | ha a feltétel igaz |
+| `else` ág | ha a feltétel hamis |
+
+Az általános működés:
+
+```
+
+ha feltétel igaz
+akkor ezt csináld
+különben
+csináld ezt
+
+````
+
+A program tehát mindig **pontosan egy ágat hajt végre**.
+
+---
+
+## Az `if–else` szintaxisa Bash-ben
+
+```bash
+if [ feltétel ]
+then
+    utasítások
+else
+    utasítások
+fi
+````
+
+### A szerkezet részei
+
+| Elem           | Jelentés                    |
+| -------------- | --------------------------- |
+| `if`           | feltételvizsgálat kezdete   |
+| `[ feltétel ]` | a vizsgált logikai feltétel |
+| `then`         | az igaz ág kezdete          |
+| `else`         | a hamis ág kezdete          |
+| `fi`           | az elágazás lezárása        |
+
+---
+
+## A működés logikája
+
+Az `if–else` működését az alábbi folyamat szemlélteti:
+
+```
+         feltétel
+            │
+       igaz? ───── nem
+         │
+        igen
+         │
+   if utasítás
+         │
+        különben
+         │
+   else utasítás
+```
+
+A program:
+
+1. kiértékeli a feltételt
+2. ha igaz → végrehajtja az `if` blokkot
+3. ha hamis → végrehajtja az `else` blokkot
+
+---
+
+## Gyakorlati példák
+
+### Két szám összehasonlítása
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read a
+
+echo "Adj meg egy másik számot:"
+read b
+
+if [ $a -gt $b ]
+then
+    echo "Az első szám nagyobb."
+else
+    echo "A második szám nagyobb vagy egyenlő."
+fi
+```
+
+### A program működése
+
+| Lépés | Mi történik                         |
+| ----- | ----------------------------------- |
+| 1     | a program két számot kér be         |
+| 2     | összehasonlítja őket                |
+| 3     | ha az első nagyobb → az `if` ág fut |
+| 4     | különben → az `else` ág fut         |
+
+Ha a felhasználó ezt adja meg:
+
+```
+8
+3
+```
+
+akkor az eredmény:
+
+```
+Az első szám nagyobb.
+```
+
+---
+
+### Páros vagy páratlan szám
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+maradek=$((szam % 2))
+
+if [ $maradek -eq 0 ]
+then
+    echo "A szám páros."
+else
+    echo "A szám páratlan."
+fi
+```
+
+### Magyarázat
+
+A program kiszámolja a maradékot:
+
+```
+szam % 2
+```
+
+Ha az eredmény **0**, akkor a szám páros.
+Ha nem **0**, akkor páratlan.
+
+---
+
+### Pozitív vagy nem pozitív szám
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+if [ $szam -gt 0 ]
+then
+    echo "A szám pozitív."
+else
+    echo "A szám nulla vagy negatív."
+fi
+```
+
+Ebben az esetben a program két lehetséges kategóriát kezel:
+
+| Feltétel | Eredmény           |
+| -------- | ------------------ |
+| szám > 0 | pozitív            |
+| szám ≤ 0 | nulla vagy negatív |
+
+---
+
+## Gyakori szintaktikai hiba
+
+### Hibás forma
+
+```
+if[$a -gt $b]
+```
+
+### Helyes forma
+
+```
+if [ $a -gt $b ]
+```
+
+A Bash-ben a `[` és `]` egy tesztparancs részei, ezért **szóköz szükséges**.
+
+---
+
+## Mikor használjuk az `else` ágat?
+
+Az `else` akkor hasznos, amikor **a feltétel minden lehetséges kimenetelét kezelni szeretnénk**.
+
+Tipikus esetek:
+
+| Példa           | Két lehetséges kimenet     |
+| --------------- | -------------------------- |
+| szám vizsgálata | páros vagy páratlan        |
+| összehasonlítás | nagyobb vagy kisebb        |
+| ellenőrzés      | siker vagy hiba            |
+| jogosultság     | engedélyezett vagy tiltott |
+
+---
+
+## Összefoglalás
+
+| Fogalom | Jelentés               |
+| ------- | ---------------------- |
+| `if`    | feltétel vizsgálata    |
+| `else`  | alternatív végrehajtás |
+| `then`  | az igaz ág kezdete     |
+| `fi`    | a szerkezet lezárása   |
+
+Az **`if–else` szerkezet** lehetővé teszi, hogy a program **két különböző művelet közül válasszon**, attól függően, hogy a feltétel igaz vagy hamis.
+
+

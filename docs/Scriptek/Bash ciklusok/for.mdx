@@ -1,0 +1,247 @@
+---
+title: A for ciklus Bash-ben
+sidebar_position: 2
+description: A for ciklus működése és használata Bash-ben
+---
+
+A **`for` ciklus** a Bash egyik leggyakrabban használt ciklusa. Akkor célszerű használni, amikor a programnak egy lista elemein, egy számsoron vagy több megadott értéken kell **egymás után végighaladnia**, és minden elemre ugyanazt a műveletet kell végrehajtania.
+
+A `for` ciklus tehát egy olyan vezérlési szerkezet, amely az ismétlődő feladatokat egyszerűsíti le. Segítségével nem kell minden egyes elemre külön utasítást írni, hanem elegendő megadni, hogy a program min menjen végig, és mit csináljon az egyes elemekkel.
+
+# A `for` ciklus általános alakja
+
+```bash
+for valtozo in lista
+do
+    utasitasok
+done
+````
+
+Az egyes részek jelentése:
+
+* `for` – a ciklus kezdetét jelzi
+
+* `valtozo` – ebben tárolódik mindig az aktuális elem
+
+* `in` – ez vezeti be azt a listát, amelyen a ciklus végighalad
+
+* `lista` – azok az értékek, amelyeket a ciklus sorban feldolgoz
+
+* `do` – itt kezdődik a végrehajtandó utasításblokk
+
+* `done` – itt ér véget a ciklus
+
+## A működés elve
+
+A `for` ciklus lépésenként halad végig a megadott elemek között. Minden ismétléskor a ciklusváltozó felveszi a soron következő értéket, majd lefutnak a `do` és `done` közötti utasítások.
+
+Például:
+
+```bash
+for nev in Anna Bela Csilla
+do
+    echo $nev
+done
+```
+
+A ciklus működése:
+
+* első ismétlés: `nev=Anna`
+
+* második ismétlés: `nev=Bela`
+
+* harmadik ismétlés: `nev=Csilla`
+
+A program minden alkalommal kiírja az aktuális értéket.
+
+ Expected output
+
+```text
+Anna
+Bela
+Csilla
+```
+
+## Egyszerű példa számokkal
+
+```bash
+for szam in 1 2 3 4 5
+do
+    echo $szam
+done
+```
+
+Ebben a példában a `szam` változó egymás után felveszi az 1, 2, 3, 4 és 5 értéket.
+
+ Expected output
+
+```text
+1
+2
+3
+4
+5
+```
+
+## Példa szövegekkel
+
+A `for` ciklus nemcsak számokkal, hanem szöveges adatokkal is használható.
+
+```bash
+for gyumolcs in alma korte szilva
+do
+    echo $gyumolcs
+done
+```
+
+ Expected output
+
+```text
+alma
+korte
+szilva
+```
+
+## Példa mondat kiírására
+
+A ciklusváltozó egy hosszabb szöveg részeként is felhasználható.
+
+```bash
+for nap in hetfo kedd szerda
+do
+    echo "A mai nap: $nap"
+done
+```
+
+ Expected output
+
+```text
+A mai nap: hetfo
+A mai nap: kedd
+A mai nap: szerda
+```
+
+## A `for` ciklus és a tömbök kapcsolata
+
+A `for` ciklus különösen hasznos tömbökkel együtt, mert lehetővé teszi, hogy a program a tömb minden elemét egymás után feldolgozza.
+
+```bash
+nevek=("Anna" "Bela" "Csilla")
+
+for nev in "${nevek[@]}"
+do
+    echo $nev
+done
+```
+
+Itt a ciklus a `nevek` tömb összes elemén végighalad.
+
+ Expected output
+
+```text
+Anna
+Bela
+Csilla
+```
+
+A `"${nevek[@]}"` kifejezés a tömb összes elemét jelenti.
+
+## Számtartomány használata
+
+A Bash lehetőséget ad arra is, hogy a `for` ciklus egy számtartományon menjen végig.
+
+```bash
+for szam in {1..5}
+do
+    echo $szam
+done
+```
+
+Ez ugyanazt az eredményt adja, mint amikor a számokat külön felsoroljuk.
+
+ Expected output
+
+```text
+1
+2
+3
+4
+5
+```
+
+Lehetőség van lépésköz megadására is:
+
+```bash
+for szam in {2..10..2}
+do
+    echo $szam
+done
+```
+
+ Expected output
+
+```text
+2
+4
+6
+8
+10
+```
+
+## A `for` ciklus előnyei
+
+A `for` ciklus használatának legfontosabb előnyei:
+
+* csökkenti az ismétlődő kódrészek számát
+
+* átláthatóbbá teszi a programot
+
+* egyszerűbbé teszi több adat feldolgozását
+
+* tömbökkel és listákkal együtt különösen hatékony
+
+# Tipikus felhasználási területek
+
+A `for` ciklust gyakran használják:
+
+* nevek, számok vagy szavak kiírására
+
+* tömbök elemeinek feldolgozására
+
+* fájlnevek bejárására
+
+* ismétlődő műveletek végrehajtására
+
+## Gyakori hibák
+
+Az egyik leggyakoribb hiba, hogy a `do` vagy a `done` kimarad.
+
+Hibás példa:
+
+```bash
+for szam in 1 2 3
+    echo $szam
+```
+
+Helyes alak:
+
+```bash
+for szam in 1 2 3
+do
+    echo $szam
+done
+```
+
+Szintén gyakori hiba, hogy a ciklusváltozót `$` jel nélkül próbálják kiírni.
+
+Hibás:
+
+```bash
+echo szam
+```
+
+Helyes:
+
+```bash
+echo $szam
+```

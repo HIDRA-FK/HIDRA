@@ -1,0 +1,232 @@
+---
+title: Bash Összehasonlító Operátorok
+sidebar_position: 3
+description: A Bash-ben használt számos összehasonlító operátorok használata példákkal és magyarázatokkal
+---
+
+# Bash Összehasonlító Operátorok
+
+A Bash-ben számok összehasonlítására speciális operátorokat használunk.
+
+Az általános forma:
+
+```bash
+[ bal_oldal operátor jobb_oldal ]
+````
+
+Például:
+
+```bash
+[ $a -eq $b ]
+```
+
+Ez azt jelenti: az `a` értéke egyenlő-e a `b` értékével.
+
+
+| Operátor | Jelentés             | Mire használjuk?                          | Példa           |
+| -------- | -------------------- | ----------------------------------------- | --------------- |
+| `-eq`    | egyenlő              | két szám ugyanaz-e                        | `[ $a -eq $b ]` |
+| `-ne`    | nem egyenlő          | két szám különbözik-e                     | `[ $a -ne $b ]` |
+| `-gt`    | nagyobb mint         | bal oldali szám nagyobb-e                 | `[ $a -gt $b ]` |
+| `-lt`    | kisebb mint          | bal oldali szám kisebb-e                  | `[ $a -lt $b ]` |
+| `-ge`    | nagyobb vagy egyenlő | bal oldali szám nagyobb vagy ugyanannyi-e | `[ $a -ge $b ]` |
+| `-le`    | kisebb vagy egyenlő  | bal oldali szám kisebb vagy ugyanannyi-e  | `[ $a -le $b ]` |
+
+<details>
+<summary>1. Hogyan kell használni?</summary>
+
+A Bash-ben ezeket általában `if` szerkezetben használjuk.
+
+```bash
+if [ feltétel ]
+then
+    utasítás
+fi
+```
+
+Példa:
+
+```bash
+#!/bin/bash
+
+a=10
+b=5
+
+if [ $a -gt $b ]
+then
+    echo "Az a nagyobb mint a b."
+fi
+```
+
+Itt:
+
+* `$a` az első változó értéke
+* `-gt` azt jelenti, hogy nagyobb mint
+* `$b` a második változó értéke
+
+Vagyis ezt vizsgálja:
+
+```bash
+10 nagyobb mint 5?
+```
+
+Mivel ez igaz, ezért kiírja az üzenetet.
+
+</details>
+
+<details>
+<summary>2. A <code>-eq</code> operátor</summary>
+
+A `-eq` jelentése: **egyenlő**
+
+Akkor igaz, ha a két szám ugyanaz.
+
+```bash
+#!/bin/bash
+
+a=5
+b=5
+
+if [ $a -eq $b ]
+then
+    echo "A két szám egyenlő."
+fi
+```
+
+</details>
+
+<details>
+<summary>3. A <code>-ne</code> operátor</summary>
+
+A `-ne` jelentése: **nem egyenlő**
+
+Akkor igaz, ha a két szám különbözik.
+
+```bash
+#!/bin/bash
+
+a=5
+b=3
+
+if [ $a -ne $b ]
+then
+    echo "A két szám nem egyenlő."
+fi
+```
+
+</details>
+
+<details>
+<summary>4. A <code>-gt</code> operátor</summary>
+
+A `-gt` jelentése: **nagyobb mint**
+
+Akkor igaz, ha a bal oldali szám nagyobb, mint a jobb oldali.
+
+```bash
+#!/bin/bash
+
+a=8
+b=4
+
+if [ $a -gt $b ]
+then
+    echo "Az első szám nagyobb."
+fi
+```
+
+</details>
+
+<details>
+<summary>5. A <code>-lt</code> operátor</summary>
+
+A `-lt` jelentése: **kisebb mint**
+
+Akkor igaz, ha a bal oldali szám kisebb, mint a jobb oldali.
+
+```bash
+#!/bin/bash
+
+a=2
+b=7
+
+if [ $a -lt $b ]
+then
+    echo "Az első szám kisebb."
+fi
+```
+
+</details>
+
+<details>
+<summary>6. A <code>-ge</code> operátor</summary>
+
+A `-ge` jelentése: **nagyobb vagy egyenlő**
+
+Akkor igaz, ha a bal oldali szám nagyobb vagy ugyanannyi.
+
+```bash
+#!/bin/bash
+
+a=6
+b=6
+
+if [ $a -ge $b ]
+then
+    echo "Az első szám nagyobb vagy egyenlő a másodikkal."
+fi
+```
+
+</details>
+
+<details>
+<summary>7. A <code>-le</code> operátor</summary>
+
+A `-le` jelentése: **kisebb vagy egyenlő**
+
+Akkor igaz, ha a bal oldali szám kisebb vagy ugyanannyi.
+
+```bash
+#!/bin/bash
+
+a=4
+b=9
+
+if [ $a -le $b ]
+then
+    echo "Az első szám kisebb vagy egyenlő a másodikkal."
+fi
+```
+
+</details>
+
+<details>
+<summary>8. Fontos formai szabályok</summary>
+
+A szögletes zárójelek körül mindig legyen szóköz.
+
+Helyes:
+
+```bash
+if [ $a -eq $b ]
+```
+
+Helytelen:
+
+```bash
+if [$a -eq $b]
+```
+
+</details>
+
+<details>
+<summary>Összefoglalás</summary>
+
+* `eq` = equal = egyenlő
+* `ne` = not equal = nem egyenlő
+* `gt` = greater than = nagyobb mint
+* `lt` = less than = kisebb mint
+* `ge` = greater or equal = nagyobb vagy egyenlő
+* `le` = less or equal = kisebb vagy egyenlő
+
+</details>

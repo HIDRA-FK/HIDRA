@@ -1,0 +1,274 @@
+---
+title: Az elif szerkezet Bash-ben
+sidebar_position: 6
+description: Több feltétel vizsgálata Bash scriptben az elif segítségével
+---
+
+# `elif` – Több feltétel vizsgálata
+
+Az előző fejezetekben megismertük:
+
+| Szerkezet | Funkció |
+|---|---|
+| `if` | egy feltétel vizsgálata |
+| `if–else` | két lehetséges kimenet kezelése |
+
+Sok programban azonban **több különböző feltételt kell egymás után vizsgálni**. Ilyen esetekben használjuk az **`elif` szerkezetet**.
+
+Az `elif` jelentése:
+
+```text
+else if
+````
+
+vagyis magyarul:
+
+```text
+különben ha
+```
+
+---
+
+## Az `if–elif–else` működése
+
+Az `elif` lehetővé teszi, hogy **több feltételt egymás után vizsgáljunk**.
+
+A program a feltételeket **felülről lefelé ellenőrzi**.
+
+Az általános működési logika:
+
+```text
+ha feltétel1 igaz
+    ezt csináld
+különben ha feltétel2 igaz
+    ezt csináld
+különben ha feltétel3 igaz
+    ezt csináld
+különben
+    ezt csináld
+```
+
+Fontos szabály:
+
+A program **az első igaz feltételnél megáll**, és a további feltételeket már nem vizsgálja.
+
+---
+
+## Az `if–elif–else` szintaxisa Bash-ben
+
+```bash
+if [ feltétel1 ]
+then
+    utasítás
+elif [ feltétel2 ]
+then
+    utasítás
+elif [ feltétel3 ]
+then
+    utasítás
+else
+    utasítás
+fi
+```
+
+### A szerkezet részei
+
+| Elem   | Jelentés                         |
+| ------ | -------------------------------- |
+| `if`   | az első feltétel vizsgálata      |
+| `elif` | további feltételek vizsgálata    |
+| `else` | ha egyik feltétel sem igaz       |
+| `then` | a végrehajtandó utasítás kezdete |
+| `fi`   | az elágazás lezárása             |
+
+---
+
+## A működés szemléltetése
+
+```text
+             feltétel1
+               │
+        igaz ──┴── hamis
+          │
+       végrehajtás
+               │
+             feltétel2
+               │
+        igaz ──┴── hamis
+          │
+       végrehajtás
+               │
+             feltétel3
+               │
+        igaz ──┴── hamis
+          │
+       végrehajtás
+               │
+              else
+```
+
+A program mindig **csak egy ágat hajt végre**.
+
+---
+
+## Gyakorlati példák
+
+### Jegy értékelése
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy jegyet:"
+read jegy
+
+if [ $jegy -eq 5 ]
+then
+    echo "Jeles."
+elif [ $jegy -eq 4 ]
+then
+    echo "Jó."
+elif [ $jegy -eq 3 ]
+then
+    echo "Közepes."
+elif [ $jegy -eq 2 ]
+then
+    echo "Elégséges."
+else
+    echo "Elégtelen."
+fi
+```
+
+### A program működése
+
+| Bevitt érték | Kimenet   |
+| ------------ | --------- |
+| 5            | Jeles     |
+| 4            | Jó        |
+| 3            | Közepes   |
+| 2            | Elégséges |
+| 1 vagy más   | Elégtelen |
+
+Ha a felhasználó ezt írja be:
+
+```
+4
+```
+
+akkor a program kimenete:
+
+```
+Jó.
+```
+
+---
+
+### Szám kategorizálása
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+if [ $szam -gt 0 ]
+then
+    echo "A szám pozitív."
+elif [ $szam -eq 0 ]
+then
+    echo "A szám nulla."
+else
+    echo "A szám negatív."
+fi
+```
+
+Ebben a példában három kategória létezik:
+
+| Feltétel | Eredmény |
+| -------- | -------- |
+| szám > 0 | pozitív  |
+| szám = 0 | nulla    |
+| szám < 0 | negatív  |
+
+---
+
+### Életkor kategóriák
+
+```bash
+#!/bin/bash
+
+echo "Add meg az életkorod:"
+read kor
+
+if [ $kor -lt 14 ]
+then
+    echo "Gyerek."
+elif [ $kor -lt 18 ]
+then
+    echo "Fiatal."
+elif [ $kor -lt 65 ]
+then
+    echo "Felnőtt."
+else
+    echo "Idős."
+fi
+```
+
+A program különböző életkori csoportokat határoz meg.
+
+| Életkor | Kategória |
+| ------- | --------- |
+| 0–13    | gyerek    |
+| 14–17   | fiatal    |
+| 18–64   | felnőtt   |
+| 65+     | idős      |
+
+---
+
+## Fontos szabályok
+
+### Minden `elif` után `then` szükséges
+
+Helyes forma:
+
+```bash
+elif [ feltétel ]
+then
+```
+
+Ha a `then` hiányzik, a Bash szintaktikai hibát jelez.
+
+---
+
+### A feltételek sorrendje számít
+
+A Bash **felülről lefelé halad** a feltételeken.
+
+Ha egy feltétel teljesül, a program **nem vizsgálja tovább a következőket**.
+
+Ezért a feltételeket **logikai sorrendben kell megadni**.
+
+---
+
+## Mikor használjuk az `elif` szerkezetet?
+
+Az `elif` akkor hasznos, amikor:
+
+| Helyzet                       | Példa                       |
+| ----------------------------- | --------------------------- |
+| több kategória van            | jegyek                      |
+| értéktartományokat vizsgálunk | életkor                     |
+| több döntési lehetőség van    | pontszám értékelés          |
+| több állapot létezhet         | rendszerállapot ellenőrzése |
+
+---
+
+## Összefoglalás
+
+| Fogalom | Jelentés                       |
+| ------- | ------------------------------ |
+| `if`    | első feltétel                  |
+| `elif`  | további feltételek             |
+| `else`  | ha egyik feltétel sem teljesül |
+| `fi`    | az elágazás lezárása           |
+
+Az **`elif` szerkezet** lehetővé teszi, hogy a Bash script **több feltételt vizsgáljon egymás után**, és **az első igaz feltétel alapján döntsön**.

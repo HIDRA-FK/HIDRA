@@ -1,0 +1,239 @@
+---
+title: Listák Bashban
+sidebar_position: 1
+description: Bash tömbök és listák alapjai
+---
+
+# Listák (tömbök) Bashban
+
+Az eddigiekben egyszerű változókat használtunk, amelyek **egyetlen értéket** tárolnak.
+
+Például:
+
+```bash
+nev="Anna"
+````
+
+Sok esetben azonban több adatot szeretnénk **egy változóban kezelni**, például:
+
+* több nevet
+* több számot
+* több fájlnevet
+
+Erre használjuk az **összetett adattípusokat**. Bashban a leggyakoribb ilyen típus a **tömb (array)**, amely egy **lista jellegű adatszerkezet**.
+
+---
+
+## Tömb létrehozása
+
+Egy tömböt zárójelek között hozunk létre.
+
+```bash
+nevek=("Anna" "Béla" "Csilla")
+```
+
+Ez egy lista, amely három elemet tartalmaz:
+
+* Anna
+* Béla
+* Csilla
+
+A tömb neve: `nevek`.
+
+---
+
+## Egy elem lekérése
+
+A tömb elemeit **index alapján** érjük el.
+
+Az index **0-tól kezdődik**.
+
+```bash
+echo ${nevek[0]}
+```
+
+Kimenet:
+
+```bash
+Anna
+```
+
+Másik elem:
+
+```bash
+echo ${nevek[1]}
+```
+
+Kimenet:
+
+```bash
+Béla
+```
+
+---
+
+## Az összes elem lekérése
+
+A tömb összes elemét egyszerre is ki lehet kérni.
+
+```bash
+echo ${nevek[@]}
+```
+
+Kimenet:
+
+```bash
+Anna Béla Csilla
+```
+
+Az `@` azt jelenti, hogy **a tömb minden elemét kérjük le**.
+
+---
+
+## A tömb elemeinek száma
+
+Meg lehet határozni, hogy hány elem van a tömbben.
+
+```bash
+echo ${#nevek[@]}
+```
+
+Kimenet:
+
+```bash
+3
+```
+
+A `#` jel azt jelzi, hogy **az elemek számát kérjük le**.
+
+---
+
+## Egy elem módosítása
+
+Egy tömbelem értékét meg lehet változtatni az index segítségével.
+
+```bash
+nevek[1]="Dávid"
+```
+
+Ezután a lista például így néz ki:
+
+```bash
+Anna Dávid Csilla
+```
+
+---
+
+## Új elem hozzáadása
+
+Új elemet hozzá lehet adni a tömbhöz.
+
+```bash
+nevek+=("Erika")
+```
+
+Az új lista:
+
+```bash
+Anna Béla Csilla Erika
+```
+
+---
+
+## Több elem hozzáadása
+
+Egyszerre több elem is hozzáadható.
+
+```bash
+nevek+=("Ferenc" "Gábor")
+```
+
+---
+
+## Elem törlése
+
+Egy adott elem törölhető az `unset` paranccsal.
+
+```bash
+unset nevek[1]
+```
+
+Ez eltávolítja a második elemet.
+
+Fontos: ilyenkor az indexek között **rés keletkezhet**.
+
+---
+
+## Teljes tömb törlése
+
+A teljes tömb is törölhető.
+
+```bash
+unset nevek
+```
+
+---
+
+## Indexek lekérdezése
+
+A tömb indexeit is meg lehet kérdezni.
+
+```bash
+echo ${!nevek[@]}
+```
+
+Kimenet például:
+
+```bash
+0 1 2
+```
+
+Ez megmutatja, hogy milyen indexek léteznek.
+
+---
+
+## Tömb deklarálása
+
+Lehet előre deklarálni, hogy egy változó tömb lesz.
+
+```bash
+declare -a nevek
+```
+
+Ezután lehet elemeket hozzáadni.
+
+---
+
+## Számokat tartalmazó tömb
+
+A tömb nemcsak szöveget tartalmazhat.
+
+```bash
+szamok=(10 20 30 40 50)
+```
+
+Egy elem lekérése:
+
+```bash
+echo ${szamok[2]}
+```
+
+Kimenet:
+
+```bash
+30
+```
+
+
+## Összefoglalás
+
+
+| Művelet | Leírás | Példa |
+|--------|--------|-------|
+| Tömb létrehozása | Új tömb létrehozása elemekkel | `tomb=("a" "b" "c")` |
+| Elem lekérése | Egy adott elem elérése index alapján | `${tomb[index]}` |
+| Összes elem lekérése | A tömb minden elemének kiírása | `${tomb[@]}` |
+| Elemek száma | A tömb elemeinek darabszáma | `${#tomb[@]}` |
+| Új elem hozzáadása | Egy új elem hozzáadása a tömbhöz | `tomb+=("uj")` |
+| Elem törlése | Egy adott indexű elem törlése | `unset tomb[index]` |
+| Teljes tömb törlése | Az egész tömb törlése | `unset tomb` |

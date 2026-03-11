@@ -1,0 +1,261 @@
+---
+title: Az if szerkezet Bash-ben
+sidebar_position: 2
+description: Bevezetés az if feltételes elágazás használatába Bash scriptben
+---
+
+# `if` – Feltételes elágazás Bash-ben
+
+A **feltételes elágazás** arra szolgál, hogy a program **döntést hozzzon egy feltétel alapján**.  
+A program megvizsgál egy feltételt, majd **attól függően hajt végre utasításokat**, hogy a feltétel igaz vagy hamis.
+
+Ez a programozás egyik **legalapvetőbb vezérlési szerkezete**, amely minden programozási nyelvben megjelenik.
+
+---
+
+## Az `if` alapelve
+
+Az `if` szó jelentése:
+
+```
+
+ha
+
+```
+
+A működés logikája:
+
+```
+
+ha (feltétel igaz)
+akkor végrehajtjuk az utasításokat
+különben
+nem történik semmi
+
+````
+
+Az `if` tehát lehetővé teszi, hogy a program **feltétel alapján döntsön**.
+
+---
+
+## Az `if` szintaxisa Bash-ben
+
+```bash
+if [ feltétel ]
+then
+    utasítások
+fi
+````
+
+### A szerkezet részei
+
+| Elem           | Jelentés                         |
+| -------------- | -------------------------------- |
+| `if`           | a feltételvizsgálat kezdete      |
+| `[ feltétel ]` | itt történik a logikai vizsgálat |
+| `then`         | ha a feltétel igaz               |
+| utasítások     | végrehajtandó parancsok          |
+| `fi`           | az if szerkezet lezárása         |
+
+A `fi` szó az `if` fordított alakja.
+
+---
+
+## A feltétel működése
+
+A `[ ]` között egy **tesztkifejezés** szerepel, amely eldönti, hogy a feltétel igaz vagy hamis.
+
+A Bash-ben gyakran használt összehasonlító operátorok:
+
+| Operátor | Jelentés             |
+| -------- | -------------------- |
+| `-eq`    | egyenlő              |
+| `-ne`    | nem egyenlő          |
+| `-gt`    | nagyobb              |
+| `-lt`    | kisebb               |
+| `-ge`    | nagyobb vagy egyenlő |
+| `-le`    | kisebb vagy egyenlő  |
+
+---
+
+## Gyakorlati példák
+
+### Két szám egyenlőségének vizsgálata
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read a
+
+echo "Adj meg egy másik számot:"
+read b
+
+if [ $a -eq $b ]
+then
+    echo "A két szám egyenlő."
+fi
+```
+
+#### A program működése
+
+| Lépés | Mi történik                    |
+| ----- | ------------------------------ |
+| 1     | a program két számot kér be    |
+| 2     | összehasonlítja őket           |
+| 3     | ha egyenlők, kiír egy üzenetet |
+
+---
+
+### Nagyobb szám vizsgálata
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+if [ $szam -gt 10 ]
+then
+    echo "A szám nagyobb mint 10."
+fi
+```
+
+Ha a felhasználó ezt adja meg:
+
+```
+15
+```
+
+akkor az eredmény:
+
+```
+A szám nagyobb mint 10.
+```
+
+---
+
+### Negatív szám ellenőrzése
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+if [ $szam -lt 0 ]
+then
+    echo "A szám negatív."
+fi
+```
+
+---
+
+### Páros szám vizsgálata
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy számot:"
+read szam
+
+maradek=$((szam % 2))
+
+if [ $maradek -eq 0 ]
+then
+    echo "A szám páros."
+fi
+```
+
+#### Magyarázat
+
+A `%` jel **maradékos osztást** jelent.
+
+```
+8 % 2 = 0
+```
+
+Ha a maradék nulla, akkor a szám páros.
+
+---
+
+## Fontos szintaktikai szabályok
+
+### A szóköz kötelező
+
+Helyes:
+
+```
+[ $a -eq $b ]
+```
+
+Helytelen:
+
+```
+[$a -eq $b]
+```
+
+A `[` és `]` valójában egy **tesztparancs**, ezért szükséges a szóköz.
+
+---
+
+### A változó elé `$` kell
+
+```
+$a
+```
+
+Ha a `$` hiányzik, akkor a Bash **nem a változó értékét**, hanem egy szöveget vizsgál.
+
+---
+
+### Az `if` mindig `fi`-vel zárul
+
+```
+if ...
+then
+    ...
+fi
+```
+
+Ha a `fi` hiányzik, a script hibát ad.
+
+---
+
+## Az `if` működésének folyamata
+
+| Lépés | Művelet                                                 |
+| ----- | ------------------------------------------------------- |
+| 1     | a program kiértékeli a feltételt                        |
+| 2     | ha igaz, végrehajtja a `then` blokkot                   |
+| 3     | ha hamis, a program a következő utasítással folytatódik |
+
+---
+
+## Egyszerű szemléltetés
+
+```
+        feltétel
+           │
+       igaz? ───── nem
+         │
+         igen
+         │
+   utasítások
+```
+
+A program tehát **különböző módon folytatódhat** attól függően, hogy a feltétel teljesül-e.
+
+---
+
+## Összefoglalás
+
+| Fogalom | Jelentés             |
+| ------- | -------------------- |
+| `if`    | feltételes döntés    |
+| `[ ]`   | tesztkifejezés       |
+| `then`  | végrehajtás, ha igaz |
+| `fi`    | a szerkezet lezárása |
+
+Az `if` szerkezet lehetővé teszi, hogy a Bash script **feltételek alapján döntsön**, és ennek megfelelően hajtson végre műveleteket.
+
