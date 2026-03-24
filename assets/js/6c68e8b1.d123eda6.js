@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite=globalThis.webpackChunkwebsite||[]).push([[9700],{3748(e){e.exports=JSON.parse('{"metadata":{"permalink":"/HIDRA/blog","page":1,"postsPerPage":5,"totalPages":1,"totalCount":4,"blogDescription":"Aktu\xe1lis informatikai trendek \xe9s HIDRA h\xedrek","blogTitle":"Tech Blog & H\xedrek"}}')}}]);
