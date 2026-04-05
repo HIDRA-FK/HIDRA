@@ -281,11 +281,7 @@ th {
   display:block;
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 57c7b24994680a70f463b61eb51e84836b607b87
-/* SÖTÉT MÓD */
 html[data-theme='dark'] .magyarazat-resz {
   background: #3a2314;
   border: 1px solid #c7782b;
@@ -330,8 +326,4 @@ html[data-theme='light'] .magyarazat-resz[open] summary {
 html[data-theme='light'] .magyarazat-doboz {
   background: #fffaf5;
   color: #4a2a12;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 57c7b24994680a70f463b61eb51e84836b607b87
