@@ -1,0 +1,660 @@
+---
+title: Ideiglenes vagy korlátozott hozzáférésű felhasználó létrehozása
+sidebar_position: 5
+---
+
+# Ideiglenes vagy korlátozott hozzáférésű felhasználó létrehozása
+
+## Bevezetés
+
+Ebben az anyagban egy olyan Bash scriptet készítünk, amely egy új Linux felhasználót hoz létre úgy, hogy a fiók hozzáférése korlátozott legyen. A script nemcsak elkészíti a felhasználót, hanem beállítja, hogy a fiók csak egy meghatározott ideig legyen érvényes, és azt is, hogy a felhasználó ne kapjon normál interaktív shellt.
+
+Ez a megoldás különösen akkor hasznos, ha valakinek csak ideiglenes hozzáférést szeretnél adni egy rendszerhez. Ilyen helyzet lehet például egy gyakorlati labor, egy külsős munkatárs rövid idejű hozzáférése, egy vizsgakörnyezet, vagy bármilyen olyan eset, amikor a fiókot nem tartós használatra szánod.
+
+A korlátozott hozzáférés azt jelenti, hogy a felhasználó ugyan szerepel a rendszerben, de a belépési lehetőségei vagy az érvényességi ideje szűkítve van. Ilyenkor gyakori megoldás az, hogy a fiók lejárati dátumot kap, illetve olyan shell kerül beállításra, amely nem enged normál bejelentkezést.
+
+## Tesztkörnyezet létrehozása
+
+A gyakorláshoz először készíts egy egyszerű tesztkörnyezetet.
+
+Hozz létre egy új fájlt:
+
+```bash
+nano ideiglenes_fiok.sh
+````
+
+Mentsd bele a scriptet, majd tedd futtathatóvá:
+
+```bash
+chmod +x ideiglenes_fiok.sh
+```
+
+Ezután rendszergazdai jogosultsággal futtasd:
+
+```bash
+sudo ./ideiglenes_fiok.sh
+```
+
+A futtatás után ezekkel a parancsokkal tudod ellenőrizni az eredményt:
+
+```bash
+id vendeg01
+grep vendeg01 /etc/passwd
+chage -l vendeg01
+passwd -S vendeg01
+```
+
+<details>
+<summary>Ez a tesztkörnyezet arra szolgál, hogy a scriptet biztonságosan kipróbáld, és ellenőrizni tudd, hogy valóban létrejött-e a felhasználó, valamint hogy a korlátozások tényleg érvénybe léptek-e.</summary>
+
+<div>
+
+A `nano ideiglenes_fiok.sh` parancs egy új szövegfájlt nyit meg szerkesztésre. Ebbe kerül maga a Bash script.
+
+A `chmod +x ideiglenes_fiok.sh` parancs futtathatóvá teszi a fájlt. A `chmod` a jogosultságokat módosítja. A `+x` azt jelenti, hogy a fájl megkapja a végrehajtási jogot. Enélkül a rendszer nem programként, hanem sima fájlként kezelné.
+
+A `sudo ./ideiglenes_fiok.sh` parancs rendszergazdai jogosultsággal indítja el a scriptet. A `sudo` azért kell, mert felhasználólétrehozás és felhasználói attribútumok módosítása csak megfelelő jogosultsággal végezhető.
+
+Az `id vendeg01` parancs megmutatja, hogy a felhasználó létrejött-e, és milyen azonosítókat kapott.
+
+A `grep vendeg01 /etc/passwd` parancs megkeresi a felhasználó bejegyzését a rendszer felhasználói nyilvántartásában. A sor végén látható a beállított shell is.
+
+A `chage -l vendeg01` parancs kiírja a jelszóval és a fiók lejáratával kapcsolatos információkat. Ebből látható, hogy a fiók meddig használható.
+
+A `passwd -S vendeg01` parancs rövid állapotinformációt ad a felhasználó jelszaváról és annak állapotáról.
+
+</div>
+</details>
+
+## Gyakorlati példa
+
+#### A script működése
+
+A script a következő műveleteket hajtja végre:
+
+* ellenőrzi, hogy rendszergazda futtatja-e,
+* bekéri az új korlátozott fiók nevét,
+* ellenőrzi, hogy ez a név már foglalt-e,
+* bekéri a lejárati dátumot,
+* kiválaszt egy korlátozott belépési shellt,
+* létrehozza a felhasználót home könyvtárral,
+* beállítja a korlátozott shellt,
+* beállítja a fiók lejárati dátumát,
+* jelszót kér az új felhasználóhoz,
+* végül visszajelzést ad a létrehozott korlátozott fiókról.
+
+Amikor a script elindul, először megvizsgálja, hogy root futtatja-e. Ha nem, akkor azonnal leáll. Ezután bekéri a létrehozandó ideiglenes fiók nevét. Ha a név üres vagy már létezik, a script hibát jelez. Ezután bekéri a lejárati dátumot `ÉÉÉÉ-HH-NN` formában. A program meghatározza, hogy a rendszeren melyik korlátozott shell használható, majd létrehozza a felhasználót úgy, hogy a fiók csak a megadott dátumig legyen érvényes. A végén jelszót kér, majd összefoglalja a létrehozott fiók legfontosabb adatait.
+
+#### Példafuttatás
+
+```text
+Add meg az ideiglenes felhasználó nevét: vendeg01
+Add meg a lejárati dátumot (ÉÉÉÉ-HH-NN): 2026-06-30
+Adj meg jelszót az új felhasználónak:
+A korlátozott hozzáférésű felhasználó sikeresen létrejött.
+Felhasználónév: vendeg01
+Home könyvtár: /home/vendeg01
+Shell: /usr/sbin/nologin
+Lejárati dátum: 2026-06-30
+```
+
+#### Példa kód
+
+```bash
+#!/bin/bash
+
+# Ellenőrzés: csak root futtathatja
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+# Felhasználónév bekérése
+read -p "Add meg az ideiglenes felhasználó nevét: " fioknev
+
+# Üres név ellenőrzése
+if [ -z "$fioknev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+
+# Ellenőrzés: létezik-e már ilyen felhasználó
+if id "$fioknev" &>/dev/null; then
+    echo "Hiba: a(z) $fioknev nevű felhasználó már létezik."
+    exit 1
+fi
+
+# Lejárati dátum bekérése
+read -p "Add meg a lejárati dátumot (ÉÉÉÉ-HH-NN): " lejarat
+
+# Üres lejárati dátum ellenőrzése
+if [ -z "$lejarat" ]; then
+    echo "Hiba: a lejárati dátum nem lehet üres."
+    exit 1
+fi
+
+# Egyszerű formátumellenőrzés
+if ! [[ "$lejarat" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "Hiba: a dátum formátuma hibás. Használd ezt a formátumot: ÉÉÉÉ-HH-NN"
+    exit 1
+fi
+
+# Korlátozott shell meghatározása
+if [ -x /usr/sbin/nologin ]; then
+    hozzaferesi_shell="/usr/sbin/nologin"
+elif [ -x /sbin/nologin ]; then
+    hozzaferesi_shell="/sbin/nologin"
+else
+    echo "Hiba: nem található használható nologin shell a rendszeren."
+    exit 1
+fi
+
+# Felhasználó létrehozása home könyvtárral, korlátozott shell-lel és lejárati dátummal
+useradd -m -s "$hozzaferesi_shell" -e "$lejarat" "$fioknev"
+
+# Sikeresség ellenőrzése
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+
+# Jelszó beállítása
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$fioknev"
+
+# Home könyvtár alapjogosultságainak beállítása
+chown -R "$fioknev:$fioknev" "/home/$fioknev"
+chmod 700 "/home/$fioknev"
+
+# Visszajelzés
+echo "A korlátozott hozzáférésű felhasználó sikeresen létrejött."
+echo "Felhasználónév: $fioknev"
+echo "Home könyvtár: /home/$fioknev"
+echo "Shell: $hozzaferesi_shell"
+echo "Lejárati dátum: $lejarat"
+```
+
+## Példakód magyarázat
+
+### 1. A Bash értelmező megadása
+
+```bash
+#!/bin/bash
+```
+
+<details>
+<summary>Ez a sor megmondja a rendszernek, hogy ezt a fájlt a Bash parancsértelmezővel kell végrehajtani.</summary>
+
+<div>
+
+Ez a sor a script legelső sora, és gyakran **shebang** sornak nevezik.
+
+A `#!` két karakterből áll.
+
+Az első karakter a `#`, amelyet a scriptben általában megjegyzésekhez is használunk, de a fájl első sorában a `!` jellel együtt különleges jelentése van.
+
+A második karakter a `!`, amely a `#` után azt jelzi, hogy a rendszer itt nem egyszerű megjegyzést lát, hanem azt az információt, hogy melyik programmal kell értelmezni a scriptet.
+
+A `/bin/bash` egy elérési út. Ez azt mutatja meg, hogy a Bash értelmező a rendszerben hol található.
+
+</div>
+</details>
+
+### 2. Root jogosultság ellenőrzése
+
+```bash
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy a scriptet valóban rendszergazda futtatja-e.</summary>
+
+<div>
+
+A `"$EUID"` egy speciális változó. Az aktuális felhasználó effective user ID azonosítóját tartalmazza.
+
+A root felhasználó azonosítója Linuxon általában `0`.
+
+A `-ne` jelentése nem egyenlő.
+
+Ha az aktuális azonosító nem `0`, akkor a script hibát ír ki, majd `exit 1` segítségével leáll.
+
+Ez azért szükséges, mert felhasználót létrehozni és lejárati dátumot beállítani csak megfelelő jogosultsággal lehet.
+
+</div>
+</details>
+
+### 3. A felhasználónév bekérése
+
+```bash
+read -p "Add meg az ideiglenes felhasználó nevét: " fioknev
+```
+
+<details>
+<summary>Ez a rész bekéri az új, korlátozott fiók nevét.</summary>
+
+<div>
+
+A `read` parancs futás közben adatot kér be a felhasználótól.
+
+A `-p` kapcsoló lehetővé teszi, hogy rögtön egy kérdést is kiírjunk.
+
+A `fioknev` változóban tároljuk el a megadott nevet.
+
+Itt már látható, hogy a változónév nem mindenhol ugyanaz a megszokott minta, hanem a feladathoz illeszkedő elnevezést használjuk.
+
+</div>
+</details>
+
+### 4. Az üres név ellenőrzése
+
+```bash
+if [ -z "$fioknev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a blokk megakadályozza, hogy a script üres felhasználónévvel dolgozzon tovább.</summary>
+
+<div>
+
+A `-z` tesztoperátor azt vizsgálja, hogy a karakterlánc hossza nulla-e.
+
+Ha a felhasználó nem ír be semmit, a változó üres marad.
+
+Ilyenkor a script hibát jelez és leáll.
+
+</div>
+</details>
+
+### 5. Annak ellenőrzése, hogy a felhasználó már létezik-e
+
+```bash
+if id "$fioknev" &>/dev/null; then
+    echo "Hiba: a(z) $fioknev nevű felhasználó már létezik."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a blokk megvizsgálja, hogy a megadott név szerepel-e már a rendszerben.</summary>
+
+<div>
+
+Az `id` parancs megmutatja egy felhasználó azonosítóit és csoportjait.
+
+Ha a felhasználó létezik, a parancs sikeresen lefut.
+
+A `&>/dev/null` azt jelenti, hogy a kimenetet és a hibaüzenetet eldobjuk, mert most csak az számít, hogy a parancs sikeres volt-e.
+
+Ha a név már foglalt, a script hibával leáll.
+
+</div>
+</details>
+
+### 6. A lejárati dátum bekérése
+
+```bash
+read -p "Add meg a lejárati dátumot (ÉÉÉÉ-HH-NN): " lejarat
+```
+
+<details>
+<summary>Ez a rész bekéri, hogy meddig legyen érvényes a létrehozott fiók.</summary>
+
+<div>
+
+A `lejarat` változó a megadott dátumot fogja tárolni.
+
+A Linux `useradd` parancsa a lejárati dátumot általában `YYYY-MM-DD` formátumban várja.
+
+Ez a dátum azt határozza meg, hogy meddig használható a felhasználói fiók.
+
+</div>
+</details>
+
+### 7. A lejárati dátum ellenőrzése
+
+```bash
+if [ -z "$lejarat" ]; then
+    echo "Hiba: a lejárati dátum nem lehet üres."
+    exit 1
+fi
+
+if ! [[ "$lejarat" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "Hiba: a dátum formátuma hibás. Használd ezt a formátumot: ÉÉÉÉ-HH-NN"
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy a dátum meg lett-e adva, és legalább alapvető formailag helyes-e.</summary>
+
+<div>
+
+Az első `if` azt vizsgálja, hogy a mező nem maradt-e üres.
+
+A második ellenőrzés egy mintát használ.
+
+A `[[ ... =~ ... ]]` alak Bash-ben reguláris kifejezéssel történő vizsgálatot jelent.
+
+A `^[0-9]{4}-[0-9]{2}-[0-9]{2}$` minta azt jelenti, hogy a dátumnak négy számjeggyel kell kezdődnie, utána kötőjel jön, majd két számjegy, újabb kötőjel, és végül még két számjegy.
+
+Ez tehát az `ÉÉÉÉ-HH-NN` formátumot vizsgálja.
+
+</div>
+</details>
+
+### 8. Korlátozott shell kiválasztása
+
+```bash
+if [ -x /usr/sbin/nologin ]; then
+    hozzaferesi_shell="/usr/sbin/nologin"
+elif [ -x /sbin/nologin ]; then
+    hozzaferesi_shell="/sbin/nologin"
+else
+    echo "Hiba: nem található használható nologin shell a rendszeren."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész megkeresi, hogy a rendszeren hol található a bejelentkezést tiltó shell.</summary>
+
+<div>
+
+A `nologin` egy olyan program, amely azt a célt szolgálja, hogy a felhasználó ne tudjon normál interaktív shellt kapni.
+
+A `-x` tesztoperátor azt vizsgálja, hogy a megadott fájl létezik-e és futtatható-e.
+
+Mivel a `nologin` egyes rendszereken eltérő helyen lehet, a script két gyakori útvonalat is megvizsgál.
+
+A `hozzaferesi_shell` változóba kerül az a shellútvonal, amelyet végül használni fogunk.
+
+Ez már egy másik elnevezési logikát követ, tehát itt sem ugyanazt az egyetlen sablonváltozó-nevet használjuk.
+
+</div>
+</details>
+
+### 9. A korlátozott felhasználó létrehozása
+
+```bash
+useradd -m -s "$hozzaferesi_shell" -e "$lejarat" "$fioknev"
+```
+
+<details>
+<summary>Ez a sor hozza létre ténylegesen az új felhasználót a korlátozásokkal együtt.</summary>
+
+<div>
+
+A `useradd` új felhasználót hoz létre a rendszerben.
+
+A `-m` kapcsoló azt jelenti, hogy a felhasználóhoz home könyvtár is készüljön.
+
+A `-s` kapcsolóval megadjuk a bejelentkezési shellt.
+
+A `-e` kapcsolóval a fiók lejárati dátumát állítjuk be.
+
+A `"$hozzaferesi_shell"` itt a `nologin` shell útvonalát tartalmazza.
+
+A `"$lejarat"` a megadott dátumot tartalmazza.
+
+A `"$fioknev"` a létrehozandó felhasználó neve.
+
+Ez a sor tehát együtt azt jelenti: hozz létre egy új felhasználót home könyvtárral, olyan shell-lel, amely nem enged normál bejelentkezést, és csak a megadott dátumig legyen érvényes.
+
+</div>
+</details>
+
+### 10. A `useradd` sikerességének ellenőrzése
+
+```bash
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy a létrehozás valóban sikeres volt-e.</summary>
+
+<div>
+
+A `$?` az előző parancs kilépési kódját tartalmazza.
+
+Ha az értéke `0`, akkor a parancs sikeres volt.
+
+Ha az értéke nem `0`, akkor hiba történt.
+
+Ez a blokk tehát azt vizsgálja meg, hogy a `useradd` rendben lefutott-e.
+
+</div>
+</details>
+
+### 11. Jelszó beállítása
+
+```bash
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$fioknev"
+```
+
+<details>
+<summary>Ez a blokk beállítja az új felhasználó jelszavát.</summary>
+
+<div>
+
+Az `echo` tájékoztatja a rendszergazdát, hogy most jelszót kell megadni.
+
+A `passwd` parancs az adott felhasználó jelszavának beállítására szolgál.
+
+Bár a felhasználó korlátozott hozzáférésű, a jelszó beállítása továbbra is fontos lehet például bizonyos szolgáltatásokhoz vagy adminisztrációs nyilvántartás miatt.
+
+</div>
+</details>
+
+### 12. A home könyvtár tulajdonosának és jogosultságainak beállítása
+
+```bash
+chown -R "$fioknev:$fioknev" "/home/$fioknev"
+chmod 700 "/home/$fioknev"
+```
+
+<details>
+<summary>Ez a rész gondoskodik arról, hogy a home könyvtár a megfelelő felhasználóhoz tartozzon, és privát maradjon.</summary>
+
+<div>
+
+A `chown` parancs tulajdonost és csoportot módosít.
+
+A `-R` kapcsoló rekurzív működést jelent.
+
+A `chmod 700` azt állítja be, hogy a home könyvtárhoz csak maga a tulajdonos férjen hozzá.
+
+Ez különösen fontos lehet akkor, ha ideiglenes fiókokat hozol létre, és nem szeretnéd, hogy mások belenézhessenek ezek tartalmába.
+
+</div>
+</details>
+
+### 13. Visszajelzés a script végén
+
+```bash
+echo "A korlátozott hozzáférésű felhasználó sikeresen létrejött."
+echo "Felhasználónév: $fioknev"
+echo "Home könyvtár: /home/$fioknev"
+echo "Shell: $hozzaferesi_shell"
+echo "Lejárati dátum: $lejarat"
+```
+
+<details>
+<summary>Ez a blokk összefoglalja a sikeres futás eredményét.</summary>
+
+<div>
+
+Az első `echo` egy általános sikerüzenet.
+
+A második kiírja a felhasználó nevét.
+
+A harmadik kiírja a home könyvtár elérési útját.
+
+A negyedik kiírja a korlátozott shell útvonalát.
+
+Az ötödik kiírja a fiók lejárati dátumát.
+
+Ez a rész adminisztrációs és oktatási szempontból is hasznos, mert rögtön láthatóvá teszi a legfontosabb beállításokat.
+
+</div>
+</details>
+
+## Gyakorlati feladat
+
+Készíts egy `korlatozott_vendeg.sh` nevű Bash scriptet, amely egy ideiglenes vagy korlátozott hozzáférésű felhasználót hoz létre.
+
+A script feladata legyen:
+
+1. Ellenőrizze, hogy root futtatja-e.
+2. Kérje be az új vendégfiók nevét.
+3. Vizsgálja meg, hogy a név foglalt-e.
+4. Kérje be, meddig legyen használható a fiók.
+5. Állítson be korlátozott shellt.
+6. Hozza létre a felhasználót home könyvtárral.
+7. Kérjen jelszót.
+8. Állítsa be a home könyvtár jogosultságát `700` értékre.
+9. A végén írja ki a felhasználó nevét, a lejárati dátumot és a beállított shellt.
+
+### Plusz feladat (szorgalmi)
+
+Egészítsd ki a scriptedet úgy, hogy a végén a következőket is kiírja:
+
+* a fiók pontos lejárati állapotát a `chage -l` alapján,
+* azt, hogy a felhasználó shellje valóban `nologin` típusú-e,
+* azt, hogy a home könyvtár létezik-e,
+* és azt is, hogy a fiók jelenleg zárolt vagy használható állapotban van-e.
+
+<details className="magyarazat-resz">
+<summary>Feladatmegoldás</summary>
+
+<div className="magyarazat-doboz">
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+read -p "Add meg az új vendégfiók nevét: " ujnev
+
+if [ -z "$ujnev" ]; then
+    echo "Hiba: a név nem maradhat üres."
+    exit 1
+fi
+
+if id "$ujnev" &>/dev/null; then
+    echo "Hiba: a(z) $ujnev felhasználó már létezik."
+    exit 1
+fi
+
+read -p "Add meg a hozzáférés utolsó napját (ÉÉÉÉ-HH-NN): " hatarnap
+
+if [ -z "$hatarnap" ]; then
+    echo "Hiba: a lejárati nap megadása kötelező."
+    exit 1
+fi
+
+if ! [[ "$hatarnap" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "Hiba: hibás dátumformátum."
+    exit 1
+fi
+
+if [ -x /usr/sbin/nologin ]; then
+    tiltott_shell="/usr/sbin/nologin"
+elif [ -x /sbin/nologin ]; then
+    tiltott_shell="/sbin/nologin"
+else
+    echo "Hiba: nincs elérhető nologin shell."
+    exit 1
+fi
+
+useradd -m -s "$tiltott_shell" -e "$hatarnap" "$ujnev"
+
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a korlátozott fiók létrehozása közben."
+    exit 1
+fi
+
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$ujnev"
+
+chown -R "$ujnev:$ujnev" "/home/$ujnev"
+chmod 700 "/home/$ujnev"
+
+echo "A korlátozott fiók sikeresen létrejött."
+echo "Felhasználónév: $ujnev"
+echo "Shell: $tiltott_shell"
+echo "Lejárati nap: $hatarnap"
+```
+
+</div>
+</details>
+
+<details
+  style={{
+    border: "1px solid var(--ifm-color-danger)",
+    borderRadius: "8px",
+    background: "rgba(220, 53, 69, 0.08)",
+    padding: "0.25rem 0.75rem",
+    marginTop: "1rem"
+  }}
+>
+<summary style={{ cursor: "pointer", fontWeight: "700", color: "var(--ifm-color-danger)" }}>
+Reset script a példa teljes visszaállításához
+</summary>
+
+<div style={{ marginTop: "0.75rem" }}>
+
+Ez a script arra való, hogy a példában létrehozott ideiglenes felhasználókat és a hozzájuk tartozó home könyvtárakat eltávolítsd, majd tiszta állapotból újra tudd kezdeni a gyakorlást.
+
+A script elején a változókat szabadon átírhatod. Így ugyanaz a reset script több különböző példánál is használható.
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+# Testreszabható adatok
+torlendo_fiokok=("vendeg01" "vendeg02")
+
+echo "Törlés indul..."
+
+for nev in "${torlendo_fiokok[@]}"; do
+    if id "$nev" &>/dev/null; then
+        userdel -r "$nev"
+        echo "Törölve: $nev"
+    else
+        echo "Nem létezik, kihagyva: $nev"
+    fi
+done
+
+echo "A reset művelet befejeződött."
+```
+
+Ha csak egyetlen felhasználót akarsz törölni, akkor a tömbben elég egy nevet meghagyni:
+
+```bash
+torlendo_fiokok=("vendeg01")
+```
+
+A `userdel -r` parancs törli a felhasználót, és megpróbálja eltávolítani a home könyvtárát is.
+
+Fontos, hogy ez a script valódi felhasználókat töröl a rendszerből, ezért csak olyan neveket adj meg benne, amelyeket kifejezetten a gyakorlathoz hoztál létre.
+
+</div>
+</details>

@@ -1,0 +1,925 @@
+---
+title: Automatizált file kezelés Bash nyelven
+sidebar_position: 1
+description: Linux specifikus scriptek
+---
+
+## Automatizált file kezelés
+
+A Bash scriptelés során az egyik legfontosabb és leggyakoribb feladat a **fájlokkal és könyvtárakkal való munka**. Egy Linux rendszeren a programok, a konfigurációk, a naplók, a mentések és a felhasználói adatok mind fájlok és mappák formájában jelennek meg, ezért a scriptírás egyik alapvető területe a **filekezelés automatizálása**.
+
+Az eddigi Bash témákban már megjelentek azok az elemek, amelyekre a filekezelő scriptek épülnek:
+
+- a **változók**, amelyekben fájlneveket, útvonalakat vagy felhasználói adatokat tárolhatunk,
+- a **feltételek**, amelyekkel ellenőrizhetjük, hogy egy fájl vagy mappa létezik-e,
+- a **ciklusok**, amelyekkel több fájlt tudunk egymás után feldolgozni,
+- valamint a **felhasználói input**, amely lehetővé teszi, hogy a script futás közben kapjon meg egy fájlnevet vagy könyvtárnevet.
+
+A filekezelés tehát nem különálló terület, hanem a korábban tanult Bash elemek gyakorlati alkalmazása.
+
+:::info
+A jól megírt filekezelő script időt takarít meg, csökkenti a hibák számát, és lehetővé teszi ismétlődő feladatok automatizálását.
+:::
+
+---
+
+## Miért fontos az automatizált filekezelés?
+
+Sok feladat kézzel is elvégezhető lenne a terminálban, de ez hosszú, fárasztó és hibalehetőségekkel teli folyamat lehet. Ha például minden nap át kell másolni egy állományt, rendszeresen ellenőrizni kell egy mappa tartalmát, vagy több fájlt kell átnevezni, akkor célszerű ezeket a lépéseket scriptben rögzíteni.
+
+Az automatizált filekezelés különösen hasznos az alábbi helyzetekben:
+
+- naplófájlok létrehozásánál,
+- biztonsági mentések készítésénél,
+- konfigurációs állományok ellenőrzésénél,
+- több fájl egyszerre történő feldolgozásánál,
+- valamint rendszergazdai és adminisztrációs feladatok során.
+
+<details>
+<summary>Mit jelent itt az automatizálás?</summary>
+
+Az automatizálás azt jelenti, hogy a felhasználónak nem kell ugyanazokat a parancsokat újra és újra kézzel begépelnie. Ehelyett egyszer elkészít egy scriptet, amely később ugyanazt a feladatot önállóan, gyorsan és következetesen végrehajtja.
+
+</details>
+
+---
+
+## A fájlok és könyvtárak szerepe Linux alatt
+
+Linux környezetben a fájlok és a könyvtárak központi szerepet töltenek be.
+
+- A **fájl** adatot tárol.
+- A **könyvtár** vagy **mappa** fájlokat és további könyvtárakat tartalmazhat.
+
+Példák:
+
+- `jegyzet.txt` egy fájl,
+- `dokumentumok/` egy könyvtár.
+
+Bash scriptben gyakran külön kell kezelni a két típust, mert más műveletek vonatkoznak rájuk.
+
+```bash
+#!/bin/bash
+
+if [ -f "jegyzet.txt" ]
+then
+    echo "A megadott elem egy fájl."
+fi
+
+if [ -d "dokumentumok" ]
+then
+    echo "A megadott elem egy könyvtár."
+fi
+````
+
+A fenti példában:
+
+* a `-f` azt vizsgálja, hogy az adott elem normál fájl-e,
+* a `-d` pedig azt, hogy könyvtár-e.
+
+---
+
+## Elérési utak használata
+
+Ahhoz, hogy egy script dolgozni tudjon egy fájllal vagy mappával, tudnia kell annak helyét a fájlrendszerben. Ezt **elérési úttal** adjuk meg.
+
+### Abszolút útvonal
+
+Az abszolút útvonal a gyökérkönyvtártól indul.
+
+```text
+/home/rajmund/dokumentumok/jegyzet.txt
+```
+
+### Relatív útvonal
+
+A relatív útvonal az aktuális mappához képest értendő.
+
+```text
+./jegyzet.txt
+```
+
+vagy egyszerűen:
+
+```text
+jegyzet.txt
+```
+
+Példa:
+
+```bash
+#!/bin/bash
+
+echo "Aktuális könyvtár:"
+pwd
+
+echo "A fájl tartalma:"
+cat ./jegyzet.txt
+```
+
+A `pwd` parancs kiírja az aktuális munkakönyvtárat, a `cat` pedig megjeleníti a fájl tartalmát.
+
+<details>
+<summary>Miért fontos különbséget tenni abszolút és relatív útvonal között?</summary>
+
+Az abszolút útvonal mindig ugyanarra a helyre mutat, ezért egyértelmű. A relatív útvonal viszont attól függ, hogy a scriptet honnan indítjuk el. Ezért kezdőként gyakori hiba, hogy a script nem találja a fájlt, mert nem abból a mappából fut, ahonnan a készítője várta.
+
+</details>
+
+---
+
+## Fájlok létezésének ellenőrzése
+
+Filekezelő scriptekben nagyon fontos, hogy ne feltételezzük automatikusan egy fájl létezését. Előbb ellenőrizni kell, hogy valóban létezik-e.
+
+Erre több tesztoperátor is használható:
+
+* `-e` → létezik-e az adott elem,
+* `-f` → létezik-e, és normál fájl-e.
+
+```bash
+#!/bin/bash
+
+if [ -e "adatok.txt" ]
+then
+    echo "Az adatok.txt létezik."
+else
+    echo "Az adatok.txt nem létezik."
+fi
+```
+
+Pontosabban fájlra:
+
+```bash
+#!/bin/bash
+
+if [ -f "adatok.txt" ]
+then
+    echo "A fájl létezik."
+else
+    echo "A fájl nem létezik."
+fi
+```
+
+Ez azért lényeges, mert ha egy nem létező fájlt próbálunk meg beolvasni, a script hibát fog adni.
+
+---
+
+## Könyvtárak létezésének ellenőrzése
+
+A könyvtárak vizsgálatára a `-d` operátort használjuk.
+
+```bash
+#!/bin/bash
+
+if [ -d "mentesek" ]
+then
+    echo "A mappa már létezik."
+else
+    echo "A mappa még nem létezik."
+fi
+```
+
+Ez különösen hasznos például akkor, amikor a script mentést szeretne készíteni, de előbb biztosítani kell, hogy a célmappa rendelkezésre álljon.
+
+---
+
+## Új fájl létrehozása
+
+Új fájlt legegyszerűbben a `touch` paranccsal hozhatunk létre.
+
+```bash
+#!/bin/bash
+
+touch ujfajl.txt
+echo "A fájl létrejött."
+```
+
+Ha a fájl már létezik, a `touch` nem törli ki, hanem csak frissíti annak időbélyegét.
+
+Több fájl egyszerre:
+
+```bash
+#!/bin/bash
+
+touch elso.txt masodik.txt harmadik.txt
+```
+
+<details>
+<summary>További megjegyzés</summary>
+
+A `touch` jó választás akkor, ha egy üres fájlt szeretnénk létrehozni. Ha rögtön tartalmat is szeretnénk beleírni, akkor gyakran célszerűbb `echo` és átirányítás segítségével dolgozni.
+
+</details>
+
+---
+
+## Új könyvtár létrehozása
+
+Könyvtár létrehozására a `mkdir` parancs használható.
+
+```bash
+#!/bin/bash
+
+mkdir ujmappa
+echo "A könyvtár létrejött."
+```
+
+Többszintű könyvtárszerkezet létrehozása:
+
+```bash
+#!/bin/bash
+
+mkdir -p mentesek/2026/marcius
+```
+
+A `-p` kapcsoló azért hasznos, mert a hiányzó köztes könyvtárakat is automatikusan létrehozza.
+
+---
+
+## Fájlok másolása
+
+Másolásra a `cp` parancs szolgál.
+
+```bash
+#!/bin/bash
+
+cp forras.txt masolat.txt
+echo "A másolás kész."
+```
+
+Könyvtárak másolására rekurzív mód szükséges:
+
+```bash
+#!/bin/bash
+
+cp -r dokumentumok dokumentumok_masolat
+```
+
+A `-r` azt jelenti, hogy a parancs a teljes könyvtárszerkezetet másolja.
+
+---
+
+## Fájlok áthelyezése és átnevezése
+
+Az `mv` parancs használható fájlok és könyvtárak áthelyezésére, valamint átnevezésére is.
+
+### Átnevezés
+
+```bash
+#!/bin/bash
+
+mv regi.txt uj.txt
+```
+
+### Áthelyezés
+
+```bash
+#!/bin/bash
+
+mv dolgozat.txt archivum/
+```
+
+### Áthelyezés és átnevezés egyszerre
+
+```bash
+#!/bin/bash
+
+mv dolgozat.txt archivum/regi_dolgozat.txt
+```
+
+Ez a parancs különösen hasznos akkor, amikor fájlokat szeretnénk rendszerezni.
+
+---
+
+## Fájlok törlése
+
+Fájl törlésére az `rm` parancs használható.
+
+```bash
+#!/bin/bash
+
+rm teszt.txt
+echo "A fájl törölve."
+```
+
+Több fájl egyszerre:
+
+```bash
+#!/bin/bash
+
+rm elso.txt masodik.txt
+```
+
+Biztonságosabb változat:
+
+```bash
+#!/bin/bash
+
+if [ -f "teszt.txt" ]
+then
+    rm teszt.txt
+    echo "A fájl törölve."
+else
+    echo "Nincs ilyen fájl."
+fi
+```
+
+---
+
+## Könyvtárak törlése
+
+Üres könyvtár törlésére az `rmdir` használható.
+
+```bash
+#!/bin/bash
+
+rmdir ures_mappa
+```
+
+Nem üres könyvtár törlésére:
+
+```bash
+#!/bin/bash
+
+rm -r regi_mappa
+```
+
+Példa ellenőrzéssel:
+
+```bash
+#!/bin/bash
+
+if [ -d "regi_mappa" ]
+then
+    rm -r regi_mappa
+    echo "A könyvtár törölve."
+else
+    echo "A könyvtár nem található."
+fi
+```
+
+---
+
+## Fájl tartalmának kiolvasása
+
+A legegyszerűbb kiolvasási mód a `cat`.
+
+```bash
+#!/bin/bash
+
+cat adatok.txt
+```
+
+Ha a fájlt soronként szeretnénk feldolgozni, akkor a `while` ciklus már sokkal jobb megoldás.
+
+```bash
+#!/bin/bash
+
+while read sor
+do
+    echo "Beolvasott sor: $sor"
+done < adatok.txt
+```
+
+Ez a példa már jól mutatja, hogyan kapcsolódik a filekezelés a korábban tanult **ciklusokhoz**.
+
+### Sorok számolása
+
+```bash
+#!/bin/bash
+
+darab=0
+
+while read sor
+do
+    darab=$((darab + 1))
+done < adatok.txt
+
+echo "A sorok száma: $darab"
+```
+
+<details>
+<summary>Kapcsolódás a ciklusok témájához</summary>
+
+A `while` ciklus itt addig ismétlődik, amíg van új beolvasandó sor a fájlban. Ez jól mutatja, hogy a ciklusok nemcsak számokkal vagy listákkal használhatók, hanem filekezelési feladatokhoz is.
+
+</details>
+
+---
+
+## Adatok kiírása fájlba
+
+A Bash-ben az egyik legfontosabb filekezelési művelet a kimenet átirányítása.
+
+### Felülírás `>` jellel
+
+```bash
+#!/bin/bash
+
+echo "Első sor" > naplo.txt
+```
+
+Ez létrehozza a fájlt, vagy ha már létezik, akkor felülírja annak tartalmát.
+
+### Hozzáfűzés `>>` jellel
+
+```bash
+#!/bin/bash
+
+echo "Első sor" > adatok.txt
+echo "Második sor" >> adatok.txt
+```
+
+A `>` és a `>>` közötti különbség nagyon fontos:
+
+* `>` → felülír,
+* `>>` → hozzáfűz.
+
+---
+
+## Hozzáfűzés meglévő fájlhoz
+
+Naplózásnál vagy gyűjtőfájloknál gyakran nem felülírni, hanem bővíteni szeretnénk a tartalmat.
+
+```bash
+#!/bin/bash
+
+echo "Új naplóbejegyzés" >> naplo.txt
+```
+
+Időbélyeggel:
+
+```bash
+#!/bin/bash
+
+echo "A script elindult: $(date)" >> futasnaplo.txt
+```
+
+Ez már valódi adminisztrációs gyakorlatban is használható megoldás.
+
+---
+
+## Jogosultságok ellenőrzése
+
+Linux alatt minden fájlhoz és könyvtárhoz hozzáférési jogosultságok tartoznak. Ezeket Bash scriptből is ellenőrizhetjük.
+
+* `-r` → olvasható-e,
+* `-w` → írható-e,
+* `-x` → futtatható-e.
+
+```bash
+#!/bin/bash
+
+if [ -r "adatok.txt" ]
+then
+    echo "A fájl olvasható."
+else
+    echo "A fájl nem olvasható."
+fi
+```
+
+Írhatóság vizsgálata:
+
+```bash
+#!/bin/bash
+
+if [ -w "adatok.txt" ]
+then
+    echo "A fájl írható."
+else
+    echo "A fájl nem írható."
+fi
+```
+
+Script futtathatóvá tétele:
+
+```bash
+chmod +x script.sh
+```
+
+Ezután a script futtatható:
+
+```bash
+./script.sh
+```
+
+---
+
+## Feltételek használata filekezelés során
+
+A filekezelő scriptekben az `if` szerkezet szinte mindig megjelenik. A programnak gyakran döntenie kell arról, hogy mit tegyen egy adott állapot alapján.
+
+Példa:
+
+```bash
+#!/bin/bash
+
+if [ -f "lista.txt" ]
+then
+    echo "A fájl már létezik, tartalma:"
+    cat lista.txt
+else
+    echo "A fájl nem létezett, most létrehozom."
+    touch lista.txt
+fi
+```
+
+Ez a megoldás már összekapcsolja:
+
+* a filekezelést,
+* a feltételes elágazást,
+* valamint a korábbi Bash alapismereteket.
+
+---
+
+## Ciklusok használata több fájl feldolgozására
+
+Az automatizált filekezelés egyik legerősebb eszköze a ciklus. Segítségével több fájlon is ugyanazt a műveletet hajthatjuk végre.
+
+### Példa: minden `.txt` fájl nevének kiírása
+
+```bash
+#!/bin/bash
+
+for fajl in *.txt
+do
+    echo "Fájl neve: $fajl"
+done
+```
+
+### Példa: minden `.txt` fájl másolása egy mappába
+
+```bash
+#!/bin/bash
+
+mkdir -p mentesek
+
+for fajl in *.txt
+do
+    cp "$fajl" mentesek/
+done
+
+echo "A másolás kész."
+```
+
+Ez a példa közvetlenül kapcsolódik a **ciklusok Bash-ben** témához, hiszen a `for` ciklus egy lista minden elemén végigmegy.
+
+<details>
+<summary>Miért fontos az idézőjelezés?</summary>
+
+A `"$fajl"` forma azért helyesebb, mert ha egy fájlnév szóközt tartalmaz, a Bash egyben fogja kezelni. Idézőjelek nélkül a parancs több részre bonthatná a nevet.
+
+</details>
+
+---
+
+## Felhasználói input és fileműveletek
+
+A script nemcsak előre rögzített nevekkel dolgozhat, hanem a felhasználótól is kérhet adatokat.
+
+### Példa: fájl ellenőrzése felhasználói input alapján
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy fájlnevet:"
+read fajlnev
+
+if [ -f "$fajlnev" ]
+then
+    echo "A fájl létezik."
+else
+    echo "A fájl nem létezik."
+fi
+```
+
+### Példa: új könyvtár létrehozása megadott néven
+
+```bash
+#!/bin/bash
+
+echo "Add meg az új mappa nevét:"
+read mappanev
+
+mkdir "$mappanev"
+echo "A mappa létrejött."
+```
+
+Ez a rész jól mutatja, hogyan kapcsolódik a filekezelés a **read** használatához és a változókhoz.
+
+---
+
+## Biztonságos filekezelés
+
+Egy filekezelő script akkor tekinthető megbízhatónak, ha nemcsak működik, hanem a hibás vagy veszélyes helyzeteket is kezeli.
+
+### Példa: csak akkor másoljon, ha a célfájl nem létezik
+
+```bash
+#!/bin/bash
+
+if [ -f "masolat.txt" ]
+then
+    echo "A célfájl már létezik, nem másolok."
+else
+    cp forras.txt masolat.txt
+    echo "A másolás sikeres."
+fi
+```
+
+### Példa: törlés előtti megerősítés
+
+```bash
+#!/bin/bash
+
+echo "Biztosan törölni akarod a fajl.txt fájlt? (i/n)"
+read valasz
+
+if [ "$valasz" = "i" ]
+then
+    rm fajl.txt
+    echo "Törölve."
+else
+    echo "A törlés megszakítva."
+fi
+```
+
+A biztonságos filekezelés a gyakorlatban sokszor fontosabb, mint maga a művelet.
+
+---
+
+## Hibakezelés fileműveletek közben
+
+A parancsok futása után a Bash eltárolja az előző utasítás kilépési kódját a `$?` változóban.
+
+* `0` → sikeres végrehajtás,
+* ettől eltérő érték → hiba történt.
+
+### Példa: másolás ellenőrzése
+
+```bash
+#!/bin/bash
+
+cp forras.txt cel.txt
+
+if [ $? -eq 0 ]
+then
+    echo "A másolás sikeres volt."
+else
+    echo "Hiba történt a másolás során."
+fi
+```
+
+### Példa: mappa létrehozásának ellenőrzése
+
+```bash
+#!/bin/bash
+
+mkdir ujmappa
+
+if [ $? -eq 0 ]
+then
+    echo "A mappa létrejött."
+else
+    echo "Nem sikerült létrehozni a mappát."
+fi
+```
+
+<details>
+<summary>Miért hasznos a hibakezelés?</summary>
+
+Egy script gyakran nem ideális környezetben fut: hiányozhat a fájl, nem lehet írni a mappába, vagy nincs megfelelő jogosultság. Ha a script ezeket nem kezeli, a felhasználó nem fogja tudni, miért nem működött a program.
+
+</details>
+
+---
+
+## Naplófájl készítése
+
+Nagyobb scripteknél hasznos, ha a program naplózza saját működését. Így később visszakereshető, hogy mikor mi történt.
+
+```bash
+#!/bin/bash
+
+echo "A script indulása: $(date)" >> naplo.txt
+echo "Ellenőrzés indul." >> naplo.txt
+
+if [ -f "adatok.txt" ]
+then
+    echo "Az adatok.txt megtalálható." >> naplo.txt
+else
+    echo "Az adatok.txt hiányzik." >> naplo.txt
+fi
+
+echo "A script vége: $(date)" >> naplo.txt
+```
+
+Ez a megoldás egyszerre használ:
+
+* feltételt,
+* fileellenőrzést,
+* dátumot,
+* valamint fájlhoz fűzést.
+
+---
+
+## Automatikus mentések készítése
+
+A Bash kiváló eszköz biztonsági mentések automatizálására.
+
+### Egyszerű példa
+
+```bash
+#!/bin/bash
+
+mkdir -p mentesek
+cp adatok.txt mentesek/adatok_mentes.txt
+
+echo "A mentés elkészült."
+```
+
+### Dátummal ellátott mentés
+
+```bash
+#!/bin/bash
+
+mkdir -p mentesek
+cp adatok.txt "mentesek/adatok_$(date +%Y%m%d).txt"
+
+echo "A mentés elkészült."
+```
+
+A létrejövő fájlnév például ilyen lehet:
+
+```text
+adatok_20260320.txt
+```
+
+Ez különösen hasznos akkor, ha ugyanarról a fájlról több különböző időpontban szeretnénk mentéseket tárolni.
+
+---
+
+## Fájlok rendezése és rendszerezése script segítségével
+
+A filekezelő scriptek egyik gyakori célja az állományok rendszerezése.
+
+### Példa: minden `.log` fájl áthelyezése a `logok` mappába
+
+```bash
+#!/bin/bash
+
+mkdir -p logok
+
+for fajl in *.log
+do
+    mv "$fajl" logok/
+done
+
+echo "A log fájlok áthelyezve."
+```
+
+### Példa: minden `.txt` fájl másolása egy archív mappába
+
+```bash
+#!/bin/bash
+
+mkdir -p archivum
+
+for fajl in *.txt
+do
+    cp "$fajl" archivum/
+done
+
+echo "Az archiválás befejeződött."
+```
+
+Ez a gyakorlatban például beadandók, naplók vagy exportált állományok kezelésénél kifejezetten hasznos lehet.
+
+---
+
+## Összetett példa: fájl ellenőrzése, létrehozása és kiírása
+
+Az alábbi script több korábban tanult elemet kapcsol össze:
+
+* felhasználói input,
+* feltétel,
+* fájlellenőrzés,
+* létrehozás,
+* írás,
+* kiolvasás.
+
+```bash
+#!/bin/bash
+
+echo "Adj meg egy fájlnevet:"
+read fajlnev
+
+if [ -f "$fajlnev" ]
+then
+    echo "A fájl már létezik."
+    echo "Tartalma:"
+    cat "$fajlnev"
+else
+    echo "A fájl nem létezik, létrehozom."
+    touch "$fajlnev"
+    echo "Ez egy új fájl." > "$fajlnev"
+    echo "A fájl létrejött és kapott kezdő tartalmat."
+fi
+```
+
+<details>
+<summary>Miért jó ez a példa?</summary>
+
+Ez a script már nemcsak egyetlen parancsot mutat be, hanem egy kisebb, valós logikát követő folyamatot. Ezért jó átmenetet képez az egyszerű parancsok és az összetettebb adminisztrációs scriptek között.
+
+</details>
+
+---
+
+## Összetett példa: mentéskészítő script
+
+```bash
+#!/bin/bash
+
+echo "Add meg a mentendő fájl nevét:"
+read fajlnev
+
+if [ -f "$fajlnev" ]
+then
+    mkdir -p mentesek
+    cp "$fajlnev" "mentesek/${fajlnev}_$(date +%Y%m%d_%H%M%S)"
+    echo "A mentés elkészült."
+else
+    echo "A megadott fájl nem létezik."
+fi
+```
+
+Ez a script már jól közelíti egy valódi rendszergazdai feladat működését.
+
+---
+
+## Gyakran használt tesztoperátorok és parancsok
+
+### Tesztoperátorok
+
+```bash
+-e   létezik-e
+-f   normál fájl-e
+-d   könyvtár-e
+-r   olvasható-e
+-w   írható-e
+-x   futtatható-e
+```
+
+### Fontos parancsok
+
+```bash
+touch   fájl létrehozása
+mkdir   könyvtár létrehozása
+cp      másolás
+mv      mozgatás / átnevezés
+rm      törlés
+rmdir   üres könyvtár törlése
+cat     tartalom kiírása
+echo    szöveg kiírása
+pwd     aktuális könyvtár
+ls      könyvtártartalom listázása
+```
+
+### Átirányítások
+
+```bash
+>   felülírás fájlba
+>>  hozzáfűzés fájlhoz
+<   bemenet fájlból
+```
+
+---
+
+## Gyakori kezdő hibák
+
+A filekezelő Bash scripteknél sok hiba nem a logikából, hanem az apró figyelmetlenségekből ered.
+
+### 1. Elmaradó idézőjelek
+
+```bash
+cp "$fajlnev" mentesek/
+```
+
+Ez a helyes forma, mert a fájlnév szóközt is tartalmazhat.
+
+### 2. Ellenőrzés nélküli műveletek
+
+Nem célszerű egy fájlt azonnal olvasni vagy törölni anélkül, hogy előtte megvizsgálnánk, létezik-e.
+
+### 3. Véletlen felülírás
+
+A `>` operátor törli a régi tartalmat. Kezdőként gyakori hiba, hogy valaki hozzáfűzés helyett felülírja a fájlt.
+
+### 4. Törlés megerősítés nélkül
+
+Az `rm` használata előtt célszerű gondoskodni védelemről vagy legalább ellenőrzésről.
+
+---
+

@@ -280,3 +280,51 @@ th {
   height:100%;
   display:block;
 }
+
+
+/* SÖTÉT MÓD */
+html[data-theme='dark'] .magyarazat-resz {
+  background: #3a2314;
+  border: 1px solid #c7782b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme='dark'] .magyarazat-resz summary {
+  background: #4a2b17;
+  color: #fff1e4;
+}
+
+html[data-theme='dark'] .magyarazat-resz[open] summary {
+  border-bottom-color: #c7782b;
+}
+
+html[data-theme='dark'] .magyarazat-doboz {
+  background: #2f1c10;
+  color: #ffe7d1;
+}
+
+html[data-theme='dark'] .magyarazat-doboz code {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 180, 120, 0.18);
+  color: #ffd3ad;
+}
+
+/* VILÁGOS MÓD */
+html[data-theme='light'] .magyarazat-resz {
+  background: #fff7ef;
+  border: 1px solid #e1b07a;
+}
+
+html[data-theme='light'] .magyarazat-resz summary {
+  background: #ffeddc;
+  color: #6b3b14;
+}
+
+html[data-theme='light'] .magyarazat-resz[open] summary {
+  border-bottom-color: #e1b07a;
+}
+
+html[data-theme='light'] .magyarazat-doboz {
+  background: #fffaf5;
+  color: #4a2a12;
+}

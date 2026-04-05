@@ -1,0 +1,657 @@
+---
+title: Felhasználói fiók alapértelmezett inicializálása
+sidebar_position: 4
+---
+
+# Felhasználói fiók alapértelmezett inicializálása
+
+## Bevezetés
+
+Ebben az anyagban egy olyan Bash scriptet készítünk, amely egy új Linux felhasználót hoz létre, majd a fiókhoz egy előre meghatározott kezdő környezetet is kialakít. A script nemcsak elkészíti magát a felhasználót, a home könyvtárat és a Bash shellt, hanem létrehoz néhány alapértelmezett mappát és fájlt is, amelyeket a felhasználó rögtön használni tud.
+
+Ez a megoldás akkor hasznos, ha egységes felhasználói környezetet szeretnél kialakítani. Ilyen helyzet lehet például egy iskolai gépterem, egy céges szerver, egy laborrendszer vagy bármilyen olyan környezet, ahol fontos, hogy minden új felhasználó ugyanazzal az induló mappaszerkezettel és kezdőállapottal rendelkezzen.
+
+Az alapértelmezett inicializálás azt jelenti, hogy a felhasználó létrehozása után a rendszer automatikusan elkészíti a szükséges kezdőelemeket. Például lehet saját `Dokumentumok`, `Letoltesek`, `Projektek` és `Naplok` mappája, valamint egy induló `README.txt` fájlja is.
+
+## Tesztkörnyezet létrehozása
+
+A gyakorláshoz először készíts egy egyszerű tesztkörnyezetet.
+
+Hozz létre egy új fájlt:
+
+```bash
+nano uj_fiok_inicializalas.sh
+````
+
+Mentsd bele a scriptet, majd tedd futtathatóvá:
+
+```bash
+chmod +x uj_fiok_inicializalas.sh
+```
+
+Ezután rendszergazdai jogosultsággal futtasd:
+
+```bash
+sudo ./uj_fiok_inicializalas.sh
+```
+
+A futtatás után ezekkel a parancsokkal tudod ellenőrizni az eredményt:
+
+```bash
+id felhasznalo01
+ls -la /home/felhasznalo01
+find /home/felhasznalo01 -maxdepth 1 -mindepth 1 | sort
+cat /home/felhasznalo01/README.txt
+```
+
+<details>
+<summary>Ez a tesztkörnyezet arra szolgál, hogy a scriptet biztonságosan kipróbáld, és ellenőrizni tudd, hogy valóban létrejött-e a felhasználó, a home könyvtár, valamint a kezdő mappák és fájlok.</summary>
+
+<div>
+
+A `nano uj_fiok_inicializalas.sh` parancs egy új szövegfájlt nyit meg szerkesztésre. Ebbe kerül maga a Bash script.
+
+A `chmod +x uj_fiok_inicializalas.sh` parancs futtathatóvá teszi a fájlt. A `chmod` a jogosultságokat módosítja. A `+x` azt jelenti, hogy a fájl megkapja a végrehajtási jogot. Enélkül a rendszer nem programként, hanem sima fájlként kezelné.
+
+A `sudo ./uj_fiok_inicializalas.sh` parancs rendszergazdai jogosultsággal indítja el a scriptet. A `sudo` azért kell, mert felhasználólétrehozás és a rendszer felhasználói adatbázisának módosítása csak megfelelő jogosultsággal végezhető. A `./` azt jelenti, hogy az aktuális könyvtárban lévő fájlt szeretnéd futtatni.
+
+Az `id felhasznalo01` parancs megmutatja, hogy létezik-e a felhasználó, és milyen azonosítókat kapott.
+
+Az `ls -la /home/felhasznalo01` parancs kilistázza a home könyvtár tartalmát, beleértve a rejtett fájlokat is.
+
+A `find /home/felhasznalo01 -maxdepth 1 -mindepth 1 | sort` parancs megmutatja a home könyvtár első szintjén létrehozott elemeket rendezett formában.
+
+A `cat /home/felhasznalo01/README.txt` parancs kiírja a létrehozott induló fájl tartalmát.
+
+</div>
+</details>
+
+## Gyakorlati példa
+
+#### A script működése
+
+A script a következő műveleteket hajtja végre:
+
+* ellenőrzi, hogy rendszergazda futtatja-e,
+* bekéri az új felhasználó nevét,
+* ellenőrzi, hogy ez a név már foglalt-e,
+* létrehozza a felhasználót home könyvtárral,
+* beállítja a Bash shellt,
+* jelszót kér az új felhasználóhoz,
+* létrehoz alapértelmezett mappákat a home könyvtárban,
+* elkészít egy kezdő `README.txt` fájlt,
+* beállítja a tulajdonost és a jogosultságokat,
+* végül visszajelzést ad az elkészült fiókról.
+
+Amikor a script elindul, először megnézi, hogy root futtatja-e. Ha nem, akkor azonnal leáll. Ezután bekéri a felhasználó nevét. Ha a mező üres, hibával megáll. Ha a név már foglalt, szintén megáll. Ha minden rendben van, létrehozza a felhasználót home könyvtárral és Bash shell-lel, jelszót kér hozzá, majd elkészíti a felhasználó kezdő könyvtárszerkezetét és egy induló információs fájlt. Végül beállítja a tulajdonost, a jogosultságokat, majd kiírja az eredményt.
+
+#### Példafuttatás
+
+```text
+Add meg az új felhasználó nevét: felhasznalo01
+Adj meg jelszót az új felhasználónak:
+A felhasználói fiók sikeresen létrejött és inicializálva lett.
+Felhasználónév: felhasznalo01
+Home könyvtár: /home/felhasznalo01
+Shell: /bin/bash
+Létrehozott mappák: Dokumentumok, Letoltesek, Projektek, Naplok
+```
+
+#### Példa kód
+
+```bash
+#!/bin/bash
+
+# Ellenőrzés: csak root futtathatja
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+# Felhasználónév bekérése
+read -p "Add meg az új felhasználó nevét: " felhasznalonev
+
+# Üres név ellenőrzése
+if [ -z "$felhasznalonev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+
+# Ellenőrzés: létezik-e már ilyen felhasználó
+if id "$felhasznalonev" &>/dev/null; then
+    echo "Hiba: a(z) $felhasznalonev nevű felhasználó már létezik."
+    exit 1
+fi
+
+# Felhasználó létrehozása home könyvtárral és Bash shell-lel
+useradd -m -s /bin/bash "$felhasznalonev"
+
+# Sikeresség ellenőrzése
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+
+# Jelszó beállítása
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$felhasznalonev"
+
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a jelszó beállítása közben."
+    exit 1
+fi
+
+# Home könyvtár útvonala
+home_utvonal="/home/$felhasznalonev"
+
+# Alapértelmezett mappák létrehozása
+mkdir -p "$home_utvonal/Dokumentumok"
+mkdir -p "$home_utvonal/Letoltesek"
+mkdir -p "$home_utvonal/Projektek"
+mkdir -p "$home_utvonal/Naplok"
+
+# Alapértelmezett kezdőfájl létrehozása
+echo "Üdv, $felhasznalonev!" > "$home_utvonal/README.txt"
+echo "Ez a felhasználói fiók automatikus inicializálással jött létre." >> "$home_utvonal/README.txt"
+echo "Létrehozás ideje: $(date '+%Y-%m-%d %H:%M:%S')" >> "$home_utvonal/README.txt"
+
+# Tulajdonos és jogosultságok beállítása
+chown -R "$felhasznalonev:$felhasznalonev" "$home_utvonal"
+chmod 700 "$home_utvonal"
+chmod 755 "$home_utvonal/Dokumentumok"
+chmod 755 "$home_utvonal/Letoltesek"
+chmod 755 "$home_utvonal/Projektek"
+chmod 755 "$home_utvonal/Naplok"
+chmod 644 "$home_utvonal/README.txt"
+
+# Visszajelzés
+echo "A felhasználói fiók sikeresen létrejött és inicializálva lett."
+echo "Felhasználónév: $felhasznalonev"
+echo "Home könyvtár: $home_utvonal"
+echo "Shell: /bin/bash"
+echo "Létrehozott mappák: Dokumentumok, Letoltesek, Projektek, Naplok"
+```
+
+## Példakód magyarázat
+
+### 1. A Bash értelmező megadása
+
+```bash
+#!/bin/bash
+```
+
+<details>
+<summary>Ez a sor megmondja a rendszernek, hogy ezt a fájlt a Bash parancsértelmezővel kell végrehajtani.</summary>
+
+<div>
+
+Ez a sor a script legelső sora, és gyakran **shebang** sornak nevezik.
+
+A `#!` két karakterből áll.
+
+Az első karakter a `#`, amelyet a scriptben általában megjegyzésekhez is használunk, de a fájl első sorában a `!` jellel együtt különleges jelentése van.
+
+A második karakter a `!`, amely a `#` után azt jelzi, hogy a rendszer itt nem egyszerű megjegyzést lát, hanem azt az információt, hogy melyik programmal kell értelmezni a scriptet.
+
+A `/bin/bash` egy elérési út. Ez azt mutatja meg, hogy a Bash értelmező a rendszerben hol található.
+
+Ha ez a sor hiányzik, a script gyakran akkor is lefuthat, ha például kézzel így indítod: `bash fajlnev.sh`, de önálló futtatásnál a rendszer nem feltétlenül fogja tudni, hogy melyik értelmezőt használja.
+
+</div>
+</details>
+
+### 2. Root jogosultság ellenőrzése
+
+```bash
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy a scriptet valóban rendszergazda futtatja-e, mert felhasználót létrehozni csak megfelelő jogosultsággal lehet.</summary>
+
+<div>
+
+A `"$EUID"` egy speciális változó. Az `EUID` az aktuális felhasználó effective user ID azonosítóját tartalmazza.
+
+A root felhasználó azonosítója Linuxon általában `0`.
+
+A `-ne` jelentése: **not equal**, vagyis nem egyenlő.
+
+Ha az aktuális azonosító nem `0`, akkor nem root futtatja a scriptet.
+
+Az `echo` kiírja a hibaüzenetet.
+
+Az `exit 1` azonnal leállítja a scriptet hibával.
+
+</div>
+</details>
+
+### 3. A felhasználónév bekérése
+
+```bash
+read -p "Add meg az új felhasználó nevét: " felhasznalonev
+```
+
+<details>
+<summary>Ez a rész bekéri a billentyűzetről az új felhasználó nevét, és eltárolja egy változóba.</summary>
+
+<div>
+
+A `read` parancs arra való, hogy a felhasználótól adatot kérjen be futás közben.
+
+A `-p` kapcsoló azt jelenti, hogy a `read` parancs egyből ki is írhat egy rövid kérdést.
+
+A `felhasznalonev` változóban fog eltárolódni a megadott név.
+
+Ez a sor még csak adatot kér be, de nem ellenőrzi annak helyességét.
+
+</div>
+</details>
+
+### 4. Az üres érték ellenőrzése
+
+```bash
+if [ -z "$felhasznalonev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész megakadályozza, hogy a script üres felhasználónévvel próbáljon tovább dolgozni.</summary>
+
+<div>
+
+A `-z` egy speciális tesztoperátor. Azt vizsgálja, hogy a megadott karakterlánc hossza nulla-e.
+
+Ha a felhasználó nem ír be semmit, akkor a változó üres marad.
+
+Ilyenkor a script egyértelmű hibaüzenetet ír ki, majd leáll.
+
+</div>
+</details>
+
+### 5. Annak ellenőrzése, hogy a felhasználó már létezik-e
+
+```bash
+if id "$felhasznalonev" &>/dev/null; then
+    echo "Hiba: a(z) $felhasznalonev nevű felhasználó már létezik."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a blokk megvizsgálja, hogy a megadott név szerepel-e már a rendszer felhasználói között.</summary>
+
+<div>
+
+Az `id` parancs Linuxon megmutatja egy felhasználó azonosítóit és csoportjait.
+
+Ha a megadott felhasználó létezik, akkor az `id` sikeresen lefut.
+
+A `&>/dev/null` azt jelenti, hogy a kimenetet és a hibaüzenetet eldobjuk, mert itt csak az számít, hogy sikerült-e a parancs.
+
+Ha a felhasználó már létezik, akkor a script hibát jelez és leáll.
+
+</div>
+</details>
+
+### 6. A felhasználó létrehozása
+
+```bash
+useradd -m -s /bin/bash "$felhasznalonev"
+```
+
+<details>
+<summary>Ez a sor hozza létre ténylegesen az új Linux felhasználót a szükséges alapbeállításokkal.</summary>
+
+<div>
+
+A `useradd` egy rendszergazdai parancs, amely új felhasználót hoz létre a rendszerben.
+
+A `-m` kapcsoló azt jelenti, hogy a rendszer készítse el a home könyvtárat is.
+
+A `-s /bin/bash` kapcsoló azt mondja meg, hogy a felhasználó alapértelmezett shellje a Bash legyen.
+
+Sok rendszeren a `useradd -m` létrehozás közben az `/etc/skel` mappa alapértelmezett tartalmát is bemásolja a home könyvtárba. Ez a Linux egyik szokásos kezdőinicializálási mechanizmusa.
+
+</div>
+</details>
+
+### 7. A `useradd` parancs sikerességének ellenőrzése
+
+```bash
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy az előző parancs valóban sikeresen lefutott-e.</summary>
+
+<div>
+
+A `$?` egy speciális változó Bash-ben. Mindig az előzőleg lefutott parancs kilépési kódját tartalmazza.
+
+Ha az értéke `0`, akkor a parancs sikeres volt.
+
+Ha az értéke nem `0`, akkor valamilyen hiba történt.
+
+Ez a blokk tehát azt vizsgálja meg, hogy a felhasználó létrehozása rendben megtörtént-e.
+
+</div>
+</details>
+
+### 8. Jelszó beállítása
+
+```bash
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$felhasznalonev"
+```
+
+<details>
+<summary>Ez a blokk interaktívan jelszót állít be az új fiókhoz.</summary>
+
+<div>
+
+Az `echo` kiír egy rövid tájékoztató szöveget.
+
+A `passwd` parancs a felhasználó jelszavának beállítására szolgál.
+
+A rendszer ilyenkor általában kétszer kéri be a jelszót.
+
+A gépelés közben nem jelennek meg karakterek a képernyőn, ez Linux alatt normális viselkedés.
+
+</div>
+</details>
+
+### 9. A home könyvtár elérési útjának eltárolása
+
+```bash
+home_utvonal="/home/$felhasznalonev"
+```
+
+<details>
+<summary>Ez a sor egy változóban eltárolja a home könyvtár útvonalát, hogy később könnyebben tudjuk használni.</summary>
+
+<div>
+
+A `home_utvonal` egy saját változónév.
+
+Az értéke a felhasználó home könyvtárának elérési útja lesz.
+
+Ez azért praktikus, mert később több parancsban is felhasználhatjuk ugyanazt az útvonalat anélkül, hogy mindig újra ki kellene írni.
+
+</div>
+</details>
+
+### 10. Az alapértelmezett mappák létrehozása
+
+```bash
+mkdir -p "$home_utvonal/Dokumentumok"
+mkdir -p "$home_utvonal/Letoltesek"
+mkdir -p "$home_utvonal/Projektek"
+mkdir -p "$home_utvonal/Naplok"
+```
+
+<details>
+<summary>Ez a rész elkészíti a felhasználó kezdő mappastruktúráját.</summary>
+
+<div>
+
+A `mkdir` parancs könyvtár létrehozására szolgál.
+
+A `-p` kapcsoló azt jelenti, hogy ha a szükséges útvonal még nem létezik, akkor a rendszer hozza létre, és ne jelezzen hibát, ha a könyvtár már megvan.
+
+A script itt négy induló mappát készít:
+
+* `Dokumentumok`
+* `Letoltesek`
+* `Projektek`
+* `Naplok`
+
+Ez az alapértelmezett inicializálás egyik legfontosabb része, mert a felhasználó már egy előkészített környezetet kap.
+
+</div>
+</details>
+
+### 11. Az induló fájl létrehozása
+
+```bash
+echo "Üdv, $felhasznalonev!" > "$home_utvonal/README.txt"
+echo "Ez a felhasználói fiók automatikus inicializálással jött létre." >> "$home_utvonal/README.txt"
+echo "Létrehozás ideje: $(date '+%Y-%m-%d %H:%M:%S')" >> "$home_utvonal/README.txt"
+```
+
+<details>
+<summary>Ez a rész elkészít egy kezdő szövegfájlt, amely alapinformációkat tartalmaz a frissen létrehozott fiókról.</summary>
+
+<div>
+
+Az `echo` szöveget ír ki.
+
+Az első sor a `>` operátor segítségével új fájlba ír, vagyis létrehozza a `README.txt` fájlt.
+
+A `>>` operátor hozzáfűzi a további sorokat ugyanahhoz a fájlhoz.
+
+A `date` parancs az aktuális dátumot és időt adja vissza a megadott formátumban.
+
+Ez a fájl hasznos lehet tájékoztatásra, dokumentálásra vagy tanulási célra.
+
+</div>
+</details>
+
+### 12. A tulajdonos és jogosultságok beállítása
+
+```bash
+chown -R "$felhasznalonev:$felhasznalonev" "$home_utvonal"
+chmod 700 "$home_utvonal"
+chmod 755 "$home_utvonal/Dokumentumok"
+chmod 755 "$home_utvonal/Letoltesek"
+chmod 755 "$home_utvonal/Projektek"
+chmod 755 "$home_utvonal/Naplok"
+chmod 644 "$home_utvonal/README.txt"
+```
+
+<details>
+<summary>Ez a rész gondoskodik arról, hogy a létrehozott fájlok és könyvtárak megfelelő tulajdonoshoz tartozzanak, és megfelelő jogosultságokat kapjanak.</summary>
+
+<div>
+
+A `chown` parancs tulajdonost és csoportot módosít.
+
+A `-R` kapcsoló rekurzív működést jelent, vagyis az adott könyvtár teljes tartalmára is kiterjed.
+
+A `chmod` parancs jogosultságokat állít be.
+
+A `700` azt jelenti, hogy a home könyvtárhoz csak maga a felhasználó fér hozzá.
+
+A `755` a mappákon azt jelenti, hogy a tulajdonos teljes jogot kap, mások pedig olvasási és belépési jogot. Ezek a mappák a home könyvtáron belül vannak, így kívülről a `700` miatt továbbra sem lesznek elérhetők.
+
+A `644` a `README.txt` fájlon azt jelenti, hogy a tulajdonos írhatja és olvashatja, mások csak olvashatják. A gyakorlatban a home könyvtár `700` jogosultsága miatt ez a fájl kívülről nem lesz hozzáférhető.
+
+</div>
+</details>
+
+### 13. Visszajelzés a script végén
+
+```bash
+echo "A felhasználói fiók sikeresen létrejött és inicializálva lett."
+echo "Felhasználónév: $felhasznalonev"
+echo "Home könyvtár: $home_utvonal"
+echo "Shell: /bin/bash"
+echo "Létrehozott mappák: Dokumentumok, Letoltesek, Projektek, Naplok"
+```
+
+<details>
+<summary>Ez a blokk összefoglalja a sikeres futás eredményét.</summary>
+
+<div>
+
+Az első `echo` egy általános sikerüzenet.
+
+A második kiírja a létrehozott felhasználó nevét.
+
+A harmadik kiírja a home könyvtár elérési útját.
+
+A negyedik kiírja a beállított shellt.
+
+Az ötödik felsorolja a létrehozott kezdő mappákat.
+
+Ez a rész nem kötelező a működéshez, de oktatási és adminisztrációs szempontból nagyon hasznos, mert azonnali visszajelzést ad.
+
+</div>
+</details>
+
+## Gyakorlati feladat
+
+Készíts egy `uj_fiok_kezdobeallitas.sh` nevű Bash scriptet, amely egy új felhasználót hoz létre, majd inicializálja a fiók kezdő környezetét.
+
+A script feladata legyen:
+
+1. Ellenőrizze, hogy root futtatja-e.
+2. Kérje be az új felhasználó nevét.
+3. Vizsgálja meg, hogy a név foglalt-e.
+4. Hozza létre a felhasználót home könyvtárral.
+5. Állítsa be a `/bin/bash` shellt.
+6. Kérjen jelszót.
+7. Hozzon létre legalább három alapértelmezett mappát a home könyvtárban.
+8. Készítsen egy kezdő `README.txt` fájlt.
+9. Állítsa be a home könyvtár jogosultságát `700` értékre.
+10. A végén írja ki a létrehozott felhasználó nevét, home könyvtárát és a létrehozott mappák nevét.
+
+### Plusz feladat (szorgalmi)
+
+Egészítsd ki a scriptedet úgy, hogy a végén a következőket is kiírja:
+
+* az új felhasználó UID azonosítóját,
+* azt, hogy a `README.txt` fájl létezik-e,
+* azt, hogy hány mappa jött létre az inicializálás során,
+* és azt is, hogy a home könyvtár jogosultsága valóban `700` lett-e.
+
+<details className="magyarazat-resz">
+<summary>Feladatmegoldás</summary>
+
+<div className="magyarazat-doboz">
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+read -p "Add meg az új felhasználó nevét: " felhasznalonev
+
+if [ -z "$felhasznalonev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+
+if id "$felhasznalonev" &>/dev/null; then
+    echo "Hiba: a(z) $felhasznalonev nevű felhasználó már létezik."
+    exit 1
+fi
+
+useradd -m -s /bin/bash "$felhasznalonev"
+
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$felhasznalonev"
+
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a jelszó beállítása közben."
+    exit 1
+fi
+
+home_utvonal="/home/$felhasznalonev"
+
+mkdir -p "$home_utvonal/Dokumentumok"
+mkdir -p "$home_utvonal/Letoltesek"
+mkdir -p "$home_utvonal/Projektek"
+
+echo "Üdv, $felhasznalonev!" > "$home_utvonal/README.txt"
+echo "Ez a fiók automatikus inicializálással jött létre." >> "$home_utvonal/README.txt"
+
+chown -R "$felhasznalonev:$felhasznalonev" "$home_utvonal"
+chmod 700 "$home_utvonal"
+chmod 755 "$home_utvonal/Dokumentumok"
+chmod 755 "$home_utvonal/Letoltesek"
+chmod 755 "$home_utvonal/Projektek"
+chmod 644 "$home_utvonal/README.txt"
+
+echo "A felhasználói fiók sikeresen létrejött és inicializálva lett."
+echo "Felhasználónév: $felhasznalonev"
+echo "Home könyvtár: $home_utvonal"
+echo "Shell: /bin/bash"
+```
+
+</div>
+</details>
+
+<details
+  style={{
+    border: "1px solid var(--ifm-color-danger)",
+    borderRadius: "8px",
+    background: "rgba(220, 53, 69, 0.08)",
+    padding: "0.25rem 0.75rem",
+    marginTop: "1rem"
+  }}
+>
+<summary style={{ cursor: "pointer", fontWeight: "700", color: "var(--ifm-color-danger)" }}>
+Reset script a példa teljes visszaállításához
+</summary>
+
+<div style={{ marginTop: "0.75rem" }}>
+
+Ez a script arra való, hogy a példában létrehozott felhasználókat és a hozzájuk tartozó home könyvtárakat eltávolítsd, majd tiszta állapotból újra tudd kezdeni a gyakorlást.
+
+A script elején a változókat szabadon átírhatod. Így ugyanaz a reset script több különböző példánál is használható.
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+# Testreszabható adatok
+felhasznalok=("felhasznalo01" "felhasznalo02")
+
+echo "Törlés indul..."
+
+# Felhasználók törlése home könyvtárral együtt
+for felhasznalonev in "${felhasznalok[@]}"; do
+    if id "$felhasznalonev" &>/dev/null; then
+        userdel -r "$felhasznalonev"
+        echo "Törölve: $felhasznalonev"
+    else
+        echo "Nem létezik, kihagyva: $felhasznalonev"
+    fi
+done
+
+echo "A reset művelet befejeződött."
+```
+
+Ha csak egyetlen felhasználót akarsz törölni, akkor a tömbben elég egy nevet meghagyni:
+
+```bash
+felhasznalok=("felhasznalo01")
+```
+
+A `userdel -r` parancs törli a felhasználót, és megpróbálja eltávolítani a home könyvtárát is.
+
+Fontos, hogy ez a script valódi felhasználókat töröl a rendszerből, ezért csak olyan neveket adj meg benne, amelyeket kifejezetten a gyakorlathoz hoztál létre.
+
+</div>
+</details>

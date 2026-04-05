@@ -1,0 +1,629 @@
+---
+title: Felhasználói fiók zárolása, feloldása és törlése
+sidebar_position: 6
+---
+
+# Felhasználói fiók zárolása, feloldása és törlése
+
+## Bevezetés
+
+Ebben az anyagban egy olyan Bash scriptet készítünk, amely meglévő Linux felhasználói fiókok kezelésére szolgál. A script három különböző adminisztrációs műveletet tud végrehajtani:
+
+- egy felhasználói fiók zárolását,
+- egy zárolt fiók feloldását,
+- valamint egy felhasználói fiók teljes törlését.
+
+Ez a téma azért fontos, mert egy rendszergazda munkája nem csak új felhasználók létrehozásából áll. Ugyanolyan gyakori feladat az is, hogy egy ideiglenesen nem használt fiókot letiltsunk, egy tévedésből zárolt fiókot újra engedélyezzünk, vagy végleg eltávolítsunk egy már nem szükséges felhasználót.
+
+Ebben a példában most egy kis menüvezérelt **adminisztrációs vezérlőprogramot**, amely a felhasználó választása alapján hajtja végre a megfelelő műveletet.
+
+## Mit jelent a zárolás, feloldás és törlés?
+
+Mielőtt a kódra térnénk, érdemes tisztázni a három művelet közti különbséget.
+
+A **zárolás** azt jelenti, hogy a felhasználó fiókja továbbra is létezik a rendszerben, de nem tud normál módon belépni. Ez hasznos például akkor, ha valakit ideiglenesen ki kell venni a használatból, de a fiókját és az adatait még nem akarjuk törölni.
+
+A **feloldás** ennek az ellenkezője. Ilyenkor egy korábban zárolt fiókot újra használhatóvá teszünk.
+
+A **törlés** azt jelenti, hogy a felhasználói fiókot végleg eltávolítjuk a rendszerből. Bizonyos esetekben a home könyvtárat is törölni szoktuk, így a felhasználóhoz tartozó helyi állományok is eltűnnek.
+
+## Tesztkörnyezet létrehozása
+
+A gyakorláshoz először készíts egy új scriptfájlt:
+
+```bash
+nano fiok_karbantarto.sh
+````
+
+Mentsd bele a scriptet, majd tedd futtathatóvá:
+
+```bash
+chmod +x fiok_karbantarto.sh
+```
+
+Ezután rendszergazdai jogosultsággal futtasd:
+
+```bash
+sudo ./fiok_karbantarto.sh
+```
+
+A műveletek eredményét ezekkel a parancsokkal tudod ellenőrizni:
+
+```bash
+passwd -S tanulo01
+id tanulo01
+grep tanulo01 /etc/passwd
+ls -ld /home/tanulo01
+```
+
+<details>
+<summary>Ez a tesztkörnyezet arra szolgál, hogy a zárolás, feloldás és törlés eredményét külön is ellenőrizni tudd.</summary>
+
+<div>
+
+A `nano fiok_karbantarto.sh` parancs egy új szövegfájlt nyit meg szerkesztésre. Ebbe kerül maga a Bash script.
+
+A `chmod +x fiok_karbantarto.sh` parancs futtathatóvá teszi a fájlt. A `chmod` a jogosultságokat módosítja, a `+x` pedig végrehajtási jogot ad a fájlnak.
+
+A `sudo ./fiok_karbantarto.sh` parancs rendszergazdai jogosultsággal futtatja a scriptet. Erre azért van szükség, mert a felhasználói fiókok módosítása csak megfelelő jogosultsággal történhet.
+
+A `passwd -S tanulo01` parancs rövid állapotjelentést ad a felhasználó jelszaváról. Ennek alapján látható, hogy a fiók zárolt vagy használható állapotban van-e.
+
+Az `id tanulo01` parancs megmutatja, hogy a felhasználó létezik-e még a rendszerben.
+
+A `grep tanulo01 /etc/passwd` parancs megkeresi a felhasználó bejegyzését a rendszer nyilvántartásában.
+
+Az `ls -ld /home/tanulo01` parancs segít ellenőrizni, hogy a home könyvtár megmaradt-e vagy törlődött.
+
+</div>
+</details>
+
+## Gyakorlati példa
+
+#### A script működése röviden
+
+A script a következő lépésekből áll:
+
+* ellenőrzi, hogy root futtatja-e,
+* bekéri, melyik felhasználón szeretnénk műveletet végezni,
+* ellenőrzi, hogy a felhasználó valóban létezik-e,
+* felkínál három lehetőséget,
+* a választás alapján zárolja, feloldja vagy törli a fiókot,
+* törlés esetén külön megerősítést kér,
+* a végén visszajelzést ad az eredményről.
+
+#### Miért jó ez a megoldás?
+
+Ebben a scriptben már nem ugyanaz a lineáris logika van, mint a korábbi példákban. Itt a program egy **választási helyzetet** kezel, vagyis több lehetséges út közül hajt végre egyet. Erre a Bash-ben a `case` szerkezet nagyon alkalmas.
+
+Ez a felépítés közelebb áll a valódi rendszergazdai munkához, mert a gyakorlatban gyakran nem külön scriptet írunk minden apró műveletre, hanem egy kisebb adminisztrációs segédprogramot készítünk.
+
+#### Példafuttatás
+
+```text
+Add meg annak a felhasználónak a nevét, akivel dolgozni szeretnél: tanulo01
+
+Válassz műveletet:
+1 - Fiók zárolása
+2 - Fiók feloldása
+3 - Fiók törlése
+
+A választott művelet száma: 1
+A felhasználói fiók zárolása megtörtént: tanulo01
+```
+
+#### Példa kód
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+read -p "Add meg annak a felhasználónak a nevét, akivel dolgozni szeretnél: " cel_fiok
+
+if [ -z "$cel_fiok" ]; then
+    echo "Hiba: nem adtál meg felhasználónevet."
+    exit 1
+fi
+
+if ! id "$cel_fiok" &>/dev/null; then
+    echo "Hiba: a(z) $cel_fiok nevű felhasználó nem létezik."
+    exit 1
+fi
+
+echo
+echo "Válassz műveletet:"
+echo "1 - Fiók zárolása"
+echo "2 - Fiók feloldása"
+echo "3 - Fiók törlése"
+echo
+
+read -p "A választott művelet száma: " muveleti_kod
+
+case "$muveleti_kod" in
+    1)
+        usermod -L "$cel_fiok"
+
+        if [ $? -eq 0 ]; then
+            echo "A felhasználói fiók zárolása megtörtént: $cel_fiok"
+        else
+            echo "Hiba történt a zárolás közben."
+            exit 1
+        fi
+        ;;
+    2)
+        usermod -U "$cel_fiok"
+
+        if [ $? -eq 0 ]; then
+            echo "A felhasználói fiók feloldása megtörtént: $cel_fiok"
+        else
+            echo "Hiba történt a feloldás közben."
+            exit 1
+        fi
+        ;;
+    3)
+        read -p "Biztosan törölni szeretnéd a felhasználót és a home könyvtárát is? (i/n): " megerosites
+
+        if [ "$megerosites" = "i" ]; then
+            userdel -r "$cel_fiok"
+
+            if [ $? -eq 0 ]; then
+                echo "A felhasználói fiók törlése megtörtént: $cel_fiok"
+            else
+                echo "Hiba történt a törlés közben."
+                exit 1
+            fi
+        else
+            echo "A törlés megszakítva."
+        fi
+        ;;
+    *)
+        echo "Hiba: érvénytelen menüpont."
+        exit 1
+        ;;
+esac
+```
+
+## Példakód magyarázat
+
+### 1. A Bash értelmező megadása
+
+```bash
+#!/bin/bash
+```
+
+<details>
+<summary>Ez a sor megadja, hogy a scriptet a Bash parancsértelmezővel kell végrehajtani.</summary>
+
+<div>
+
+Ez a script legelső sora. Gyakran **shebang** sornak nevezik.
+
+A `#!` azt jelzi a rendszernek, hogy itt nem egyszerű szövegről van szó, hanem arról az információról, hogy melyik program dolgozza fel a fájlt.
+
+A `/bin/bash` a Bash értelmező elérési útja.
+
+</div>
+</details>
+
+### 2. Root jogosultság ellenőrzése
+
+```bash
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész megakadályozza, hogy a scriptet jogosulatlan felhasználó futtassa.</summary>
+
+<div>
+
+A `"$EUID"` az aktuális felhasználó effective user ID azonosítóját tartalmazza.
+
+A root felhasználó azonosítója rendszerint `0`.
+
+A `-ne` azt jelenti: nem egyenlő.
+
+Ha az aktuális azonosító nem `0`, akkor a script hibát ír ki és leáll.
+
+Ez azért fontos, mert felhasználói fiókot zárolni, feloldani vagy törölni csak rendszergazda tud.
+
+</div>
+</details>
+
+### 3. A célfelhasználó nevének bekérése
+
+```bash
+read -p "Add meg annak a felhasználónak a nevét, akivel dolgozni szeretnél: " cel_fiok
+```
+
+<details>
+<summary>Ez a rész bekéri, hogy melyik fiókon szeretnénk műveletet végezni.</summary>
+
+<div>
+
+A `read` parancs futás közben adatot kér be.
+
+A `-p` kapcsolóval rögtön meg is tudjuk jeleníteni a kérdést.
+
+A `cel_fiok` változó neve itt tudatosan nem ugyanaz, mint a korábbi anyagokban. Most azt hangsúlyozza, hogy nem új felhasználót hozunk létre, hanem egy már meglévő célfiókon végzünk műveletet.
+
+</div>
+</details>
+
+### 4. Az üres bevitel ellenőrzése
+
+```bash
+if [ -z "$cel_fiok" ]; then
+    echo "Hiba: nem adtál meg felhasználónevet."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a blokk ellenőrzi, hogy a felhasználónév mező nem maradt-e üresen.</summary>
+
+<div>
+
+A `-z` tesztoperátor azt vizsgálja, hogy a karakterlánc hossza nulla-e.
+
+Ha a változó üres, akkor a script nem tud tovább dolgozni, ezért hibával leáll.
+
+</div>
+</details>
+
+### 5. Annak ellenőrzése, hogy a felhasználó létezik-e
+
+```bash
+if ! id "$cel_fiok" &>/dev/null; then
+    echo "Hiba: a(z) $cel_fiok nevű felhasználó nem létezik."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész csak akkor engedi tovább a scriptet, ha a megadott felhasználó valóban létezik.</summary>
+
+<div>
+
+Az `id` parancs lekérdezi egy felhasználó azonosítóit és csoportjait.
+
+Ha a felhasználó nem létezik, a parancs hibával tér vissza.
+
+A `!` operátor megfordítja a feltétel logikai értékét.
+
+Az `&>/dev/null` eldobja a normál kimenetet és a hibaüzenetet, mert itt most csak az számít, hogy sikerült-e a parancs.
+
+</div>
+</details>
+
+### 6. A menü megjelenítése
+
+```bash
+echo
+echo "Válassz műveletet:"
+echo "1 - Fiók zárolása"
+echo "2 - Fiók feloldása"
+echo "3 - Fiók törlése"
+echo
+```
+
+<details>
+<summary>Ez a rész kiírja a választható műveleteket.</summary>
+
+<div>
+
+Az `echo` parancs szöveget jelenít meg.
+
+Itt több külön `echo` sorral jelenítjük meg a menüt, hogy a felhasználó jól lássa a lehetőségeket.
+
+Az üres `echo` sorok vizuálisan tagolják a kimenetet.
+
+</div>
+</details>
+
+### 7. A választott művelet bekérése
+
+```bash
+read -p "A választott művelet száma: " muveleti_kod
+```
+
+<details>
+<summary>Ez a sor eltárolja, hogy melyik műveletet választotta az adminisztrátor.</summary>
+
+<div>
+
+A `muveleti_kod` változóban egy szám fog eltárolódni, például `1`, `2` vagy `3`.
+
+A változónév itt is eltér a korábbi mintáktól, mert most nem adatbekérő mezőt, hanem egy menüpontkódot tárolunk.
+
+</div>
+</details>
+
+### 8. A `case` szerkezet használata
+
+```bash
+case "$muveleti_kod" in
+    1)
+        ...
+        ;;
+    2)
+        ...
+        ;;
+    3)
+        ...
+        ;;
+    *)
+        ...
+        ;;
+esac
+```
+
+<details>
+<summary>Ez a szerkezet dönti el, hogy melyik ág fusson le a megadott menüpont alapján.</summary>
+
+<div>
+
+A `case` szerkezet több lehetséges érték közötti választásra szolgál.
+
+Ez Bash-ben nagyon hasznos akkor, ha a felhasználó több opció közül választhat.
+
+A `1)`, `2)` és `3)` az egyes menüpontok.
+
+A `;;` lezárja az adott ágat.
+
+A `*)` az alapértelmezett ág. Ez akkor fut le, ha a felhasználó nem érvényes menüpontot adott meg.
+
+Ez a megoldás sokkal áttekinthetőbb ilyen helyzetben, mint sok egymásba ágyazott `if`.
+
+</div>
+</details>
+
+### 9. Fiók zárolása
+
+```bash
+usermod -L "$cel_fiok"
+```
+
+<details>
+<summary>Ez a parancs zárolja a felhasználó jelszavát, vagyis megakadályozza a normál belépést.</summary>
+
+<div>
+
+A `usermod` parancs meglévő felhasználói fiókok módosítására szolgál.
+
+A `-L` kapcsoló jelentése: **lock**, vagyis zárolás.
+
+Ez általában a jelszómező módosításával tiltja meg a bejelentkezést.
+
+A fiók ettől még a rendszerben marad, csak használata lesz korlátozott.
+
+</div>
+</details>
+
+### 10. Fiók feloldása
+
+```bash
+usermod -U "$cel_fiok"
+```
+
+<details>
+<summary>Ez a parancs feloldja egy korábban zárolt felhasználó belépési tiltását.</summary>
+
+<div>
+
+A `-U` kapcsoló jelentése: **unlock**, vagyis feloldás.
+
+Ezzel a művelettel a korábban zárolt fiók újra használhatóvá válik.
+
+Ez hasznos például akkor, ha egy fiókot csak ideiglenesen tiltottunk le.
+
+</div>
+</details>
+
+### 11. Törlés megerősítéssel
+
+```bash
+read -p "Biztosan törölni szeretnéd a felhasználót és a home könyvtárát is? (i/n): " megerosites
+```
+
+<details>
+<summary>Ez a rész azért kell, hogy a törlés ne történhessen meg véletlenül.</summary>
+
+<div>
+
+A törlés visszafordíthatatlanabb művelet, mint a zárolás vagy a feloldás.
+
+Ezért a script külön megerősítést kér.
+
+A `megerosites` változó tárolja az adminisztrátor válaszát.
+
+Itt is más elnevezést használunk, mint a korábbi mintákban, hogy a script nyelvezete illeszkedjen a konkrét feladathoz.
+
+</div>
+</details>
+
+### 12. Felhasználó törlése home könyvtárral együtt
+
+```bash
+userdel -r "$cel_fiok"
+```
+
+<details>
+<summary>Ez a parancs törli a felhasználót, és megpróbálja eltávolítani a home könyvtárát is.</summary>
+
+<div>
+
+A `userdel` parancs felhasználók törlésére szolgál.
+
+A `-r` kapcsoló azt jelenti, hogy a rendszer a felhasználó home könyvtárát és levelezési állományait is próbálja eltávolítani.
+
+Ez már valódi, végleges eltávolítás, ezért különösen óvatosan kell használni.
+
+</div>
+</details>
+
+### 13. Hibakezelés és visszajelzés
+
+A script minden ágnál ellenőrzi, hogy a parancs sikeresen lefutott-e:
+
+```bash
+if [ $? -eq 0 ]; then
+    echo "A művelet sikeresen lefutott."
+else
+    echo "Hiba történt a művelet közben."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész biztosítja, hogy a script ne csak lefusson, hanem vissza is jelezze, sikeres volt-e a művelet.</summary>
+
+<div>
+
+A `$?` az előző parancs kilépési kódját tartalmazza.
+
+A `0` sikeres futást jelent.
+
+Az `-eq` jelentése: egyenlő.
+
+Ha a parancs sikeres volt, a script pozitív visszajelzést ad. Ha nem, akkor hibaüzenetet ír ki és leáll.
+
+</div>
+</details>
+
+## Gyakorlati feladat
+
+Készíts egy `felhasznalo_muveletek.sh` nevű Bash scriptet, amely meglévő felhasználói fiókok zárolását, feloldását és törlését tudja elvégezni.
+
+A script feladata legyen:
+
+1. Ellenőrizze, hogy root futtatja-e.
+2. Kérje be annak a felhasználónak a nevét, akivel dolgozni kell.
+3. Vizsgálja meg, hogy a felhasználó létezik-e.
+4. Jelenítsen meg egy menüt három lehetőséggel.
+5. Tudja zárolni a fiókot.
+6. Tudja feloldani a fiókot.
+7. Tudja törölni a fiókot.
+8. Törlés előtt kérjen megerősítést.
+9. Minden művelet után írjon ki egyértelmű visszajelzést.
+10. Hibás menüpont esetén álljon le hibaüzenettel.
+
+### Plusz feladat (szorgalmi)
+
+Egészítsd ki a scriptedet úgy, hogy:
+
+* zárolás előtt írja ki a fiók jelenlegi állapotát,
+* feloldás után automatikusan ellenőrizze a `passwd -S` kimenetét,
+* törlés előtt készítsen egy egyszerű mentést a home könyvtárról egy megadott mappába,
+* és a végén naplózza a végrehajtott műveletet egy `fiokmuveletek.log` fájlba.
+
+<details className="magyarazat-resz">
+<summary>Feladatmegoldás</summary>
+
+<div className="magyarazat-doboz">
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root futtathatja."
+    exit 1
+fi
+
+read -p "Melyik felhasználóval szeretnél műveletet végezni? " alany
+
+if [ -z "$alany" ]; then
+    echo "Hiba: nem adtál meg felhasználónevet."
+    exit 1
+fi
+
+if ! id "$alany" &>/dev/null; then
+    echo "Hiba: a megadott felhasználó nem létezik."
+    exit 1
+fi
+
+echo "1 - Zárolás"
+echo "2 - Feloldás"
+echo "3 - Törlés"
+
+read -p "Add meg a kívánt művelet számát: " dontes
+
+case "$dontes" in
+    1)
+        usermod -L "$alany"
+        echo "Zárolva: $alany"
+        ;;
+    2)
+        usermod -U "$alany"
+        echo "Feloldva: $alany"
+        ;;
+    3)
+        read -p "Biztosan törlöd a felhasználót a home könyvtárával együtt? (i/n): " valasz
+
+        if [ "$valasz" = "i" ]; then
+            userdel -r "$alany"
+            echo "Törölve: $alany"
+        else
+            echo "A törlés megszakítva."
+        fi
+        ;;
+    *)
+        echo "Hiba: érvénytelen menüpont."
+        exit 1
+        ;;
+esac
+```
+
+</div>
+</details>
+
+<details
+  style={{
+    border: "1px solid var(--ifm-color-danger)",
+    borderRadius: "8px",
+    background: "rgba(220, 53, 69, 0.08)",
+    padding: "0.25rem 0.75rem",
+    marginTop: "1rem"
+  }}
+>
+<summary style={{ cursor: "pointer", fontWeight: "700", color: "var(--ifm-color-danger)" }}>
+Reset script a példa teljes visszaállításához
+</summary>
+
+<div style={{ marginTop: "0.75rem" }}>
+
+Mivel ebben a példában nem új felhasználót hozunk létre, hanem meglévő fiókok állapotát változtatjuk, a reset script célja az, hogy egy tesztfelhasználót újra létrehozzon a következő gyakorláshoz.
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root futtathatja."
+    exit 1
+fi
+
+tesztfiok="tanulo01"
+
+if ! id "$tesztfiok" &>/dev/null; then
+    useradd -m -s /bin/bash "$tesztfiok"
+    echo "Adj meg jelszót a tesztfelhasználóhoz:"
+    passwd "$tesztfiok"
+    chmod 700 "/home/$tesztfiok"
+    chown -R "$tesztfiok:$tesztfiok" "/home/$tesztfiok"
+    echo "A tesztfelhasználó létrejött: $tesztfiok"
+else
+    usermod -U "$tesztfiok" 2>/dev/null
+    echo "A tesztfelhasználó már létezik, feloldva: $tesztfiok"
+fi
+```
+
+Ez a reset script most nem töröl, hanem visszaállít egy használható tesztállapotot, mert ehhez a témához ez praktikusabb, mint a teljes eltakarítás.
+
+</div>
+</details>

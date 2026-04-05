@@ -1,0 +1,684 @@
+---
+title: Felhasználó létrehozása megadott shell beállítással
+sidebar_position: 3
+---
+
+# Felhasználó létrehozása megadott shell beállítással
+
+## Bevezetés
+
+Ebben az anyagban egy olyan Bash scriptet készítünk, amely egy új Linux felhasználót hoz létre úgy, hogy közben a hozzá tartozó shellt is mi adjuk meg. A script létrehozza a felhasználót, elkészíti a home könyvtárát, beállítja a választott shellt, majd jelszót kér hozzá, és elvégzi az alapvető jogosultsági beállításokat is.
+
+Ez a megoldás különösen akkor hasznos, ha nem minden felhasználónak ugyanazt a shellt szeretnéd kiosztani. Előfordulhat, hogy egyes felhasználók Bash környezetet kapnak, mások egyszerűbb shellt, vagy bizonyos fiókoknál korlátozni szeretnéd az interaktív belépést. A shell beállítása ezért fontos része a felhasználókezelésnek.
+
+## Tesztkörnyezet létrehozása
+
+A gyakorláshoz először készíts egy egyszerű tesztkörnyezetet.
+
+Hozz létre egy új fájlt:
+
+```bash
+nano uj_felhasznalo_shell.sh
+````
+
+Mentsd bele a scriptet, majd tedd futtathatóvá:
+
+```bash
+chmod +x uj_felhasznalo_shell.sh
+```
+
+Érdemes előtte megnézni, milyen shellek érhetők el a rendszerben:
+
+```bash
+cat /etc/shells
+```
+
+Ezután rendszergazdai jogosultsággal futtasd:
+
+```bash
+sudo ./uj_felhasznalo_shell.sh
+```
+
+A futtatás után ezekkel a parancsokkal tudod ellenőrizni az eredményt:
+
+```bash
+id shelluser01
+ls -ld /home/shelluser01
+grep shelluser01 /etc/passwd
+```
+
+<details>
+<summary>Ez a tesztkörnyezet arra szolgál, hogy a scriptet biztonságosan kipróbáld, és ellenőrizni tudd, hogy valóban létrejött-e a felhasználó, a home könyvtár és a megadott shell beállítása.</summary>
+
+<div>
+
+A `nano uj_felhasznalo_shell.sh` parancs egy új szövegfájlt nyit meg szerkesztésre. Ebbe kerül maga a Bash script.
+
+A `chmod +x uj_felhasznalo_shell.sh` parancs futtathatóvá teszi a fájlt. A `chmod` a jogosultságokat módosítja. A `+x` azt jelenti, hogy a fájl megkapja a végrehajtási jogot. Enélkül a rendszer nem programként, hanem sima fájlként kezelné.
+
+A `cat /etc/shells` parancs kiírja a rendszerben engedélyezett shellek listáját. Ez azért hasznos, mert a scriptben olyan shellt célszerű megadni, amely ténylegesen létezik, és amelyet a rendszer elfogad bejelentkezési shellként.
+
+A `sudo ./uj_felhasznalo_shell.sh` parancs rendszergazdai jogosultsággal indítja el a scriptet. A `sudo` azért kell, mert felhasználólétrehozás csak megfelelő jogosultsággal végezhető. A `./` azt jelenti, hogy az aktuális könyvtárban lévő fájlt szeretnéd futtatni.
+
+Az `id shelluser01` parancs megmutatja, hogy létezik-e a felhasználó, és milyen azonosítókat kapott.
+
+Az `ls -ld /home/shelluser01` parancs kiírja a home könyvtár jogosultságait és tulajdonosi adatait.
+
+A `grep shelluser01 /etc/passwd` parancs megkeresi a felhasználó bejegyzését a rendszer felhasználói nyilvántartásában. Ennek a sornak a legvégén látható a beállított shell.
+
+</div>
+</details>
+
+## Gyakorlati példa
+
+#### A script működése
+
+A script a következő műveleteket hajtja végre:
+
+* ellenőrzi, hogy rendszergazda futtatja-e,
+* bekéri az új felhasználó nevét,
+* ellenőrzi, hogy ez a név már foglalt-e,
+* bekéri a kívánt shell elérési útját,
+* megvizsgálja, hogy a shell létezik-e és engedélyezett-e,
+* létrehozza a felhasználót home könyvtárral,
+* beállítja a megadott shellt,
+* jelszót kér az új felhasználóhoz,
+* beállítja a home könyvtár jogosultságait.
+
+Amikor a script elindul, először megnézi, hogy root futtatja-e. Ha nem, akkor azonnal leáll. Ezután bekéri a felhasználó nevét, majd ellenőrzi, hogy a név nem üres-e, és nem foglalt-e már. Ezután bekéri a kívánt shell teljes elérési útját. A script megvizsgálja, hogy a megadott shell valóban létezik-e, futtatható-e, és szerepel-e az engedélyezett shellek listájában. Ha minden rendben van, létrehozza az új felhasználót home könyvtárral és a megadott shell-lel, jelszót kér hozzá, majd beállítja a home könyvtár tulajdonosát és jogosultságait. Végül visszajelzést ad a sikeres létrehozásról.
+
+#### Példafuttatás
+
+```text
+Add meg az új felhasználó nevét: shelluser01
+Add meg a kívánt shell teljes elérési útját: /bin/sh
+Adj meg jelszót az új felhasználónak:
+A felhasználó sikeresen létrejött.
+Felhasználónév: shelluser01
+Home könyvtár: /home/shelluser01
+Shell: /bin/sh
+```
+
+#### Példa kód
+
+```bash
+#!/bin/bash
+
+# Ellenőrzés: csak root futtathatja
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+# Felhasználónév bekérése
+read -p "Add meg az új felhasználó nevét: " felhasznalonev
+
+# Üres név ellenőrzése
+if [ -z "$felhasznalonev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+
+# Ellenőrzés: létezik-e már ilyen felhasználó
+if id "$felhasznalonev" &>/dev/null; then
+    echo "Hiba: a(z) $felhasznalonev nevű felhasználó már létezik."
+    exit 1
+fi
+
+# Shell bekérése
+read -p "Add meg a kívánt shell teljes elérési útját: " shell_utvonal
+
+# Üres shell ellenőrzése
+if [ -z "$shell_utvonal" ]; then
+    echo "Hiba: a shell útvonala nem lehet üres."
+    exit 1
+fi
+
+# Ellenőrzés: létezik-e és futtatható-e a shell
+if [ ! -x "$shell_utvonal" ]; then
+    echo "Hiba: a megadott shell nem létezik vagy nem futtatható."
+    exit 1
+fi
+
+# Ellenőrzés: szerepel-e az engedélyezett shellek között
+if ! grep -Fxq "$shell_utvonal" /etc/shells; then
+    echo "Hiba: a megadott shell nincs az engedélyezett shellek között."
+    exit 1
+fi
+
+# Felhasználó létrehozása home könyvtárral és megadott shell-lel
+useradd -m -s "$shell_utvonal" "$felhasznalonev"
+
+# Sikeresség ellenőrzése
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+
+# Jelszó beállítása
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$felhasznalonev"
+
+# Home könyvtár tulajdonosának és jogosultságainak beállítása
+chown -R "$felhasznalonev:$felhasznalonev" "/home/$felhasznalonev"
+chmod 700 "/home/$felhasznalonev"
+
+# Visszajelzés
+echo "A felhasználó sikeresen létrejött."
+echo "Felhasználónév: $felhasznalonev"
+echo "Home könyvtár: /home/$felhasznalonev"
+echo "Shell: $shell_utvonal"
+```
+
+## Példakód magyarázat
+
+### 1. A Bash értelmező megadása
+
+```bash
+#!/bin/bash
+```
+
+<details>
+<summary>Ez a sor megmondja a rendszernek, hogy ezt a fájlt a Bash parancsértelmezővel kell végrehajtani.</summary>
+
+<div>
+
+Ez a sor a script legelső sora, és gyakran **shebang** sornak nevezik.
+
+A `#!` két karakterből áll.
+
+Az első karakter a `#`, amelyet a scriptben általában megjegyzésekhez is használunk, de a fájl első sorában a `!` jellel együtt különleges jelentése van.
+
+A második karakter a `!`, amely a `#` után azt jelzi, hogy a rendszer itt nem egyszerű megjegyzést lát, hanem azt az információt, hogy melyik programmal kell értelmezni a scriptet.
+
+A `/bin/bash` egy elérési út. Ez azt mutatja meg, hogy a Bash értelmező a rendszerben hol található.
+
+Ha ez a sor hiányzik, a script gyakran akkor is lefuthat, ha például kézzel így indítod: `bash fajlnev.sh`, de önálló futtatásnál a rendszer nem feltétlenül fogja tudni, hogy melyik értelmezőt használja.
+
+</div>
+</details>
+
+### 2. Root jogosultság ellenőrzése
+
+```bash
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy a scriptet valóban rendszergazda futtatja-e, mert felhasználót létrehozni csak megfelelő jogosultsággal lehet.</summary>
+
+<div>
+
+A `"$EUID"` egy speciális változó. Az `EUID` az aktuális felhasználó effective user ID azonosítóját tartalmazza.
+
+A root felhasználó azonosítója Linuxon általában `0`.
+
+A `-ne` jelentése: **not equal**, vagyis nem egyenlő.
+
+Ha az aktuális azonosító nem `0`, akkor nem root futtatja a scriptet.
+
+Az `echo` kiírja a hibaüzenetet.
+
+Az `exit 1` azonnal leállítja a scriptet hibával.
+
+Ez a blokk tehát együtt azt mondja: ha nem root futtatja a scriptet, írj ki hibát, majd állj le.
+
+</div>
+</details>
+
+### 3. A felhasználónév bekérése
+
+```bash
+read -p "Add meg az új felhasználó nevét: " felhasznalonev
+```
+
+<details>
+<summary>Ez a rész bekéri a billentyűzetről az új felhasználó nevét, és eltárolja egy változóba.</summary>
+
+<div>
+
+A `read` parancs arra való, hogy a felhasználótól adatot kérjen be futás közben.
+
+A `-p` kapcsoló azt jelenti, hogy a `read` parancs egyből ki is írhat egy promptszöveget.
+
+Az `"Add meg az új felhasználó nevét: "` rész a promptszöveg.
+
+A `felhasznalonev` a változó neve. Ide kerül az a szöveg, amit a felhasználó begépel.
+
+Ez a sor még nem ellenőrzi, hogy a megadott név helyes-e vagy üres-e. Csak bekéri és eltárolja azt.
+
+</div>
+</details>
+
+### 4. Az üres felhasználónév ellenőrzése
+
+```bash
+if [ -z "$felhasznalonev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész megakadályozza, hogy a script üres felhasználónévvel próbáljon tovább dolgozni.</summary>
+
+<div>
+
+A `-z` egy speciális tesztoperátor. Azt vizsgálja, hogy a megadott karakterlánc hossza nulla-e.
+
+Ha a felhasználó csak entert nyomott, és nem írt be semmit, akkor a `felhasznalonev` változó üres lesz.
+
+Ilyenkor a script kiírja a hibaüzenetet, majd `exit 1` segítségével hibával leáll.
+
+</div>
+</details>
+
+### 5. Annak ellenőrzése, hogy a felhasználó már létezik-e
+
+```bash
+if id "$felhasznalonev" &>/dev/null; then
+    echo "Hiba: a(z) $felhasznalonev nevű felhasználó már létezik."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a blokk megvizsgálja, hogy a megadott név szerepel-e már a rendszer felhasználói között.</summary>
+
+<div>
+
+Az `id` parancs Linuxon megmutatja egy felhasználó azonosítóit és csoportjait.
+
+Ha a megadott felhasználó létezik, akkor az `id` sikeresen lefut.
+
+A `&>/dev/null` azt jelenti, hogy a parancs normál kimenetét és hibaüzenetét is eldobjuk.
+
+Ez azért kell, mert itt nem az érdekel minket, hogy mit ír ki az `id`, hanem csak az, hogy sikeres volt-e a futása.
+
+Ha az `id` sikeres, akkor a felhasználó már létezik, ezért a script hibával leáll.
+
+</div>
+</details>
+
+### 6. A shell elérési útjának bekérése
+
+```bash
+read -p "Add meg a kívánt shell teljes elérési útját: " shell_utvonal
+```
+
+<details>
+<summary>Ez a rész bekéri, hogy milyen shellt kapjon az új felhasználó.</summary>
+
+<div>
+
+A Linuxban a shell az a parancsértelmező program, amelyet a felhasználó belépés után használ.
+
+Ilyen lehet például a `/bin/bash`, a `/bin/sh` vagy bizonyos rendszereken a `/bin/zsh`.
+
+A `read -p` itt is ugyanúgy működik, mint a felhasználónév bekérésénél: kiír egy kérdést, majd a beírt értéket eltárolja.
+
+A `shell_utvonal` változóban így a teljes elérési út fog szerepelni.
+
+</div>
+</details>
+
+### 7. Az üres shell ellenőrzése
+
+```bash
+if [ -z "$shell_utvonal" ]; then
+    echo "Hiba: a shell útvonala nem lehet üres."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész megakadályozza, hogy a script üres shellértékkel próbáljon felhasználót létrehozni.</summary>
+
+<div>
+
+A `-z` itt is azt vizsgálja, hogy a változó üres-e.
+
+Ha a felhasználó nem ad meg shellt, akkor a script nem tudja, milyen parancsértelmezőt kellene beállítania.
+
+Ezért ilyen esetben a program hibát jelez és leáll.
+
+</div>
+</details>
+
+### 8. Annak ellenőrzése, hogy a shell létezik-e és futtatható-e
+
+```bash
+if [ ! -x "$shell_utvonal" ]; then
+    echo "Hiba: a megadott shell nem létezik vagy nem futtatható."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt vizsgálja meg, hogy a megadott útvonal valóban egy használható programra mutat-e.</summary>
+
+<div>
+
+A `-x` tesztoperátor azt ellenőrzi, hogy a megadott fájl futtatható-e.
+
+A `!` a tagadás jele.
+
+A `[ ! -x "$shell_utvonal" ]` tehát azt jelenti: ha a megadott fájl nem futtatható.
+
+Ez azért fontos, mert shellként csak olyan programot szabad beállítani, amely ténylegesen létezik és végrehajtható.
+
+Ha a fájl nem létezik, vagy nincs végrehajtási joga, a script hibával leáll.
+
+</div>
+</details>
+
+### 9. Annak ellenőrzése, hogy a shell szerepel-e az engedélyezett shellek között
+
+```bash
+if ! grep -Fxq "$shell_utvonal" /etc/shells; then
+    echo "Hiba: a megadott shell nincs az engedélyezett shellek között."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy a megadott shell szerepel-e a rendszer által elfogadott shellek listájában.</summary>
+
+<div>
+
+A `/etc/shells` egy rendszerfájl. Ebben találhatók azok a shellek, amelyeket a rendszer hivatalosan elfogad.
+
+A `grep` parancs szöveg keresésére szolgál.
+
+A `-F` kapcsoló azt jelenti, hogy a keresés fix szöveg alapján történjen.
+
+A `-x` azt jelenti, hogy csak teljes sor egyezzen.
+
+A `-q` azt jelenti, hogy a `grep` ne írjon ki semmit, csak a találat sikerességével térjen vissza.
+
+A `!` itt is tagadást jelent. Vagyis ha a `grep` nem találja meg a shell útvonalát az `/etc/shells` fájlban, akkor a script hibát jelez.
+
+Ez a védelem azért hasznos, mert így csak ismert és elfogadott shelleket engedünk meg.
+
+</div>
+</details>
+
+### 10. A felhasználó létrehozása megadott shell-lel
+
+```bash
+useradd -m -s "$shell_utvonal" "$felhasznalonev"
+```
+
+<details>
+<summary>Ez a sor hozza létre ténylegesen az új Linux felhasználót a megadott shell beállításával.</summary>
+
+<div>
+
+A `useradd` új felhasználót hoz létre a rendszerben.
+
+A `-m` kapcsoló azt mondja a parancsnak, hogy a felhasználóhoz automatikusan készítse el a home könyvtárat is.
+
+A `-s` kapcsolóval lehet megadni a bejelentkezési shellt.
+
+A `"$shell_utvonal"` itt a korábban bekért shell teljes elérési útja.
+
+A `"$felhasznalonev"` a létrehozandó felhasználó neve.
+
+Ez a sor tehát együtt azt jelenti: hozz létre egy új felhasználót, készíts neki home könyvtárat, és állítsd be a megadott shellt.
+
+</div>
+</details>
+
+### 11. A `useradd` parancs sikerességének ellenőrzése
+
+```bash
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+```
+
+<details>
+<summary>Ez a rész azt ellenőrzi, hogy az előző parancs valóban sikeresen lefutott-e.</summary>
+
+<div>
+
+A `$?` egy speciális változó Bash-ben. Mindig az előzőleg lefutott parancs kilépési kódját tartalmazza.
+
+Ha a parancs sikeres volt, akkor ez általában `0`.
+
+Ha nem `0`, akkor valamilyen hiba történt.
+
+Itt tehát azt vizsgáljuk, hogy a `useradd` rendben lefutott-e.
+
+</div>
+</details>
+
+### 12. Jelszó beállítása
+
+```bash
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$felhasznalonev"
+```
+
+<details>
+<summary>Ez a blokk először tájékoztatja a felhasználót, majd interaktívan jelszót állít be az új fiókhoz.</summary>
+
+<div>
+
+Az `echo` csak egy tájékoztató üzenetet ír ki.
+
+A `passwd` parancs Linuxon jelszó beállítására vagy módosítására szolgál.
+
+A `"$felhasznalonev"` megadja, hogy melyik felhasználó jelszavát akarjuk beállítani.
+
+A rendszer általában kétszer kéri be a jelszót. Gépelés közben nem jelennek meg karakterek a képernyőn, ez normális viselkedés.
+
+</div>
+</details>
+
+### 13. A home könyvtár tulajdonosának és jogosultságainak beállítása
+
+```bash
+chown -R "$felhasznalonev:$felhasznalonev" "/home/$felhasznalonev"
+chmod 700 "/home/$felhasznalonev"
+```
+
+<details>
+<summary>Ez a rész gondoskodik arról, hogy a home könyvtár a megfelelő tulajdonoshoz tartozzon, és csak ő férjen hozzá.</summary>
+
+<div>
+
+A `chown` parancs tulajdonost és csoportot módosít.
+
+A `-R` kapcsoló rekurzív működést jelent, vagyis a művelet a könyvtár teljes tartalmára is kiterjed.
+
+A `"$felhasznalonev:$felhasznalonev"` rész azt jelenti, hogy a tulajdonos és az elsődleges csoport neve is az új felhasználó neve legyen.
+
+A `chmod` parancs jogosultságokat állít be.
+
+A `700` jelentése:
+
+* a tulajdonos olvashat, írhat és beléphet,
+* a csoport nem kap jogosultságot,
+* más felhasználók sem kapnak jogosultságot.
+
+Ez egy tipikus privát home könyvtár-beállítás.
+
+</div>
+</details>
+
+### 14. Visszajelzés a script végén
+
+```bash
+echo "A felhasználó sikeresen létrejött."
+echo "Felhasználónév: $felhasznalonev"
+echo "Home könyvtár: /home/$felhasznalonev"
+echo "Shell: $shell_utvonal"
+```
+
+<details>
+<summary>Ez a blokk összefoglalja a sikeres futás eredményét, hogy a rendszergazda rögtön lássa, mi jött létre.</summary>
+
+<div>
+
+Az első `echo` egy általános sikerüzenet.
+
+A második kiírja a létrehozott felhasználó nevét.
+
+A harmadik kiírja a home könyvtár elérési útját.
+
+A negyedik kiírja a beállított shellt.
+
+Ez a blokk nem kötelező a működéshez, de adminisztrációs és oktatási szempontból nagyon hasznos, mert azonnali visszajelzést ad.
+
+</div>
+</details>
+
+## Gyakorlati feladat
+
+Készíts egy `uj_shell_fiok.sh` nevű Bash scriptet, amely egy új felhasználót hoz létre megadott shell beállítással.
+
+A script feladata legyen:
+
+1. Ellenőrizze, hogy root futtatja-e.
+2. Kérje be az új felhasználó nevét.
+3. Kérje be a kívánt shell teljes elérési útját.
+4. Vizsgálja meg, hogy a név nem foglalt-e, és hogy a shell létezik-e, futtatható-e.
+5. Hozza létre a felhasználót home könyvtárral és a megadott shell-lel.
+6. Kérjen jelszót, majd állítsa be a home könyvtár jogosultságát `700` értékre.
+7. A végén írja ki a létrehozott felhasználó nevét, home könyvtárát és shelljét.
+
+### Plusz feladat (szorgalmi)
+
+Egészítsd ki a scriptedet úgy, hogy a végén a következőket is kiírja:
+
+* az új felhasználó UID azonosítóját,
+* az elsődleges csoport nevét,
+* azt, hogy a megadott shell szerepel-e az `/etc/shells` fájlban,
+* és azt is, hogy a home könyvtár jogosultsága valóban `700` lett-e.
+
+<details className="magyarazat-resz">
+<summary>Feladatmegoldás</summary>
+
+<div className="magyarazat-doboz">
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+read -p "Add meg az új felhasználó nevét: " felhasznalonev
+
+if [ -z "$felhasznalonev" ]; then
+    echo "Hiba: a felhasználónév nem lehet üres."
+    exit 1
+fi
+
+if id "$felhasznalonev" &>/dev/null; then
+    echo "Hiba: a(z) $felhasznalonev nevű felhasználó már létezik."
+    exit 1
+fi
+
+read -p "Add meg a kívánt shell teljes elérési útját: " shell_utvonal
+
+if [ -z "$shell_utvonal" ]; then
+    echo "Hiba: a shell útvonala nem lehet üres."
+    exit 1
+fi
+
+if [ ! -x "$shell_utvonal" ]; then
+    echo "Hiba: a megadott shell nem létezik vagy nem futtatható."
+    exit 1
+fi
+
+if ! grep -Fxq "$shell_utvonal" /etc/shells; then
+    echo "Hiba: a megadott shell nincs az engedélyezett shellek között."
+    exit 1
+fi
+
+useradd -m -s "$shell_utvonal" "$felhasznalonev"
+
+if [ $? -ne 0 ]; then
+    echo "Hiba történt a felhasználó létrehozása közben."
+    exit 1
+fi
+
+echo "Adj meg jelszót az új felhasználónak:"
+passwd "$felhasznalonev"
+
+chown -R "$felhasznalonev:$felhasznalonev" "/home/$felhasznalonev"
+chmod 700 "/home/$felhasznalonev"
+
+echo "A felhasználó sikeresen létrejött."
+echo "Felhasználónév: $felhasznalonev"
+echo "Home könyvtár: /home/$felhasznalonev"
+echo "Shell: $shell_utvonal"
+```
+
+</div>
+</details>
+
+<details
+  style={{
+    border: "1px solid var(--ifm-color-danger)",
+    borderRadius: "8px",
+    background: "rgba(220, 53, 69, 0.08)",
+    padding: "0.25rem 0.75rem",
+    marginTop: "1rem"
+  }}
+>
+<summary style={{ cursor: "pointer", fontWeight: "700", color: "var(--ifm-color-danger)" }}>
+Reset script a példa teljes visszaállításához
+</summary>
+
+<div style={{ marginTop: "0.75rem" }}>
+
+Ez a script arra való, hogy a példában létrehozott felhasználókat és a hozzájuk tartozó home könyvtárakat eltávolítsd, majd tiszta állapotból újra tudd kezdeni a gyakorlást.
+
+A script elején a változókat szabadon átírhatod. Így ugyanaz a reset script több különböző példánál is használható.
+
+```bash
+#!/bin/bash
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Hiba: ezt a scriptet csak root felhasználó futtathatja."
+    exit 1
+fi
+
+# Testreszabható adatok
+felhasznalok=("shelluser01" "shelluser02")
+
+echo "Törlés indul..."
+
+# Felhasználók törlése home könyvtárral együtt
+for felhasznalonev in "${felhasznalok[@]}"; do
+    if id "$felhasznalonev" &>/dev/null; then
+        userdel -r "$felhasznalonev"
+        echo "Törölve: $felhasznalonev"
+    else
+        echo "Nem létezik, kihagyva: $felhasznalonev"
+    fi
+done
+
+echo "A reset művelet befejeződött."
+```
+
+Ha csak egyetlen felhasználót akarsz törölni, akkor a tömbben elég egy nevet meghagyni:
+
+```bash
+felhasznalok=("shelluser01")
+```
+
+A `userdel -r` parancs törli a felhasználót, és megpróbálja eltávolítani a home könyvtárát is.
+
+Fontos, hogy ez a script valódi felhasználókat töröl a rendszerből, ezért csak olyan neveket adj meg benne, amelyeket kifejezetten a gyakorlathoz hoztál létre.
+
+</div>
+</details>
