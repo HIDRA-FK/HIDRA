@@ -1,0 +1,1332 @@
+---
+title: Feladatok
+sidebar_position: 3
+description: Bash feladatok automatizált file kezelés
+---
+
+## A script futtatása külön futtató fájllal
+
+Nagyobb gyakorlatsoroknál hasznos lehet, ha a megoldást nem közvetlenül indítjuk el, hanem készítünk mellé egy külön **futtató scriptet** is. Ez automatikusan futtathatóvá teszi a fő scriptet, majd elindítja azt.
+
+### Példa mappaszerkezet
+
+```text
+projekt/
+├── bash_feladat1_demo/
+│   ├── nginx.conf
+│   ├── app.env
+│   └── db.conf
+├── konfiguracio_ellenorzes.sh
+└── futtat.sh
+```
+
+### A fő script neve
+
+```text
+konfiguracio_ellenorzes.sh
+```
+
+### A futtató script neve
+
+```text
+futtat.sh
+```
+
+### A `futtat.sh` tartalma
+
+```bash
+#!/bin/bash
+
+scriptnev="konfiguracio_ellenorzes.sh"
+
+if [ ! -f "$scriptnev" ]
+then
+    echo "A $scriptnev script nem található."
+    exit 1
+fi
+
+chmod +x "$scriptnev"
+./"$scriptnev"
+```
+
+### A futtató script használata
+
+Először a futtató scriptet kell futtathatóvá tenni:
+
+```bash
+chmod +x futtat.sh
+```
+
+Ezután így indítható el:
+
+```bash
+./futtat.sh
+```
+
+---
+
+## 1. feladat – Konfigurációs fájlok ellenőrzése indulás előtt
+
+Script neve
+
+`konfiguracio_ellenorzes.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat1_demo` nevű mappát, és abban készítsd el az alábbi állományokat:
+
+- `nginx.conf`
+- `app.env`
+- `db.conf`
+
+A `db.conf` fájl olvasási jogát vedd el.
+
+A következő fájlt **ne** hozd létre:
+
+- `backup.conf`
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat1_demo
+cd bash_feladat1_demo
+touch nginx.conf app.env db.conf
+chmod 000 db.conf
+cd ..
+```
+
+Feladat
+
+A program vizsgálja meg a szükséges konfigurációs fájlokat, és írja ki:
+
+- `rendben`, ha a fájl létezik és olvasható,
+- `nem olvasható`, ha a fájl létezik, de nincs olvasási jog,
+- `hiányzik`, ha a fájl nem található.
+
+Expected output
+
+```text
+nginx.conf - rendben
+app.env - rendben
+db.conf - nem olvasható
+backup.conf - hiányzik
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat1_demo || exit
+
+fajlok=("nginx.conf" "app.env" "db.conf" "backup.conf")
+
+for fajl in "${fajlok[@]}"
+do
+    if [ ! -e "$fajl" ]
+    then
+        echo "$fajl - hiányzik"
+    elif [ -r "$fajl" ]
+    then
+        echo "$fajl - rendben"
+    else
+        echo "$fajl - nem olvasható"
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a `cd bash_feladat1_demo || exit` sorral belép a demómappába.  
+A `|| exit` azt jelenti, hogy ha a belépés nem sikerül, a script azonnal leáll.
+
+A `fajlok=("nginx.conf" "app.env" "db.conf" "backup.conf")` sor egy tömböt hoz létre.  
+Ebben szerepelnek azok a fájlnevek, amelyeket a script ellenőrizni fog.
+
+A `for fajl in "${fajlok[@]}"` ciklus sorban végigmegy az összes felsorolt fájlon.
+
+Használt vizsgálatok:
+
+- `[ ! -e "$fajl" ]`  
+  Az `-e` azt ellenőrzi, hogy létezik-e a fájl.  
+  A `!` a feltétel tagadása, tehát ez azt jelenti: a fájl **nem létezik**.
+
+- `[ -r "$fajl" ]`  
+  Az `-r` azt vizsgálja, hogy a fájl **olvasható-e**.
+
+A működés logikája:
+
+1. ha a fájl nem létezik, akkor `hiányzik`
+2. ha létezik és olvasható, akkor `rendben`
+3. ha létezik, de nem olvasható, akkor `nem olvasható`
+
+Az `echo` parancs minden esetben kiírja az eredményt a terminálra.
+
+</div>
+
+</details>
+
+---
+
+## 2. feladat – Logfájlok összegyűjtése hibakereséshez
+
+Script neve
+
+`log_gyujtes.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat2_demo` nevű mappát. Ebben készítsd el az alábbi könyvtárakat és fájlokat:
+
+- `app_naplok/`
+  - `app.log`
+  - `debug.log`
+  - `readme.txt`
+- `web_naplok/`
+  - `access.log`
+  - `error.log`
+  - `index.html`
+- `db_naplok/`
+  - `query.log`
+  - `config.ini`
+- `hibakereses/`
+
+A `mail_naplok` nevű könyvtárat **ne** hozd létre.
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat2_demo
+cd bash_feladat2_demo
+mkdir app_naplok web_naplok db_naplok hibakereses
+touch app_naplok/app.log app_naplok/debug.log app_naplok/readme.txt
+touch web_naplok/access.log web_naplok/error.log web_naplok/index.html
+touch db_naplok/query.log db_naplok/config.ini
+cd ..
+```
+
+Feladat
+
+A program gyűjtse össze az összes `.log` fájlt a megadott naplókönyvtárakból a `hibakereses` mappába, és írja ki:
+
+- `másolva`, ha egy `.log` fájl sikeresen átmásolható,
+- `mappa hiányzik`, ha a könyvtár nem található.
+
+A nem `.log` végű fájlokat hagyja figyelmen kívül.
+
+Expected output
+
+```text
+app_naplok/app.log - másolva
+app_naplok/debug.log - másolva
+web_naplok/access.log - másolva
+web_naplok/error.log - másolva
+db_naplok/query.log - másolva
+mail_naplok - mappa hiányzik
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat2_demo || exit
+
+mappak=("app_naplok" "web_naplok" "db_naplok" "mail_naplok")
+
+for mappa in "${mappak[@]}"
+do
+    if [ ! -d "$mappa" ]
+    then
+        echo "$mappa - mappa hiányzik"
+    else
+        for fajl in "$mappa"/*
+        do
+            if [ -f "$fajl" ]
+            then
+                fajlnev=$(basename "$fajl")
+
+                if [[ "$fajlnev" == *.log ]]
+                then
+                    cp "$fajl" "hibakereses/${mappa}_$fajlnev"
+                    echo "$mappa/$fajlnev - másolva"
+                fi
+            fi
+        done
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script belép a `bash_feladat2_demo` mappába, majd egy tömbben eltárolja az ellenőrizendő könyvtárakat.
+
+A `mappak=("app_naplok" "web_naplok" "db_naplok" "mail_naplok")` tömb az összes vizsgált mappanevet tartalmazza.
+
+A külső `for` ciklus a mappákon megy végig, a belső `for fajl in "$mappa"/*` ciklus pedig az adott mappa tartalmát járja be.
+
+Használt vizsgálatok és parancsok:
+
+- `[ ! -d "$mappa" ]`  
+  A `-d` azt vizsgálja, hogy létezik-e az adott könyvtár.  
+  A `!` tagadás, tehát itt azt nézzük, hogy a mappa **nem létezik-e**.
+
+- `[ -f "$fajl" ]`  
+  A `-f` azt ellenőrzi, hogy az adott elem normál fájl-e.
+
+- `basename "$fajl"`  
+  Az elérési útból csak a fájlnevet adja vissza.
+
+- `[[ "$fajlnev" == *.log ]]`  
+  Megvizsgálja, hogy a fájlnév `.log` végződésű-e.
+
+- `cp "$fajl" "hibakereses/${mappa}_$fajlnev"`  
+  Átmásolja a logfájlt a `hibakereses` mappába.  
+  A célfájl elé a script odateszi az eredeti mappa nevét is, hogy a fájlok ne keveredjenek össze.
+
+A program minden nem `.log` végű fájlt figyelmen kívül hagy.
+
+</div>
+
+</details>
+
+---
+
+## 3. feladat – Ideiglenes és cache fájlok takarítása
+
+Script neve
+
+`ideiglenes_takaritas.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat3_demo` nevű mappát, és abban készítsd el az alábbi állományokat:
+
+- `cache.tmp`
+- `session.cache`
+- `regi.bak`
+- `adat.csv`
+- `jegyzet.txt`
+- `kep.png`
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat3_demo
+cd bash_feladat3_demo
+touch cache.tmp session.cache regi.bak adat.csv jegyzet.txt kep.png
+cd ..
+```
+
+Feladat
+
+A program járja be az aktuális könyvtár fájljait, és írja ki:
+
+- `törölve`, ha a fájl `.tmp`, `.cache` vagy `.bak` végű,
+- `megtartva`, minden más esetben.
+
+Expected output
+
+```text
+cache.tmp - törölve
+session.cache - törölve
+regi.bak - törölve
+adat.csv - megtartva
+jegyzet.txt - megtartva
+kep.png - megtartva
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat3_demo || exit
+
+for fajl in *
+do
+    if [ -f "$fajl" ]
+    then
+        if [[ "$fajl" == *.tmp ]] || [[ "$fajl" == *.cache ]] || [[ "$fajl" == *.bak ]]
+        then
+            rm "$fajl"
+            echo "$fajl - törölve"
+        else
+            echo "$fajl - megtartva"
+        fi
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a `bash_feladat3_demo` mappában végignézi az összes fájlt.
+
+A `for fajl in *` ciklus az aktuális könyvtár minden elemén végigmegy.
+
+Használt vizsgálatok és elemek:
+
+- `[ -f "$fajl" ]`  
+  Csak akkor hajtódik végre a további vizsgálat, ha az adott elem normál fájl.
+
+- `[[ "$fajl" == *.tmp ]]`  
+  Ellenőrzi, hogy a fájl `.tmp` végű-e.
+
+- `[[ "$fajl" == *.cache ]]`  
+  Ellenőrzi, hogy a fájl `.cache` végű-e.
+
+- `[[ "$fajl" == *.bak ]]`  
+  Ellenőrzi, hogy a fájl `.bak` végű-e.
+
+- `||`  
+  Logikai VAGY kapcsolat.  
+  Ha a három feltétel közül bármelyik igaz, a teljes feltétel igaz lesz.
+
+- `rm "$fajl"`  
+  Törli a fájlt.
+
+A működés:
+
+1. ha a fájl ideiglenes vagy mentési maradvány, törli
+2. minden más fájlt megtart
+3. a script minden fájlhoz kiírja az eredményt
+
+</div>
+
+</details>
+
+---
+
+## 4. feladat – Felhasználói home mappák auditálása
+
+Script neve
+
+`home_audit.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat4_demo` nevű mappát. Ebben készítsd el az alábbi könyvtárszerkezetet:
+
+- `felhasznalok/anna/`
+  - `Dokumentumok`
+  - `Letöltések`
+  - `Munka`
+- `felhasznalok/bela/`
+  - `Letöltések`
+- `felhasznalok/dani/`
+  - `Dokumentumok`
+  - `Munka`
+
+Az `emma` felhasználó könyvtárát **ne** hozd létre.
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat4_demo
+cd bash_feladat4_demo
+mkdir -p felhasznalok/anna/Dokumentumok
+mkdir -p felhasznalok/anna/Letöltések
+mkdir -p felhasznalok/anna/Munka
+mkdir -p felhasznalok/bela/Letöltések
+mkdir -p felhasznalok/dani/Dokumentumok
+mkdir -p felhasznalok/dani/Munka
+cd ..
+```
+
+Feladat
+
+A program ellenőrizze, hogy a megadott felhasználók home mappájában megvan-e mindhárom kötelező almappa:
+
+- `Dokumentumok`
+- `Letöltések`
+- `Munka`
+
+A program írja ki:
+
+- `rendben`, ha minden szükséges mappa megvan,
+- `X mappa létrehozva`, ha a home mappa létezett, de hiányoztak almappák,
+- `home mappa és 3 almappa létrehozva`, ha a teljes felhasználói könyvtár hiányzott.
+
+Expected output
+
+```text
+anna - rendben
+bela - 2 mappa létrehozva
+dani - 1 mappa létrehozva
+emma - home mappa és 3 almappa létrehozva
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat4_demo || exit
+
+felhasznalok=("anna" "bela" "dani" "emma")
+
+for felhasznalo in "${felhasznalok[@]}"
+do
+    alap="felhasznalok/$felhasznalo"
+
+    if [ ! -d "$alap" ]
+    then
+        mkdir -p "$alap/Dokumentumok"
+        mkdir -p "$alap/Letöltések"
+        mkdir -p "$alap/Munka"
+        echo "$felhasznalo - home mappa és 3 almappa létrehozva"
+    else
+        darab=0
+
+        if [ ! -d "$alap/Dokumentumok" ]
+        then
+            mkdir -p "$alap/Dokumentumok"
+            darab=$((darab + 1))
+        fi
+
+        if [ ! -d "$alap/Letöltések" ]
+        then
+            mkdir -p "$alap/Letöltések"
+            darab=$((darab + 1))
+        fi
+
+        if [ ! -d "$alap/Munka" ]
+        then
+            mkdir -p "$alap/Munka"
+            darab=$((darab + 1))
+        fi
+
+        if [ $darab -eq 0 ]
+        then
+            echo "$felhasznalo - rendben"
+        else
+            echo "$felhasznalo - $darab mappa létrehozva"
+        fi
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a `felhasznalok` tömb alapján sorban ellenőrzi az összes megadott felhasználót.
+
+Az `alap="felhasznalok/$felhasznalo"` változó összeállítja az adott felhasználó home mappájának elérési útját.
+
+Használt vizsgálatok és parancsok:
+
+- `[ ! -d "$alap" ]`  
+  Azt vizsgálja, hogy a felhasználó könyvtára **nem létezik-e**.
+
+- `mkdir -p`  
+  Könyvtár létrehozására szolgál.  
+  A `-p` kapcsoló akkor is hasznos, ha a köztes mappák még nem léteznek.
+
+- `darab=0`  
+  Ez egy számláló változó. Ebben számoljuk, hány almappát kellett pótolni.
+
+- `darab=$((darab + 1))`  
+  Eggyel növeli a számláló értékét.
+
+- `[ $darab -eq 0 ]`  
+  Az `-eq` numerikus összehasonlítás, azt jelenti: egyenlő-e nullával.
+
+A program működése:
+
+1. ha a teljes home mappa hiányzik, létrehozza az egész szerkezetet
+2. ha a home mappa megvan, külön ellenőrzi a három kötelező almappát
+3. a hiányzó almappákat létrehozza
+4. végül kiírja, hogy minden rendben volt-e, vagy hány mappát kellett létrehozni
+
+</div>
+
+</details>
+
+---
+
+## 5. feladat – Karbantartó scriptek jogosultsági auditja
+
+Script neve
+
+`script_jogosultsag_audit.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat5_demo` nevű mappát, és abban készítsd el az alábbi állományokat:
+
+- `backup.sh`
+- `rotate.sh`
+- `monitor.sh`
+- `cleanup.sh`
+
+A jogosultságokat állítsd be így:
+
+- `backup.sh` → nem futtatható
+- `rotate.sh` → futtatható
+- `monitor.sh` → futtatható
+- `cleanup.sh` → nem futtatható
+
+A `deploy.sh` nevű fájlt **ne** hozd létre.
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat5_demo
+cd bash_feladat5_demo
+touch backup.sh rotate.sh monitor.sh cleanup.sh
+chmod 644 backup.sh
+chmod 755 rotate.sh
+chmod 755 monitor.sh
+chmod 644 cleanup.sh
+cd ..
+```
+
+Feladat
+
+A program vizsgálja meg a karbantartó scripteket, és írja ki:
+
+- `rendben`, ha a script már futtatható,
+- `jogosultság javítva`, ha a script létezik, de nem futtatható, ekkor tegye futtathatóvá,
+- `hiányzik`, ha a script nem található.
+
+Expected output
+
+```text
+backup.sh - jogosultság javítva
+rotate.sh - rendben
+monitor.sh - rendben
+deploy.sh - hiányzik
+cleanup.sh - jogosultság javítva
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat5_demo || exit
+
+scriptek=("backup.sh" "rotate.sh" "monitor.sh" "deploy.sh" "cleanup.sh")
+
+for script in "${scriptek[@]}"
+do
+    if [ ! -f "$script" ]
+    then
+        echo "$script - hiányzik"
+    elif [ -x "$script" ]
+    then
+        echo "$script - rendben"
+    else
+        chmod +x "$script"
+        echo "$script - jogosultság javítva"
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a felsorolt karbantartó fájloknál ellenőrzi, hogy léteznek-e és futtathatók-e.
+
+A `scriptek=(...)` tömb sorolja fel az összes ellenőrzendő scriptet.
+
+Használt vizsgálatok és parancsok:
+
+- `[ ! -f "$script" ]`  
+  A `-f` normál fájl létezését ellenőrzi.  
+  A `!` miatt itt azt nézzük, hogy a fájl hiányzik-e.
+
+- `[ -x "$script" ]`  
+  Az `-x` azt vizsgálja, hogy a fájl futtatható-e.
+
+- `chmod +x "$script"`  
+  A `chmod` a fájl jogosultságainak módosítására szolgál.  
+  A `+x` végrehajtási jogot ad a fájlhoz.
+
+A program működése:
+
+1. ha a script hiányzik, `hiányzik`
+2. ha létezik és már futtatható, `rendben`
+3. ha létezik, de nem futtatható, javítja a jogosultságot és kiírja, hogy `jogosultság javítva`
+
+</div>
+
+</details>
+
+---
+
+## 6. feladat – Kritikus állományok mentése dátummal
+
+Script neve
+
+`kritikus_mentes.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat6_demo` nevű mappát, és abban készítsd el az alábbi állományokat:
+
+- `app.conf`
+- `users.db`
+- `service.ini`
+- `naplo.log`
+- `mentesek/`
+
+A `tokens.env` fájlt **ne** hozd létre.
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat6_demo
+cd bash_feladat6_demo
+mkdir mentesek
+touch app.conf users.db service.ini naplo.log
+cd ..
+```
+
+Feladat
+
+A program készítsen mentést a kritikus állományokról a `mentesek` mappába, és írja ki:
+
+- `mentve`, ha a forrásfájl létezik és a mentés sikeres,
+- `nem található`, ha a forrásfájl hiányzik,
+- `a mentesek mappa nem írható`, ha nincs írási jog a célmappára.
+
+A mentett fájlok neve tartalmazza az aktuális dátumot.
+
+Expected output
+
+```text
+app.conf - mentve
+users.db - mentve
+tokens.env - nem található
+service.ini - mentve
+naplo.log - mentve
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat6_demo || exit
+
+fajlok=("app.conf" "users.db" "tokens.env" "service.ini" "naplo.log")
+datum=$(date +%Y%m%d)
+
+for fajl in "${fajlok[@]}"
+do
+    if [ ! -f "$fajl" ]
+    then
+        echo "$fajl - nem található"
+    elif [ ! -w "mentesek" ]
+    then
+        echo "$fajl - a mentesek mappa nem írható"
+    else
+        cp "$fajl" "mentesek/${fajl}_$datum"
+        echo "$fajl - mentve"
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a megadott fontos fájlokról másolatot készít a `mentesek` mappába.
+
+A `datum=$(date +%Y%m%d)` sor eltárolja az aktuális dátumot.
+
+Használt parancsok és feltételek:
+
+- `date +%Y%m%d`  
+  Az aktuális dátumot adja vissza például ilyen formában: `20260321`
+
+- `[ ! -f "$fajl" ]`  
+  Azt ellenőrzi, hogy a forrásfájl hiányzik-e.
+
+- `[ ! -w "mentesek" ]`  
+  A `-w` azt vizsgálja, hogy írható-e a megadott könyvtár.  
+  Itt azt nézzük, hogy a `mentesek` mappa nem írható-e.
+
+- `cp "$fajl" "mentesek/${fajl}_$datum"`  
+  Átmásolja a fájlt a mentési mappába úgy, hogy a mentett név végére odakerül a dátum.
+
+A program működése:
+
+1. ha a forrásfájl nem létezik, `nem található`
+2. ha a célmappa nem írható, ezt külön jelzi
+3. ha minden rendben van, elkészíti a másolatot és kiírja, hogy `mentve`
+
+</div>
+
+</details>
+
+---
+
+## 7. feladat – Régi naplók archiválása előtaggal
+
+Script neve
+
+`regi_log_archivalas.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat7_demo` nevű mappát, és abban készítsd el az alábbi állományokat:
+
+- `current.log`
+- `error.log`
+- `db.old`
+- `report.txt`
+- `image.png`
+- `notes.md`
+- `archivum/`
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat7_demo
+cd bash_feladat7_demo
+mkdir archivum
+touch current.log error.log db.old report.txt image.png notes.md
+cd ..
+```
+
+Feladat
+
+A program vizsgálja meg az állományokat, és írja ki:
+
+- `archiválva`, ha a fájl `.log` vagy `.old` végű, ekkor helyezze át az `archivum` mappába `archiv_` előtaggal,
+- `meghagyva`, ha a fájl nem naplójellegű.
+
+Expected output
+
+```text
+current.log - archiválva
+error.log - archiválva
+db.old - archiválva
+report.txt - meghagyva
+image.png - meghagyva
+notes.md - meghagyva
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat7_demo || exit
+
+fajlok=("current.log" "error.log" "db.old" "report.txt" "image.png" "notes.md")
+
+for fajl in "${fajlok[@]}"
+do
+    if [[ "$fajl" == *.log ]] || [[ "$fajl" == *.old ]]
+    then
+        mv "$fajl" "archivum/archiv_$fajl"
+        echo "$fajl - archiválva"
+    else
+        echo "$fajl - meghagyva"
+    fi
+done
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a felsorolt fájlok közül kiválogatja az archiválandókat.
+
+A `fajlok=(...)` tömbben szerepelnek a vizsgált állományok.
+
+Használt vizsgálatok és parancsok:
+
+- `[[ "$fajl" == *.log ]]`  
+  Azt ellenőrzi, hogy a fájl `.log` végződésű-e.
+
+- `[[ "$fajl" == *.old ]]`  
+  Azt ellenőrzi, hogy a fájl `.old` végződésű-e.
+
+- `||`  
+  Logikai VAGY.  
+  Ha a fájl `.log` vagy `.old`, akkor archiválásra kerül.
+
+- `mv "$fajl" "archivum/archiv_$fajl"`  
+  Az `mv` parancs áthelyezi a fájlt az `archivum` mappába, és közben át is nevezi úgy, hogy `archiv_` előtagot kap.
+
+A működés:
+
+1. naplójellegű fájlok archiválása
+2. minden más fájl meghagyása
+3. minden fájlhoz egyértelmű visszajelzés kiírása
+
+</div>
+
+</details>
+
+---
+
+## 8. feladat – Könyvtárak biztonságos törlése lista alapján
+
+Script neve
+
+`mappa_torles_listabol.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat8_demo` nevű mappát. Ebben készítsd el az alábbi könyvtárakat:
+
+- `ures_cache`
+- `regi_backup`
+- `ideiglenes`
+- `ures_tmp`
+
+A `regi_backup` és az `ideiglenes` mappa **ne legyen üres**, ezért tegyél beléjük egy-egy fájlt:
+
+- `regi_backup/mentes.txt`
+- `ideiglenes/temp.txt`
+
+A `hianyzo_mentes` nevű könyvtárat **ne** hozd létre.
+
+Ezután készíts egy `torlendo_mappak.txt` nevű fájlt az alábbi tartalommal:
+
+```text
+ures_cache
+regi_backup
+hianyzo_mentes
+ideiglenes
+ures_tmp
+```
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat8_demo
+cd bash_feladat8_demo
+mkdir ures_cache regi_backup ideiglenes ures_tmp
+touch regi_backup/mentes.txt
+touch ideiglenes/temp.txt
+echo "ures_cache" > torlendo_mappak.txt
+echo "regi_backup" >> torlendo_mappak.txt
+echo "hianyzo_mentes" >> torlendo_mappak.txt
+echo "ideiglenes" >> torlendo_mappak.txt
+echo "ures_tmp" >> torlendo_mappak.txt
+cd ..
+```
+
+Feladat
+
+A program olvassa be soronként a `torlendo_mappak.txt` fájlt. Minden sor egy könyvtárnevet tartalmaz. A program írja ki:
+
+- `üres mappa törölve`, ha a könyvtár létezik és üres, ekkor `rmdir` paranccsal törölje,
+- `nem üres mappa törölve`, ha a könyvtár létezik, de nem üres, ekkor `rm -r` paranccsal törölje,
+- `hiányzik`, ha a könyvtár nem található.
+
+Expected output
+
+```text
+ures_cache - üres mappa törölve
+regi_backup - nem üres mappa törölve
+hianyzo_mentes - hiányzik
+ideiglenes - nem üres mappa törölve
+ures_tmp - üres mappa törölve
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat8_demo || exit
+
+while read mappa
+do
+    if [ -d "$mappa" ]
+    then
+        rmdir "$mappa" 2>/dev/null
+
+        if [ $? -eq 0 ]
+        then
+            echo "$mappa - üres mappa törölve"
+        else
+            rm -r "$mappa"
+            echo "$mappa - nem üres mappa törölve"
+        fi
+    else
+        echo "$mappa - hiányzik"
+    fi
+done < torlendo_mappak.txt
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script a `torlendo_mappak.txt` fájlt olvassa be soronként, és minden sorban egy könyvtár nevét várja.
+
+Használt szerkezetek és parancsok:
+
+- `while read mappa`  
+  Soronként olvassa be a szöveget, és az aktuális sort a `mappa` változóba teszi.
+
+- `done < torlendo_mappak.txt`  
+  A ciklus bemenete a megadott szövegfájl.
+
+- `[ -d "$mappa" ]`  
+  A `-d` azt vizsgálja, hogy a megadott néven létezik-e könyvtár.
+
+- `rmdir "$mappa"`  
+  Csak üres könyvtárat tud törölni.
+
+- `2>/dev/null`  
+  A hibaüzenetet elrejti.  
+  Ha az `rmdir` nem sikerül, a terminál nem fog külön hibaüzenetet megjeleníteni.
+
+- `$?`  
+  Az előző parancs kilépési kódját tárolja.  
+  Ha `0`, akkor a parancs sikeres volt.
+
+- `[ $? -eq 0 ]`  
+  Megvizsgálja, hogy az előző parancs sikeres volt-e.
+
+- `rm -r "$mappa"`  
+  Nem üres könyvtár törlésére használjuk.  
+  Az `-r` rekurzív törlést jelent, tehát a benne lévő tartalommal együtt töröl.
+
+A működés logikája:
+
+1. ha a mappa hiányzik, ezt jelzi
+2. ha létezik és üres, `rmdir` törli
+3. ha létezik, de nem üres, `rm -r` törli
+
+</div>
+
+</details>
+
+---
+
+## 9. feladat – Szolgáltatásállapot-jelentés készítése
+
+Script neve
+
+`szolgaltatas_jelentes.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat9_demo` nevű mappát. Ebben készítsd el az alábbi könyvtárakat és fájlokat:
+
+- `services/`
+  - `nginx.pid`
+  - `redis.pid`
+- `configs/`
+  - `nginx.conf`
+  - `mysql.conf`
+- `logs/`
+  - `nginx.log`
+
+A következő állományokat **ne** hozd létre:
+
+- `services/mysql.pid`
+- `configs/redis.conf`
+- `logs/mysql.log`
+- `logs/redis.log`
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat9_demo
+cd bash_feladat9_demo
+mkdir services configs logs
+touch services/nginx.pid services/redis.pid
+touch configs/nginx.conf configs/mysql.conf
+touch logs/nginx.log
+cd ..
+```
+
+Feladat
+
+A program készítsen egy `allapotjelentes.txt` nevű fájlt a következő szolgáltatásokról:
+
+- `nginx`
+- `mysql`
+- `redis`
+
+Minden szolgáltatásnál ellenőrizze:
+
+- létezik-e a PID fájl,
+- létezik-e a konfigurációs fájl,
+- létezik-e a logfájl.
+
+A program a jelentést írja fájlba, majd jelenítse meg annak tartalmát.
+
+Expected output
+
+```text
+Szolgáltatásállapot-jelentés
+
+nginx:
+PID fájl: rendben
+Konfiguráció: rendben
+Logfájl: rendben
+
+mysql:
+PID fájl: hiányzik
+Konfiguráció: rendben
+Logfájl: hiányzik
+
+redis:
+PID fájl: rendben
+Konfiguráció: hiányzik
+Logfájl: hiányzik
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat9_demo || exit
+
+szolgaltatasok=("nginx" "mysql" "redis")
+
+echo "Szolgáltatásállapot-jelentés" > allapotjelentes.txt
+echo "" >> allapotjelentes.txt
+
+for szolgaltatas in "${szolgaltatasok[@]}"
+do
+    echo "$szolgaltatas:" >> allapotjelentes.txt
+
+    if [ -f "services/$szolgaltatas.pid" ]
+    then
+        echo "PID fájl: rendben" >> allapotjelentes.txt
+    else
+        echo "PID fájl: hiányzik" >> allapotjelentes.txt
+    fi
+
+    if [ -f "configs/$szolgaltatas.conf" ]
+    then
+        echo "Konfiguráció: rendben" >> allapotjelentes.txt
+    else
+        echo "Konfiguráció: hiányzik" >> allapotjelentes.txt
+    fi
+
+    if [ -f "logs/$szolgaltatas.log" ]
+    then
+        echo "Logfájl: rendben" >> allapotjelentes.txt
+    else
+        echo "Logfájl: hiányzik" >> allapotjelentes.txt
+    fi
+
+    echo "" >> allapotjelentes.txt
+done
+
+cat allapotjelentes.txt
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script szolgáltatásonként ellenőrzi, hogy megvannak-e a szükséges állományok, majd egy szöveges jelentést készít belőlük.
+
+A `szolgaltatasok=("nginx" "mysql" "redis")` tömbben vannak a vizsgált szolgáltatásnevek.
+
+Használt parancsok:
+
+- `echo "szöveg" > allapotjelentes.txt`  
+  Létrehozza a fájlt, és beleírja az első sort.  
+  A `>` felülírást jelent.
+
+- `echo "szöveg" >> allapotjelentes.txt`  
+  Hozzáfűzi a szöveget a fájl végéhez.  
+  A `>>` nem felülír, hanem bővít.
+
+- `[ -f "services/$szolgaltatas.pid" ]`  
+  Ellenőrzi, hogy létezik-e a PID fájl.
+
+- `[ -f "configs/$szolgaltatas.conf" ]`  
+  Ellenőrzi, hogy létezik-e a konfigurációs fájl.
+
+- `[ -f "logs/$szolgaltatas.log" ]`  
+  Ellenőrzi, hogy létezik-e a logfájl.
+
+- `cat allapotjelentes.txt`  
+  Kiírja a jelentés teljes tartalmát a terminálra.
+
+A működés:
+
+1. létrejön a jelentésfájl
+2. minden szolgáltatáshoz külön blokk készül
+3. a script ellenőrzi a három fontos állományt
+4. a végén a kész jelentést meg is jeleníti
+
+</div>
+
+</details>
+
+---
+
+## 10. feladat – Mentés visszaállítása felhasználói input alapján
+
+Script neve
+
+`mentes_visszaallitas.sh`
+
+Előkészítés
+
+Hozz létre egy `bash_feladat10_demo` nevű mappát. Ebben készítsd el az alábbi könyvtárat és fájlokat:
+
+- `mentesek/`
+  - `nginx.conf.bak`
+  - `app.env.bak`
+
+A `db.conf.bak` fájlt **ne** hozd létre.
+
+Példa előkészítés terminálban:
+
+```bash
+mkdir bash_feladat10_demo
+cd bash_feladat10_demo
+mkdir mentesek
+touch mentesek/nginx.conf.bak mentesek/app.env.bak
+cd ..
+```
+
+Feladat
+
+A program:
+
+- írja ki az aktuális könyvtár nevét,
+- kérjen be a felhasználótól egy mentésfájlnevet,
+- ellenőrizze, hogy a megadott mentés létezik-e a `mentesek` mappában,
+- ha igen, hozza létre a `visszaallitva` mappát, és másolja át oda a fájlt,
+- ellenőrizze a másolás sikerességét a kilépési kód alapján.
+
+Expected output
+
+Példa futás, ha a felhasználó ezt írja be: `nginx.conf.bak`
+
+```text
+Aktuális mappa: bash_feladat10_demo
+Add meg a visszaállítandó mentés nevét:
+nginx.conf.bak
+nginx.conf.bak - visszaállítás sikeres
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+cd bash_feladat10_demo || exit
+
+echo "Aktuális mappa: $(basename "$(pwd)")"
+echo "Add meg a visszaállítandó mentés nevét:"
+read fajlnev
+
+if [ -f "mentesek/$fajlnev" ]
+then
+    mkdir -p visszaallitva
+    cp "mentesek/$fajlnev" "visszaallitva/$fajlnev"
+
+    if [ $? -eq 0 ]
+    then
+        echo "$fajlnev - visszaállítás sikeres"
+    else
+        echo "$fajlnev - hiba történt a visszaállítás során"
+    fi
+else
+    echo "$fajlnev - a mentés nem található"
+fi
+```
+
+</details>
+
+<details className="magyarazat-resz">
+<summary>Magyarázat</summary>
+
+<div className="magyarazat-doboz">
+
+A script először kiírja az aktuális mappa nevét, majd bekéri a felhasználótól, melyik mentést szeretné visszaállítani.
+
+Használt parancsok és elemek:
+
+- `pwd`  
+  Az aktuális könyvtár teljes elérési útját írja ki.
+
+- `basename "$(pwd)"`  
+  A teljes útvonalból csak az utolsó részt, vagyis a mappa nevét hagyja meg.
+
+- `read fajlnev`  
+  Bekéri a felhasználó által beírt értéket, és eltárolja a `fajlnev` változóban.
+
+- `[ -f "mentesek/$fajlnev" ]`  
+  Megvizsgálja, hogy a megadott mentésfájl létezik-e.
+
+- `mkdir -p visszaallitva`  
+  Létrehozza a `visszaallitva` mappát, ha még nem létezik.
+
+- `cp "mentesek/$fajlnev" "visszaallitva/$fajlnev"`  
+  Átmásolja a kiválasztott mentést a visszaállított fájlok közé.
+
+- `$?`  
+  Az előző parancs kilépési kódját adja vissza.
+
+- `[ $? -eq 0 ]`  
+  Azt vizsgálja, hogy a másolás sikeres volt-e.  
+  A `0` kilépési kód sikeres végrehajtást jelent.
+
+A működés:
+
+1. bekéri a fájlnevet
+2. ellenőrzi, hogy a mentés létezik-e
+3. ha igen, létrehozza a célmappát és másol
+4. a kilépési kód alapján eldönti, hogy sikeres volt-e a visszaállítás
+
+</div>
+
+</details>

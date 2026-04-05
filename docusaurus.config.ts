@@ -15,11 +15,11 @@ const config: Config = {
   },
 
   // Production URL settings
-  url: 'https://hidra-itmaterials.netlify.app',
-  baseUrl: '/',
+  url: 'https://hidra-fk.github.io',
+  baseUrl: '/HIDRA/',
 
   // GitHub / Deployment settings
-  organizationName: 'hidra-fk',
+  organizationName: 'HIDRA-FK',
   projectName: 'HIDRA',
   trailingSlash: true,
 
