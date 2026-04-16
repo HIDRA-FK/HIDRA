@@ -1,0 +1,257 @@
+---
+title: Összefoglaló feladatok – SQL gyakorlás
+sidebar_position: 7
+description: Az eddig tanult SQL műveletek gyakorlása
+---
+
+# Összefoglaló feladatok
+
+Az alábbi feladatok az eddig tanult SQL műveletek gyakorlására szolgálnak. A feladatok között szerepel szűrés, rendezés, összesítés, valamint csoportosítás is.
+
+<details>
+<summary><strong>SQL SCRIPT</strong></summary>
+
+```sql
+CREATE DATABASE IF NOT EXISTS sportegyesulet;
+USE sportegyesulet;
+
+DROP TABLE IF EXISTS jatekosok;
+
+CREATE TABLE jatekosok (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nev VARCHAR(100) NOT NULL,
+    eletkor INT NOT NULL,
+    poszt VARCHAR(50) NOT NULL,
+    fizetes INT NOT NULL,
+    csapat VARCHAR(100) NOT NULL,
+    mezszam INT NULL,
+    serult VARCHAR(10) NOT NULL,
+    golok_szama INT NOT NULL
+);
+
+INSERT INTO jatekosok (nev, eletkor, poszt, fizetes, csapat, mezszam, serult, golok_szama) VALUES
+('Kiss Adam', 22, 'csatar', 450000, 'Villam FC', 9, 'nem', 14),
+('Nagy Peter', 25, 'vedo', 390000, 'Villam FC', 4, 'nem', 2),
+('Toth Mark', 21, 'kozeppalyas', 410000, 'Delfin SE', 8, 'igen', 5),
+('Varga Daniel', 28, 'kapus', 500000, 'Delfin SE', 1, 'nem', 0),
+('Horvath Levente', 24, 'csatar', 470000, 'Villam FC', 11, 'nem', 11),
+('Balogh Aron', 19, 'vedo', 320000, 'Sasok SC', 3, 'nem', 1),
+('Fekete Bence', 23, 'kozeppalyas', 430000, 'Sasok SC', 6, 'igen', 6),
+('Molnar Gergo', 26, 'csatar', 520000, 'Delfin SE', 10, 'nem', 17),
+('Juhasz Mate', 20, 'vedo', 340000, 'Villam FC', 5, 'nem', 0),
+('Papp Roland', 27, 'kozeppalyas', 460000, 'Sasok SC', 7, 'nem', 8),
+('Simon Patrik', 22, 'csatar', 440000, 'Sasok SC', 15, 'nem', 9),
+('Kovacs Milan', 18, 'vedo', 300000, 'Delfin SE', NULL, 'nem', 0);
+```
+
+</details>
+
+## Feladatok
+
+1. Írd ki az összes játékos adatát.
+
+2. Írd ki a játékosok nevét és csapatát.
+
+3. Listázd ki az összes csatárt.
+
+4. Írd ki azokat a játékosokat, akik nem sérültek.
+
+5. Rendezd a játékosokat fizetés szerint csökkenő sorrendbe.
+
+6. Listázd ki az összes különböző csapatot.
+
+7. Írd ki a Villam FC játékosait, akiknek a fizetése nagyobb, mint 400000.
+
+8. Írd ki azokat a játékosokat, akik csatárok vagy középpályások.
+
+9. Írd ki azokat a játékosokat, akik nem kapusok.
+
+10. Listázd ki azokat a játékosokat, akiknek nincs mezszámuk.
+
+11. Listázd ki azokat a játékosokat, akiknek van mezszámuk.
+
+12. Számold meg, hány játékos van összesen.
+
+13. Számold ki a játékosok fizetésének összegét.
+
+14. Számold ki a játékosok átlagéletkorát.
+
+15. Határozd meg a legmagasabb fizetést.
+
+16. Határozd meg a legalacsonyabb fizetést.
+
+17. Írd ki a 3 legtöbb gólt szerző játékost.
+
+18. Számold ki csapatonként az összes gólt.
+
+19. Írd ki azt a csapatot, ahol a legtöbb gólt szerezték összesen.
+
+20. Írd ki azokat a csapatokat, ahol az összes fizetés nagyobb, mint 1 000 000.
+
+---
+
+<details>
+<summary><strong>Megoldások</strong></summary>
+
+```sql
+-- 1.
+SELECT * FROM jatekosok;
+````
+
+Minden oszlopot és minden rekordot lekér.
+
+```sql
+-- 2.
+SELECT nev, csapat FROM jatekosok;
+```
+
+Csak a nev és csapat oszlopokat jeleníti meg.
+
+```sql
+-- 3.
+SELECT * FROM jatekosok
+WHERE poszt = 'csatar';
+```
+
+Kiszűri a csatár poszton játszókat.
+
+```sql
+-- 4.
+SELECT * FROM jatekosok
+WHERE serult = 'nem';
+```
+
+Csak a nem sérült játékosokat adja vissza.
+
+```sql
+-- 5.
+SELECT nev, fizetes FROM jatekosok
+ORDER BY fizetes DESC;
+```
+
+Fizetés szerint csökkenő sorrendbe rendezi.
+
+```sql
+-- 6.
+SELECT DISTINCT csapat FROM jatekosok;
+```
+
+Eltávolítja az ismétlődéseket, csak egyedi csapatok maradnak.
+
+```sql
+-- 7.
+SELECT * FROM jatekosok
+WHERE csapat = 'Villam FC' AND fizetes > 400000;
+```
+
+Két feltétel egyszerre teljesül: csapat + fizetés.
+
+```sql
+-- 8.
+SELECT * FROM jatekosok
+WHERE poszt = 'csatar' OR poszt = 'kozeppalyas';
+```
+
+Legalább az egyik feltétel teljesül.
+
+```sql
+-- 9.
+SELECT * FROM jatekosok
+WHERE NOT poszt = 'kapus';
+```
+
+Tagadja a feltételt, tehát mindenki, aki nem kapus.
+
+```sql
+-- 10.
+SELECT * FROM jatekosok
+WHERE mezszam IS NULL;
+```
+
+A NULL értékeket IS NULL-lal kell vizsgálni.
+
+```sql
+-- 11.
+SELECT * FROM jatekosok
+WHERE mezszam IS NOT NULL;
+```
+
+Azokat adja vissza, ahol van érték.
+
+```sql
+-- 12.
+SELECT COUNT(*) FROM jatekosok;
+```
+
+Megszámolja az összes rekordot.
+
+```sql
+-- 13.
+SELECT SUM(fizetes) FROM jatekosok;
+```
+
+Összeadja a fizetéseket.
+
+```sql
+-- 14.
+SELECT AVG(eletkor) FROM jatekosok;
+```
+
+Kiszámolja az átlagéletkort.
+
+```sql
+-- 15.
+SELECT MAX(fizetes) FROM jatekosok;
+```
+
+Megadja a legmagasabb fizetést.
+
+```sql
+-- 16.
+SELECT MIN(fizetes) FROM jatekosok;
+```
+
+Megadja a legalacsonyabb fizetést.
+
+```sql
+-- 17.
+SELECT nev, golok_szama
+FROM jatekosok
+ORDER BY golok_szama DESC
+LIMIT 3;
+```
+
+Rendezés után az első 3 rekord → legtöbb gólt szerzők.
+
+```sql
+-- 18.
+SELECT csapat, SUM(golok_szama)
+FROM jatekosok
+GROUP BY csapat;
+```
+
+Csapatonként összesíti a gólokat.
+
+```sql
+-- 19.
+SELECT csapat, SUM(golok_szama) AS osszes_gol
+FROM jatekosok
+GROUP BY csapat
+ORDER BY osszes_gol DESC
+LIMIT 1;
+```
+
+A legtöbb gólt szerző csapat.
+
+```sql
+-- 20.
+SELECT csapat, SUM(fizetes) AS osszes_fizetes
+FROM jatekosok
+GROUP BY csapat
+HAVING osszes_fizetes > 1000000;
+```
+
+Csoportok szűrése HAVING-gel (nem WHERE-rel!).
+
+
+</details>

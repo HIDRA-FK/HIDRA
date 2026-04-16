@@ -1,0 +1,341 @@
+---
+title: LIMIT, COUNT, SUM, AVG, MIN és MAX használata SQL-ben
+sidebar_position: 5
+description: LIMIT, COUNT, SUM, AVG, MIN és MAX használata SQL-ben
+---
+
+# Lekérdezések korlátozása és összesítő függvények
+
+Az SQL nemcsak arra alkalmas, hogy adatokat jeleníts meg egy táblából, hanem arra is, hogy ezekből az adatokból összesített eredményeket számolj. Gyakran szükség van arra, hogy megállapítsd, hány rekord van egy táblában, mennyi az összes nézőszám, mekkora az átlagos jegyár, vagy melyik vetítéshez tartozik a legnagyobb érték.
+
+Ebben az anyagban megismered a **COUNT**, **SUM**, **AVG**, **MIN** és **MAX** összesítő függvényeket, valamint azt is, hogyan lehet a lekérdezések eredményét korlátozni a **LIMIT** segítségével.
+
+## Mintaadatok
+
+Ebben a példában egy mozi jegyeladási adatbázissal dolgozunk. A tábla neve: `jegyek`.
+
+```text
+id | film_cim     | ar   | nezok_szama | terem | datum
+1  | Avatar       | 2500 | 120         | 1     | 2024-05-01
+2  | Batman       | 2200 | 80          | 2     | 2024-05-01
+3  | Titanic      | 2000 | 150         | 1     | 2024-05-02
+4  | Joker        | 2400 | 60          | 3     | 2024-05-02
+5  | Avatar       | 2500 | 90          | 2     | 2024-05-03
+6  | Dune         | 2600 | 110         | 1     | 2024-05-03
+7  | Inception    | 2300 | 95          | 2     | 2024-05-04
+8  | Interstellar | 2700 | 130         | 1     | 2024-05-04
+9  | Batman       | 2200 | 70          | 3     | 2024-05-05
+10 | Titanic      | 2000 | 140         | 2     | 2024-05-05
+11 | Joker        | 2400 | 75          | 1     | 2024-05-06
+12 | Dune         | 2600 | 100         | 2     | 2024-05-06
+````
+
+<details>
+<summary><strong>SQL SCRIPT</strong></summary>
+
+```sql
+CREATE DATABASE IF NOT EXISTS mozi;
+USE mozi;
+
+DROP TABLE IF EXISTS jegyek;
+
+CREATE TABLE jegyek (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    film_cim VARCHAR(100) NOT NULL,
+    ar INT NOT NULL,
+    nezok_szama INT NOT NULL,
+    terem INT NOT NULL,
+    datum DATE NOT NULL
+);
+
+INSERT INTO jegyek (film_cim, ar, nezok_szama, terem, datum) VALUES
+('Avatar', 2500, 120, 1, '2024-05-01'),
+('Batman', 2200, 80, 2, '2024-05-01'),
+('Titanic', 2000, 150, 1, '2024-05-02'),
+('Joker', 2400, 60, 3, '2024-05-02'),
+('Avatar', 2500, 90, 2, '2024-05-03'),
+('Dune', 2600, 110, 1, '2024-05-03'),
+('Inception', 2300, 95, 2, '2024-05-04'),
+('Interstellar', 2700, 130, 1, '2024-05-04'),
+('Batman', 2200, 70, 3, '2024-05-05'),
+('Titanic', 2000, 140, 2, '2024-05-05'),
+('Joker', 2400, 75, 1, '2024-05-06'),
+('Dune', 2600, 100, 2, '2024-05-06');
+```
+
+</details>
+
+## Mi az az aggregálás?
+
+Az aggregálás azt jelenti, hogy több adatból egyetlen összesített eredményt számolunk ki.
+
+Ilyen kérdések például:
+
+* hány rekord van a táblában,
+* mennyi az összes nézőszám,
+* mekkora az átlagos jegyár,
+* melyik a legdrágább vagy legolcsóbb jegy.
+
+Az összesítő függvények mindig több sor adataiból készítenek egy közös eredményt.
+
+## A COUNT használata
+
+A **COUNT** függvény azt mondja meg, hogy hány rekord található a lekérdezés eredményében.
+
+```sql
+SELECT COUNT(*) FROM jegyek;
+```
+
+Ez a lekérdezés megadja, hány vetítés szerepel a táblában.
+
+Ha csak egy adott filmhez tartozó rekordokat szeretnéd megszámolni, akkor szűrést is használhatsz:
+
+```sql
+SELECT COUNT(*) FROM jegyek
+WHERE film_cim = 'Avatar';
+```
+
+Ez azt adja meg, hány `Avatar` vetítés szerepel a táblában.
+
+Ha a különböző filmcímek számát szeretnéd meghatározni, akkor a `DISTINCT` is használható:
+
+```sql
+SELECT COUNT(DISTINCT film_cim) FROM jegyek;
+```
+
+## A SUM használata
+
+A **SUM** függvény egy számoszlop értékeit adja össze.
+
+```sql
+SELECT SUM(nezok_szama) FROM jegyek;
+```
+
+Ez a lekérdezés megmutatja az összes néző számát.
+
+Bevételt is lehet számolni vele, ha az árat megszorzod a nézőszámmal:
+
+```sql
+SELECT SUM(ar * nezok_szama) FROM jegyek;
+```
+
+Ez a teljes bevételt adja vissza.
+
+Ha csak egy adott film bevételére vagy kíváncsi, akkor feltételt is használhatsz:
+
+```sql
+SELECT SUM(ar * nezok_szama) FROM jegyek
+WHERE film_cim = 'Batman';
+```
+
+## Az AVG használata
+
+Az **AVG** függvény egy számoszlop átlagát számolja ki.
+
+```sql
+SELECT AVG(ar) FROM jegyek;
+```
+
+Ez az átlagos jegyárat adja meg.
+
+Ugyanez használható más oszlopokra is, például a nézőszámra:
+
+```sql
+SELECT AVG(nezok_szama) FROM jegyek;
+```
+
+Ha csak egy konkrét film átlagos nézőszámát szeretnéd látni, akkor szűrhetsz is:
+
+```sql
+SELECT AVG(nezok_szama) FROM jegyek
+WHERE film_cim = 'Dune';
+```
+
+## A MIN és MAX használata
+
+A **MIN** függvény a legkisebb értéket adja vissza, a **MAX** pedig a legnagyobbat.
+
+```sql
+SELECT MIN(ar) FROM jegyek;
+```
+
+Ez a legkisebb jegyárat adja meg.
+
+```sql
+SELECT MAX(ar) FROM jegyek;
+```
+
+Ez a legnagyobb jegyárat adja meg.
+
+A nézőszámra is használható:
+
+```sql
+SELECT MAX(nezok_szama) FROM jegyek;
+```
+
+Ez a legnagyobb nézőszámot adja vissza.
+
+```sql
+SELECT MIN(nezok_szama) FROM jegyek;
+```
+
+Ez a legkisebb nézőszámot adja meg.
+
+## Az eredmény korlátozása LIMIT használatával
+
+Előfordulhat, hogy nem az összes rekordot szeretnéd látni, hanem csak néhányat. Erre szolgál a **LIMIT**.
+
+```sql
+SELECT * FROM jegyek
+LIMIT 3;
+```
+
+Ez csak az első 3 rekordot jeleníti meg.
+
+Ha a legdrágább vetítéseket szeretnéd látni, akkor rendezéssel együtt célszerű használni:
+
+```sql
+SELECT film_cim, ar, datum
+FROM jegyek
+ORDER BY ar DESC
+LIMIT 4;
+```
+
+Ez a 4 legdrágább vetítést adja vissza.
+
+## Kombinált példák
+
+Az összesítő függvények és a szűrés jól használhatók együtt.
+
+```sql
+SELECT SUM(nezok_szama)
+FROM jegyek
+WHERE terem = 1;
+```
+
+Ez megmutatja, összesen hány néző volt az 1-es teremben.
+
+```sql
+SELECT SUM(ar * nezok_szama)
+FROM jegyek
+WHERE datum = '2024-05-05';
+```
+
+Ez az adott napi teljes bevételt adja vissza.
+
+```sql
+SELECT film_cim, ar
+FROM jegyek
+WHERE ar = (SELECT MAX(ar) FROM jegyek);
+```
+
+Ez annak a filmnek a címét és árát jeleníti meg, amelyhez a legmagasabb jegyár tartozik.
+
+## Tipikus hibák
+
+Gyakori hiba, hogy valaki a `COUNT` függvényt hibás formában próbálja használni:
+
+```sql
+SELECT COUNT(ar, film_cim) FROM jegyek;
+```
+
+Helyesen:
+
+```sql
+SELECT COUNT(*) FROM jegyek;
+```
+
+Szintén gyakori hiba, hogy valaki szöveges oszlopot próbál összesíteni:
+
+```sql
+SELECT SUM(film_cim) FROM jegyek;
+```
+
+Ez nem működik, mert a `SUM` csak számoszlopon használható.
+
+A `LIMIT` önmagában csak az első néhány rekordot adja vissza. Ha a legnagyobb vagy legkisebb értékeket keresed, akkor előtte rendezni is kell:
+
+```sql
+SELECT film_cim, ar
+FROM jegyek
+ORDER BY ar DESC
+LIMIT 3;
+```
+
+## Feladatok
+
+1. Számold ki, hány különböző film szerepel a `jegyek` táblában.
+
+2. Számold ki, összesen hány néző volt a `2024-05-04` napon.
+
+3. Számold ki, mennyi bevételt hozott összesen a `Batman` film.
+
+4. Kérdezd le a legnagyobb nézőszámot a táblából.
+
+5. Kérdezd le a legkisebb nézőszámot a táblából.
+
+6. Számold ki a `Dune` film vetítéseinek átlagos nézőszámát.
+
+7. Írd ki a 4 legdrágább vetítést úgy, hogy csak a `film_cim`, `ar` és `datum` mezők jelenjenek meg.
+
+8. Számold ki, összesen hány néző volt az 1-es teremben.
+
+9. Számold ki, mennyi volt az összbevétel a `2024-05-05` napon.
+
+10. Írd ki annak a filmnek a címét és árát, amelyikhez a legmagasabb jegyár tartozik.
+
+<details>
+<summary><strong>Megoldások</strong></summary>
+
+```sql
+-- 1.
+SELECT COUNT(DISTINCT film_cim)
+FROM jegyek;
+
+-- 2.
+SELECT SUM(nezok_szama)
+FROM jegyek
+WHERE datum = '2024-05-04';
+
+-- 3.
+SELECT SUM(ar * nezok_szama)
+FROM jegyek
+WHERE film_cim = 'Batman';
+
+-- 4.
+SELECT MAX(nezok_szama)
+FROM jegyek;
+
+-- 5.
+SELECT MIN(nezok_szama)
+FROM jegyek;
+
+-- 6.
+SELECT AVG(nezok_szama)
+FROM jegyek
+WHERE film_cim = 'Dune';
+
+-- 7.
+SELECT film_cim, ar, datum
+FROM jegyek
+ORDER BY ar DESC
+LIMIT 4;
+
+-- 8.
+SELECT SUM(nezok_szama)
+FROM jegyek
+WHERE terem = 1;
+
+-- 9.
+SELECT SUM(ar * nezok_szama)
+FROM jegyek
+WHERE datum = '2024-05-05';
+
+-- 10.
+SELECT film_cim, ar
+FROM jegyek
+WHERE ar = (SELECT MAX(ar) FROM jegyek);
+```
+
+</details>
+

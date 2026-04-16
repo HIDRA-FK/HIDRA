@@ -1,0 +1,76 @@
+---
+title: TESZT – SQL gyakorlás
+sidebar_position: 8
+description: Az eddig tanult SQL műveletek gyakorlása
+---
+
+# Bolygók
+
+A csillagászatban fontos szerepe van az égitestek adatainak rendszerezésének és elemzésének. Egy kutatócsoport a Naprendszer bolygóiról és törpebolygóiról gyűjt adatokat, majd ezeket egy adatbázisban tárolja. Az adatbázis célja, hogy a kutatók gyorsan vissza tudják keresni az egyes bolygók jellemzőit, szűrni tudjanak bizonyos feltételek szerint, valamint egyszerű összesítéseket és elemzéseket készíthessenek.
+
+Ebben a feladatban egy bolygókat nyilvántartó adatbázissal kell dolgoznia. Az adatbázis egyetlen táblát tartalmaz, amelyben az egyes égitestek neve, típusa, átlagos Naptól mért távolsága, átmérője, holdjainak száma, valamint azt is jelző adat szerepel, hogy van-e gyűrűrendszere. Egyes égitesteknél valamely adat még nem ismert, ezért az adott mező értéke `NULL` is lehet.
+
+A feladat megoldása során feltételezheti, hogy az adatbázis és a benne található adatok a megadott formában rendelkezésre állnak. A megoldás során az adatok helyességét nem kell ellenőriznie. A lekérdezéseket MySQL nyelven készítse el.
+
+Az adatbázis neve: `naprendszer`
+A tábla neve: `bolygok`
+
+A tábla a következő adatokat tartalmazza:
+
+* `id` – egyedi azonosító
+* `nev` – az égitest neve
+* `tipus` – az égitest típusa
+* `tavolsag_au` – átlagos Naptól mért távolság csillagászati egységben
+* `atmero_km` – az égitest átmérője kilométerben
+* `holdak_szama` – a holdak száma
+* `gyururendszer` – van-e gyűrűrendszere
+* `felfedezes_eve` – a felfedezés éve, ha ismert
+
+Az alábbi SQL script létrehozza az adatbázist, a táblát, valamint feltölti azt mintaadatokkal:
+
+```sql
+CREATE DATABASE IF NOT EXISTS naprendszer;
+USE naprendszer;
+
+DROP TABLE IF EXISTS bolygok;
+
+CREATE TABLE bolygok (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nev VARCHAR(100) NOT NULL,
+    tipus VARCHAR(50) NOT NULL,
+    tavolsag_au DECIMAL(5,2) NOT NULL,
+    atmero_km INT NOT NULL,
+    holdak_szama INT NOT NULL,
+    gyururendszer VARCHAR(10) NOT NULL,
+    felfedezes_eve INT NULL
+);
+
+INSERT INTO bolygok (nev, tipus, tavolsag_au, atmero_km, holdak_szama, gyururendszer, felfedezes_eve) VALUES
+('Merkur', 'kobolygó', 0.39, 4879, 0, 'nem', NULL),
+('Vénusz', 'kobolygó', 0.72, 12104, 0, 'nem', NULL),
+('Föld', 'kobolygó', 1.00, 12742, 1, 'nem', NULL),
+('Mars', 'kobolygó', 1.52, 6779, 2, 'nem', NULL),
+('Jupiter', 'gázóriás', 5.20, 139820, 95, 'igen', NULL),
+('Szaturnusz', 'gázóriás', 9.58, 116460, 146, 'igen', NULL),
+('Uránusz', 'jégóriás', 19.22, 50724, 27, 'igen', 1781),
+('Neptunusz', 'jégóriás', 30.05, 49244, 14, 'igen', 1846),
+('Plútó', 'torpebolygo', 39.48, 2377, 5, 'nem', 1930),
+('Ceres', 'torpebolygo', 2.77, 940, 0, 'nem', 1801);
+```
+
+A mintához tartalmában hasonlóan készítse el az egyes SQL lekérdezéseket. A feladatok megoldásakor ügyeljen arra, hogy pontosan azt kérdezze le, amit a feladat kér.
+
+1. Kérdezze le az összes égitest minden adatát a `bolygok` táblából.
+
+2. Kérdezze le azoknak az égitesteknek a nevét és típusát, amelyeknek van gyűrűrendszere.
+
+3. Kérdezze le azokat az égitesteket, amelyek törpebolygók vagy legalább 10 holddal rendelkeznek.
+
+4. Kérdezze le azokat az égitesteket, amelyeknél a felfedezés éve nincs megadva.
+
+5. Kérdezze le az égitestek nevét és átmérőjét átmérő szerint csökkenő sorrendben, és csak az 5 legnagyobb égitest jelenjen meg.
+
+6. Számolja ki, hány égitest szerepel összesen a `bolygok` táblában, valamint mennyi a holdak teljes száma.
+
+7. Számolja ki típusonként, hogy összesen hány hold tartozik az egyes égitestekhez, és csak azok a típusok jelenjenek meg, ahol az összes holdszám nagyobb, mint 10.
+

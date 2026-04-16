@@ -1,0 +1,219 @@
+---
+title: AND, OR és NOT használata SQL lekérdezésekben
+sidebar_position: 3
+description: AND, OR és NOT használata SQL lekérdezésekben
+---
+
+# Több feltétel kezelése
+
+Az adatbázisok használata során gyakran nem elég egyetlen feltételt megadni. Sok esetben egyszerre több szempont alapján kell kiválasztani az adatokat. Előfordulhat például, hogy csak azokat a termékeket szeretnéd látni, amelyek egy adott kategóriába tartoznak, van belőlük raktáron, és az áruk is megfelel egy megadott feltételnek.
+
+Ebben az anyagban megismered, hogyan lehet több feltételt összekapcsolni az **AND**, **OR** és **NOT** logikai operátorok segítségével.
+
+## Mintaadatok
+
+Ebben a példában egy webáruház terméklistájával dolgozunk. A tábla neve: `termekek`.
+
+```text
+id | nev          | ar     | kategoria    | raktaron_db
+1  | Laptop       | 250000 | elektronika  | 5
+2  | Egér         | 5000   | elektronika  | 50
+3  | Szék         | 30000  | bútor        | 10
+4  | Asztal       | 60000  | bútor        | 3
+5  | Fejhallgató  | 20000  | elektronika  | 0
+6  | Lámpa        | 15000  | lakás        | 25
+````
+
+<details>
+<summary><strong>SQL SCRIPT</strong></summary>
+
+```sql
+CREATE DATABASE IF NOT EXISTS webaruhaz;
+USE webaruhaz;
+
+DROP TABLE IF EXISTS termekek;
+
+CREATE TABLE termekek (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nev VARCHAR(100) NOT NULL,
+    ar INT NOT NULL,
+    kategoria VARCHAR(50) NOT NULL,
+    raktaron_db INT NOT NULL
+);
+
+INSERT INTO termekek (nev, ar, kategoria, raktaron_db) VALUES
+('Laptop', 250000, 'elektronika', 5),
+('Eger', 5000, 'elektronika', 50),
+('Szek', 30000, 'butor', 10),
+('Asztal', 60000, 'butor', 3),
+('Fejhallgato', 20000, 'elektronika', 0),
+('Lampa', 15000, 'lakas', 25),
+('Monitor', 80000, 'elektronika', 7),
+('Polc', 22000, 'butor', 4),
+('Telefon', 180000, 'elektronika', 12),
+('Szonyeg', 12000, 'lakas', 8);
+```
+
+</details>
+
+## Miért van szükség több feltételre?
+
+Sok esetben egyetlen feltétel nem elegendő. Előfordulhat, hogy:
+
+* elektronikai termékeket keresel, amelyek drágábbak egy adott összegnél,
+* bútorokat vagy olcsó termékeket szeretnél látni,
+* minden olyan elemet ki akarsz választani, amely nem tartozik egy adott kategóriába.
+
+Ilyenkor logikai kapcsolatokat kell használnod.
+
+## Az AND használata
+
+Az **AND** azt jelenti, hogy minden megadott feltételnek teljesülnie kell.
+
+```sql
+SELECT * FROM termekek
+WHERE kategoria = 'elektronika' AND ar > 10000;
+```
+
+Ez a lekérdezés csak azokat a termékeket adja vissza, amelyek:
+
+* elektronikai kategóriába tartoznak,
+* és az áruk nagyobb, mint 10000.
+
+Ha bármelyik feltétel nem teljesül, a sor nem kerül bele az eredménybe.
+
+## Az OR használata
+
+Az **OR** azt jelenti, hogy legalább az egyik feltétel teljesül.
+
+```sql
+SELECT * FROM termekek
+WHERE kategoria = 'bútor' OR ar < 10000;
+```
+
+Ez a lekérdezés azokat a termékeket adja vissza, amelyek:
+
+* bútor kategóriájúak,
+* vagy az áruk kisebb, mint 10000.
+
+Ebben az esetben nem szükséges, hogy mindkét feltétel igaz legyen. Már az is elegendő, ha az egyik teljesül.
+
+## A NOT használata
+
+A **NOT** egy feltétel tagadására szolgál.
+
+```sql
+SELECT * FROM termekek
+WHERE NOT kategoria = 'bútor';
+```
+
+Ez a lekérdezés minden olyan terméket megjelenít, amely nem bútor kategóriájú.
+
+A **NOT** használható úgy is, hogy egy meglévő feltétel eredményét megfordítod vele.
+
+## Több feltétel kombinálása
+
+A logikai operátorok együtt is használhatók. Ilyenkor összetettebb lekérdezéseket lehet írni.
+
+```sql
+SELECT * FROM termekek
+WHERE kategoria = 'elektronika' AND raktaron_db > 0;
+```
+
+Ez a lekérdezés csak azokat a termékeket adja vissza, amelyek:
+
+* elektronikai kategóriába tartoznak,
+* és van belőlük raktáron.
+
+## A zárójelek szerepe
+
+Több feltétel esetén nagyon fontos, hogy milyen sorrendben értelmezi az adatbázis a feltételeket. Ezért összetettebb lekérdezéseknél célszerű zárójelet használni.
+
+```sql
+SELECT * FROM termekek
+WHERE kategoria = 'elektronika' OR kategoria = 'bútor' AND ar > 20000;
+```
+
+Ez a lekérdezés nem feltétlenül azt jelenti, amire elsőre gondolnál. Az adatbázis a feltételeket a saját szabályai szerint értékeli ki, ezért az ilyen lekérdezések könnyen félreérthetők lehetnek.
+
+A biztos és egyértelmű megoldás a zárójelek használata:
+
+```sql
+SELECT * FROM termekek
+WHERE (kategoria = 'elektronika' OR kategoria = 'bútor') AND ar > 20000;
+```
+
+Ebben az esetben először az dől el, hogy a termék elektronika vagy bútor kategóriájú-e, és csak ezután vizsgálja az adatbázis, hogy az ár nagyobb-e 20000-nél.
+
+## Tipikus hibák
+
+Az egyik gyakori hiba, hogy a logikai kapcsolat nem azt az eredményt adja, amit várnál.
+
+```sql
+WHERE ar > 10000 OR ar < 5000
+```
+
+Ez nagyon sok rekordot visszaadhat, mert elég, ha a két feltétel közül az egyik teljesül.
+
+Gyakori hiba a zárójel elhagyása is. Összetett lekérdezésnél emiatt könnyen más eredményt kaphatsz, mint amit valójában szerettél volna.
+
+Szintén hiba, ha egy szöveges értéket idézőjel nélkül írsz le:
+
+```sql
+WHERE kategoria = elektronika
+```
+
+Helyesen:
+
+```sql
+WHERE kategoria = 'elektronika'
+```
+
+## Feladatok
+
+1. Írd ki azokat a termékeket, amelyek elektronikai kategóriába tartoznak és van belőlük raktáron.
+
+2. Írd ki azokat a termékeket, amelyek bútorok vagy drágábbak, mint 50000.
+
+3. Írd ki azokat a termékeket, amelyek nem lakás kategóriájúak.
+
+4. Írd ki azokat a termékeket, amelyek elektronika vagy bútor kategóriába tartoznak, és az áruk nagyobb, mint 20000.
+
+5. Írd ki azokat a termékeket, amelyekből nincs raktáron, vagy az áruk kisebb, mint 10000.
+
+<details>
+<summary><strong>Megoldások</strong></summary>
+
+```sql
+-- 1.
+SELECT *
+FROM termekek
+WHERE kategoria = 'elektronika'
+  AND raktaron_db > 0;
+
+-- 2.
+SELECT *
+FROM termekek
+WHERE kategoria = 'bútor'
+   OR ar > 50000;
+
+-- 3.
+SELECT *
+FROM termekek
+WHERE kategoria != 'lakás';
+
+-- 4.
+SELECT *
+FROM termekek
+WHERE (kategoria = 'elektronika' OR kategoria = 'bútor')
+  AND ar > 20000;
+
+-- 5.
+SELECT *
+FROM termekek
+WHERE raktaron_db = 0
+   OR ar < 10000;
+```
+
+</details>
+

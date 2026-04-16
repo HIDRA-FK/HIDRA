@@ -1,0 +1,227 @@
+---
+title: GROUP BY és HAVING használata SQL-ben
+sidebar_position: 6
+description: GROUP BY és HAVING használata SQL-ben
+---
+
+# Csoportosítás GROUP BY használatával
+
+Az előző órában megtanultad az összesítő függvények használatát. Ezekkel egy teljes táblára vagy egy szűrt adathalmazra tudtál számításokat végezni.
+
+Sok esetben azonban nem egyetlen összesített értékre van szükség, hanem arra, hogy az adatokat csoportokra bontva elemezd. Például külön szeretnéd látni, hogy egyes filmeknél mennyi volt az összes nézőszám.
+
+Ebben az anyagban megismered a **GROUP BY** használatát.
+
+## Mintaadatok
+
+A korábbi mozi adatbázissal dolgozunk. A tábla neve: `jegyek`.
+
+```text
+id | film_cim     | ar   | nezok_szama | terem | datum
+1  | Avatar       | 2500 | 120         | 1     | 2024-05-01
+2  | Batman       | 2200 | 80          | 2     | 2024-05-01
+3  | Titanic      | 2000 | 150         | 1     | 2024-05-02
+4  | Joker        | 2400 | 60          | 3     | 2024-05-02
+5  | Avatar       | 2500 | 90          | 2     | 2024-05-03
+6  | Dune         | 2600 | 110         | 1     | 2024-05-03
+7  | Inception    | 2300 | 95          | 2     | 2024-05-04
+8  | Interstellar | 2700 | 130         | 1     | 2024-05-04
+9  | Batman       | 2200 | 70          | 3     | 2024-05-05
+10 | Titanic      | 2000 | 140         | 2     | 2024-05-05
+11 | Joker        | 2400 | 75          | 1     | 2024-05-06
+12 | Dune         | 2600 | 100         | 2     | 2024-05-06
+````
+
+<details>
+<summary><strong>SQL SCRIPT</strong></summary>
+
+```sql
+CREATE DATABASE IF NOT EXISTS mozi;
+USE mozi;
+
+DROP TABLE IF EXISTS jegyek;
+
+CREATE TABLE jegyek (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    film_cim VARCHAR(100) NOT NULL,
+    ar INT NOT NULL,
+    nezok_szama INT NOT NULL,
+    terem INT NOT NULL,
+    datum DATE NOT NULL
+);
+
+INSERT INTO jegyek (film_cim, ar, nezok_szama, terem, datum) VALUES
+('Avatar', 2500, 120, 1, '2024-05-01'),
+('Batman', 2200, 80, 2, '2024-05-01'),
+('Titanic', 2000, 150, 1, '2024-05-02'),
+('Joker', 2400, 60, 3, '2024-05-02'),
+('Avatar', 2500, 90, 2, '2024-05-03'),
+('Dune', 2600, 110, 1, '2024-05-03'),
+('Inception', 2300, 95, 2, '2024-05-04'),
+('Interstellar', 2700, 130, 1, '2024-05-04'),
+('Batman', 2200, 70, 3, '2024-05-05'),
+('Titanic', 2000, 140, 2, '2024-05-05'),
+('Joker', 2400, 75, 1, '2024-05-06'),
+('Dune', 2600, 100, 2, '2024-05-06');
+```
+
+</details>
+
+## Mi az a GROUP BY?
+
+A **GROUP BY** segítségével a rekordokat csoportokba rendezzük egy adott oszlop alapján.
+
+Például: minden film külön csoportba kerül.
+
+```sql
+SELECT film_cim
+FROM jegyek
+GROUP BY film_cim;
+```
+
+Ez a lekérdezés minden filmcímet egyszer jelenít meg.
+
+## Összesítés csoportok szerint
+
+A GROUP BY-t általában összesítő függvényekkel együtt használjuk.
+
+```sql
+SELECT film_cim, SUM(nezok_szama)
+FROM jegyek
+GROUP BY film_cim;
+```
+
+Ez megmutatja, hogy filmenként mennyi volt az összes nézőszám.
+
+## Több oszlop használata
+
+Több oszlop alapján is lehet csoportosítani.
+
+```sql
+SELECT datum, terem, SUM(nezok_szama)
+FROM jegyek
+GROUP BY datum, terem;
+```
+
+Ez megmutatja, hogy adott napon, adott teremben mennyi volt az összes néző.
+
+## Rendezés csoportosított adatoknál
+
+A csoportosított eredményeket rendezni is lehet.
+
+```sql
+SELECT film_cim, SUM(nezok_szama) AS osszes_nezo
+FROM jegyek
+GROUP BY film_cim
+ORDER BY osszes_nezo DESC;
+```
+
+Ez a filmeket a nézőszám alapján csökkenő sorrendbe rendezi.
+
+## A HAVING használata
+
+A **HAVING** a csoportok szűrésére szolgál.
+
+Fontos különbség:
+
+* WHERE → sorokat szűr
+* HAVING → csoportokat szűr
+
+```sql
+SELECT film_cim, SUM(nezok_szama) AS osszes_nezo
+FROM jegyek
+GROUP BY film_cim
+HAVING osszes_nezo > 200;
+```
+
+Ez csak azokat a filmeket jeleníti meg, ahol az összes nézőszám nagyobb, mint 200.
+
+## WHERE és GROUP BY együtt
+
+A WHERE és a GROUP BY együtt is használható.
+
+```sql
+SELECT film_cim, SUM(nezok_szama)
+FROM jegyek
+WHERE datum = '2024-05-04'
+GROUP BY film_cim;
+```
+
+Először szűr, utána csoportosít.
+
+## Tipikus hibák
+
+Gyakori hiba, hogy valaki olyan oszlopot használ a SELECT-ben, ami nincs a GROUP BY-ban és nem is aggregált.
+
+```sql
+SELECT film_cim, datum
+FROM jegyek
+GROUP BY film_cim;
+```
+
+Ez hibás vagy félrevezető eredményt adhat.
+
+Helyesen minden nem aggregált oszlopnak szerepelnie kell a GROUP BY-ban.
+
+## Feladatok
+
+1. Számold ki filmenként az összes nézőszámot.
+
+2. Számold ki filmenként az összes bevételt.
+
+3. Írd ki, hogy melyik filmnél volt a legtöbb néző összesen.
+
+4. Számold ki, hogy naponként mennyi volt az összes bevétel.
+
+5. Írd ki azokat a filmeket, ahol az összes nézőszám nagyobb, mint 200.
+
+6. Számold ki, hogy termenkként mennyi volt az összes néző.
+
+7. Írd ki a 3 legnézettebb filmet.
+
+<details>
+<summary><strong>Megoldások</strong></summary>
+
+```sql
+-- 1.
+SELECT film_cim, SUM(nezok_szama)
+FROM jegyek
+GROUP BY film_cim;
+
+-- 2.
+SELECT film_cim, SUM(ar * nezok_szama)
+FROM jegyek
+GROUP BY film_cim;
+
+-- 3.
+SELECT film_cim, SUM(nezok_szama) AS osszes_nezo
+FROM jegyek
+GROUP BY film_cim
+ORDER BY osszes_nezo DESC
+LIMIT 1;
+
+-- 4.
+SELECT datum, SUM(ar * nezok_szama)
+FROM jegyek
+GROUP BY datum;
+
+-- 5.
+SELECT film_cim, SUM(nezok_szama) AS osszes_nezo
+FROM jegyek
+GROUP BY film_cim
+HAVING osszes_nezo > 200;
+
+-- 6.
+SELECT terem, SUM(nezok_szama)
+FROM jegyek
+GROUP BY terem;
+
+-- 7.
+SELECT film_cim, SUM(nezok_szama) AS osszes_nezo
+FROM jegyek
+GROUP BY film_cim
+ORDER BY osszes_nezo DESC
+LIMIT 3;
+```
+
+</details>

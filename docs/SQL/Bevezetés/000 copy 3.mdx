@@ -1,0 +1,281 @@
+---
+title: INSERT INTO, UPDATE, DELETE és NULL használata SQL-ben
+sidebar_position: 4
+description: INSERT INTO, UPDATE, DELETE és NULL használata SQL-ben
+---
+
+# Új adatok felvitele, módosítása, törlése és a NULL érték
+
+Az eddigi órákon főként lekérdezésekkel dolgoztál, vagyis olyan SQL utasításokkal, amelyek az adatbázisban már meglévő adatokat jelenítették meg. Az SQL azonban nemcsak lekérdezésre alkalmas, hanem arra is, hogy új adatokat vigyél fel, meglévő adatokat módosíts, vagy akár törölj a táblából.
+
+Ebben az anyagban megismered az **INSERT INTO**, **UPDATE** és **DELETE** utasításokat, valamint azt is, hogy mit jelent a **NULL** érték.
+
+## Mintaadatok
+
+Ebben a példában egy könyvtári adatbázissal dolgozunk. A tábla neve: `konyvek`.
+
+```text
+id | cim                   | szerzo              | ev   | mufaj                | oldalszam
+1  | Az ajto               | Szabo Magda         | 1987 | regeny               | 280
+2  | Egri csillagok        | Gardonyi Geza       | 1901 | tortenelmi regeny    | 512
+3  | A Pal utcai fiuk      | Molnar Ferenc       | 1907 | ifjusagi regeny      | 192
+4  | Tizedes meg a tobbiek | Oszter Sandor       | 1965 | filmregeny           | 210
+5  | Abigel                | Szabo Magda         | 1970 | ifjusagi regeny      | 430
+6  | Titokzatos tortenet   | Ismeretlen szerzo   | 2024 | regeny               | NULL
+7  | Lathatatlan ember     | Geza Gardonyi       | 1901 | tortenelmi regeny    | 350
+8  | Esti Kornel           | Kosztolanyi Dezso   | 1933 | novellafuzer         | 180
+9  | Legy jo mindhalalig   | Moricz Zsigmond     | 1920 | regeny               | 300
+10 | Utas es holdvilag     | Szerb Antal         | 1937 | regeny               | 270
+````
+
+<details>
+<summary><strong>SQL SCRIPT</strong></summary>
+
+```sql
+CREATE DATABASE IF NOT EXISTS konyvtar;
+USE konyvtar;
+
+DROP TABLE IF EXISTS konyvek;
+
+CREATE TABLE konyvek (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cim VARCHAR(150) NOT NULL,
+    szerzo VARCHAR(100) NOT NULL,
+    ev INT NOT NULL,
+    mufaj VARCHAR(100) NOT NULL,
+    oldalszam INT NULL
+);
+
+INSERT INTO konyvek (cim, szerzo, ev, mufaj, oldalszam) VALUES
+('Az ajto', 'Szabo Magda', 1987, 'regeny', 280),
+('Egri csillagok', 'Gardonyi Geza', 1901, 'tortenelmi regeny', 512),
+('A Pal utcai fiuk', 'Molnar Ferenc', 1907, 'ifjusagi regeny', 192),
+('Tizedes meg a tobbiek', 'Oszter Sandor', 1965, 'filmregeny', 210),
+('Abigel', 'Szabo Magda', 1970, 'ifjusagi regeny', 430),
+('Titokzatos tortenet', 'Ismeretlen szerzo', 2024, 'regeny', NULL),
+('Lathatatlan ember', 'Geza Gardonyi', 1901, 'tortenelmi regeny', 350),
+('Esti Kornel', 'Kosztolanyi Dezso', 1933, 'novellafuzer', 180),
+('Legy jo mindhalalig', 'Moricz Zsigmond', 1920, 'regeny', 300),
+('Utas es holdvilag', 'Szerb Antal', 1937, 'regeny', 270);
+```
+
+</details>
+
+## Az adatmódosító utasítások szerepe
+
+Az SQL-ben vannak olyan utasítások, amelyek ténylegesen megváltoztatják a tábla tartalmát. Ezeket használjuk akkor, amikor új rekordot akarunk felvinni, módosítani szeretnénk egy már meglévő adatot, vagy törölni akarunk egy sort.
+
+Ebben az órában a következő utasításokkal dolgozunk:
+
+* **INSERT INTO** – új adat beszúrása
+* **UPDATE** – meglévő adat módosítása
+* **DELETE** – rekord törlése
+
+Ezek az utasítások az adatbázis tartalmát módosítják, ezért használatuknál mindig körültekintően kell dolgozni.
+
+## Az INSERT INTO használata
+
+Az **INSERT INTO** utasítással új rekordot adhatunk hozzá egy táblához.
+
+```sql
+INSERT INTO konyvek (cim, szerzo, ev, mufaj, oldalszam)
+VALUES ('Az ajto', 'Szabo Magda', 1987, 'regeny', 280);
+```
+
+Ebben a parancsban először megadod, melyik táblába szeretnél adatot beszúrni, utána felsorolod az oszlopokat, majd a `VALUES` részben megadod a hozzájuk tartozó értékeket.
+
+Egyetlen utasítással több rekordot is fel lehet venni:
+
+```sql
+INSERT INTO konyvek (cim, szerzo, ev, mufaj, oldalszam)
+VALUES
+('Egri csillagok', 'Gardonyi Geza', 1901, 'tortenelmi regeny', 512),
+('A Pal utcai fiuk', 'Molnar Ferenc', 1907, 'ifjusagi regeny', 192);
+```
+
+Ilyenkor minden zárójeles rész egy új rekordot jelent.
+
+## Az UPDATE használata
+
+Az **UPDATE** utasítással meglévő adatokat tudsz módosítani.
+
+```sql
+UPDATE konyvek
+SET oldalszam = 300
+WHERE cim = 'Az ajto';
+```
+
+A `SET` rész mondja meg, hogy melyik oszlop milyen új értéket kapjon. A `WHERE` rész pedig meghatározza, hogy melyik rekord módosuljon.
+
+Egyszerre több oszlopot is lehet módosítani:
+
+```sql
+UPDATE konyvek
+SET mufaj = 'klasszikus regeny', oldalszam = 200
+WHERE cim = 'A Pal utcai fiuk';
+```
+
+Ebben az esetben ugyanazon rekord két mezője változik meg.
+
+## Miért fontos a WHERE az UPDATE esetén?
+
+Az **UPDATE** használatánál különösen fontos a `WHERE` feltétel.
+
+```sql
+UPDATE konyvek
+SET mufaj = 'ismeretlen';
+```
+
+Ez a parancs az összes rekord műfaját `ismeretlen` értékre módosítja, mert nem adtuk meg, hogy melyik sorra vonatkozzon a módosítás.
+
+Ezért az **UPDATE** utasítás használatakor mindig ellenőrizni kell, hogy szerepel-e a megfelelő `WHERE` feltétel.
+
+## A DELETE használata
+
+A **DELETE** utasítással egy vagy több rekordot törölhetsz a táblából.
+
+```sql
+DELETE FROM konyvek
+WHERE cim = 'Egri csillagok';
+```
+
+Ez a parancs törli azt a rekordot, amelynek a címe `Egri csillagok`.
+
+## Miért fontos a WHERE a DELETE esetén?
+
+A **DELETE** használatánál is nagyon fontos a `WHERE` feltétel.
+
+```sql
+DELETE FROM konyvek;
+```
+
+Ez a parancs a tábla összes rekordját törli. Maga a tábla megmarad, de teljesen üres lesz.
+
+Ezért a **DELETE** használatakor is mindig figyelj arra, hogy csak a kívánt rekordokra vonatkozzon a törlés.
+
+## A NULL érték jelentése
+
+A **NULL** nem ugyanaz, mint a nulla, és nem ugyanaz, mint az üres szöveg.
+
+A **NULL** azt jelenti, hogy az adott mező értéke:
+
+* hiányzik,
+* ismeretlen,
+* vagy nincs megadva.
+
+Például ha egy könyvnél még nem ismert az oldalszám, akkor az `oldalszam` mező értéke lehet `NULL`.
+
+```sql
+INSERT INTO konyvek (cim, szerzo, ev, mufaj, oldalszam)
+VALUES ('Titokzatos tortenet', 'Ismeretlen szerzo', 2024, 'regeny', NULL);
+```
+
+Ez nem azt jelenti, hogy a könyv 0 oldalas, hanem azt, hogy az oldalszám nincs megadva.
+
+## A NULL vizsgálata
+
+A **NULL** értéket nem lehet sima egyenlőségjellel vizsgálni.
+
+Hibás megoldás:
+
+```sql
+SELECT * FROM konyvek
+WHERE oldalszam = NULL;
+```
+
+Helyes megoldás:
+
+```sql
+SELECT * FROM konyvek
+WHERE oldalszam IS NULL;
+```
+
+Ha pedig azokat a rekordokat szeretnéd lekérdezni, ahol az érték meg van adva, akkor ezt kell használni:
+
+```sql
+SELECT * FROM konyvek
+WHERE oldalszam IS NOT NULL;
+```
+
+## Tipikus hibák
+
+Gyakori hiba, hogy az **UPDATE** utasításból lemarad a `WHERE`, így az összes rekord módosul.
+
+Szintén gyakori hiba, hogy a **DELETE** utasításból hiányzik a `WHERE`, ezért minden adat törlődik a táblából.
+
+Sokan hibásan próbálják a **NULL** értéket sima értékként kezelni:
+
+```sql
+WHERE oldalszam = NULL
+```
+
+Pedig helyesen így kell írni:
+
+```sql
+WHERE oldalszam IS NULL
+```
+
+Az **INSERT INTO** esetén arra is figyelni kell, hogy az oszlopok sorrendje és az értékek sorrendje pontosan egyezzen.
+
+## Feladatok
+
+1. Szúrj be egy új könyvet a `konyvek` táblába az alábbi adatokkal:
+   Cím: Java programozas alapjai
+   Szerző: Kovacs Bela
+   Év: 2020
+   Műfaj: szakmai konyv
+   Oldalszám: 350
+
+2. Módosítsd az `Abigel` műfaját `regeny` értékre.
+
+3. Módosítsd az `Esti Kornel` oldalszámát 200-ra.
+
+4. Töröld ki a `konyvek` táblából a `Titokzatos tortenet` című könyvet.
+
+5. Szúrj be egy új könyvet a `konyvek` táblába az alábbi adatokkal:
+   Cím: Elveszett kezirat
+   Szerző: Nevtelen
+   Év: 2025
+   Műfaj: regeny
+   Oldalszám: NULL
+
+6. Kérdezd le azokat a könyveket, amelyeknél az oldalszám hiányzik.
+
+7. Kérdezd le azokat a könyveket, amelyeknél az oldalszám meg van adva.
+
+<details>
+<summary><strong>Megoldások</strong></summary>
+
+```sql
+-- 1.
+INSERT INTO konyvek (cim, szerzo, ev, mufaj, oldalszam)
+VALUES ('Java programozas alapjai', 'Kovacs Bela', 2020, 'szakmai konyv', 350);
+
+-- 2.
+UPDATE konyvek
+SET mufaj = 'regeny'
+WHERE cim = 'Abigel';
+
+-- 3.
+UPDATE konyvek
+SET oldalszam = 200
+WHERE cim = 'Esti Kornel';
+
+-- 4.
+DELETE FROM konyvek
+WHERE cim = 'Titokzatos tortenet';
+
+-- 5.
+INSERT INTO konyvek (cim, szerzo, ev, mufaj, oldalszam)
+VALUES ('Elveszett kezirat', 'Nevtelen', 2025, 'regeny', NULL);
+
+-- 6.
+SELECT * FROM konyvek
+WHERE oldalszam IS NULL;
+
+-- 7.
+SELECT * FROM konyvek
+WHERE oldalszam IS NOT NULL;
+```
+
+</details>

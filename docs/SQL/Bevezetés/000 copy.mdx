@@ -1,0 +1,196 @@
+---
+title: Alaplekérdezések szűréssel és rendezéssel
+sidebar_position: 2
+description: WHERE, DISTINCT és ORDER BY használata
+---
+
+# Alaplekérdezések szűréssel és rendezéssel
+
+Az adatbázisok használata során ritkán van szükség az összes adat megjelenítésére. A legtöbb esetben csak bizonyos feltételeknek megfelelő adatokat szeretnénk lekérdezni, illetve az eredményeket valamilyen szempont szerint rendezni.
+
+Ebben az anyagban megismered, hogyan lehet adatokat **szűrni**, az ismétlődéseket **eltávolítani**, valamint az eredményeket **rendezni**.
+
+## Szűrés feltételek alapján
+
+A szűrés azt jelenti, hogy nem az összes rekordot kérdezzük le, hanem csak azokat, amelyek megfelelnek egy feltételnek. Ehhez a **WHERE** kulcsszót használjuk.
+
+```sql
+SELECT * FROM tanulok
+WHERE osztaly = '10.A';
+```
+
+Ez csak a 10.A osztály tanulóit jeleníti meg.
+
+```sql
+SELECT nev, atlag FROM tanulok
+WHERE atlag > 4.5;
+```
+
+Ez csak azokat a tanulókat adja vissza, akiknek az átlaga 4.5 felett van.
+
+## Összehasonlító operátorok
+
+A feltételek megadásához különböző operátorokat használunk:
+
+            ```md
+            | Operátor | Jelentés             |
+            | -------- | -------------------- |
+            | =        | egyenlő              |
+            | >        | nagyobb              |
+            | <        | kisebb               |
+            | >=       | nagyobb vagy egyenlő |
+            | <=       | kisebb vagy egyenlő  |
+            | !=       | nem egyenlő          |
+            ```
+
+## Ismétlődések kiszűrése
+
+Ha egy oszlopban ismétlődő értékek vannak, és csak az egyedi értékek érdekelnek, akkor a **DISTINCT** kulcsszót kell használni.
+
+```sql
+SELECT DISTINCT osztaly FROM tanulok;
+```
+
+Ez minden osztályt csak egyszer jelenít meg.
+
+```sql
+SELECT DISTINCT osztaly, eletkor FROM tanulok;
+```
+
+Ez az egyedi kombinációkat adja vissza.
+
+## Adatok rendezése
+
+A lekérdezések eredményét a **ORDER BY** segítségével lehet rendezni.
+
+```sql
+SELECT nev, atlag FROM tanulok
+ORDER BY atlag;
+```
+
+Ez növekvő sorrend (alapértelmezett).
+
+```sql
+SELECT nev, atlag FROM tanulok
+ORDER BY atlag DESC;
+```
+
+Ez csökkenő sorrend.
+
+```sql
+SELECT nev, osztaly FROM tanulok
+ORDER BY osztaly, nev;
+```
+
+Először osztály szerint, azon belül név szerint rendez.
+
+## Szűrés és rendezés együtt
+
+A **WHERE** és a **ORDER BY** gyakran együtt szerepel.
+
+```sql
+SELECT nev, atlag FROM tanulok
+WHERE atlag > 4.0
+ORDER BY atlag DESC;
+```
+
+Csak a 4.0 feletti tanulók, csökkenő sorrendben.
+
+## Szűrés és ismétlődések kiszűrése együtt
+
+```sql
+SELECT DISTINCT osztaly
+FROM tanulok
+WHERE atlag > 4.0;
+```
+
+Csak azok az osztályok jelennek meg, ahol van 4.0 feletti tanuló.
+
+## Tipikus hibák
+
+Szöveg idézőjel nélkül:
+
+```sql
+WHERE osztaly = 10.A
+```
+
+Helyesen:
+
+```sql
+WHERE osztaly = '10.A'
+```
+
+Rossz operátor:
+
+```sql
+WHERE atlag => 4.0
+```
+
+Helyesen:
+
+```sql
+WHERE atlag >= 4.0
+```
+
+Rossz sorrend:
+
+```sql
+SELECT * ORDER BY atlag FROM tanulok;
+```
+
+Helyesen:
+
+```sql
+SELECT * FROM tanulok ORDER BY atlag;
+```
+
+## Feladatok
+
+1. Írd ki az összes tanulót a 10.B osztályból!
+2. Írd ki azoknak a nevét és átlagát, akiknek az átlaga nagyobb, mint 4.0!
+3. Listázd ki az összes különböző osztályt!
+4. Írd ki a tanulókat átlag szerint növekvő sorrendben!
+5. Írd ki a 4.0 feletti tanulókat csökkenő sorrendben!
+
+<details>
+<summary><strong>Megoldások</strong></summary>
+
+```sql
+-- 1.
+SELECT *
+FROM tanulok
+WHERE osztaly = '10.B';
+
+-- 2.
+SELECT nev, atlag
+FROM tanulok
+WHERE atlag > 4.0;
+
+-- 3.
+SELECT DISTINCT osztaly
+FROM tanulok;
+
+-- 4.
+SELECT *
+FROM tanulok
+ORDER BY atlag ASC;
+
+-- 5.
+SELECT *
+FROM tanulok
+WHERE atlag > 4.0
+ORDER BY atlag DESC;
+```
+
+</details>
+
+## Összegzés
+
+Ebben az anyagban megismerted:
+
+* a **WHERE** használatát szűréshez
+* a **DISTINCT** használatát ismétlődések eltávolításához
+* a **ORDER BY** használatát rendezéshez
+
+
+
