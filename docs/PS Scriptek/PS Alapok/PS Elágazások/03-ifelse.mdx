@@ -1,0 +1,295 @@
+---
+title: Az if–else szerkezet PowerShellben
+sidebar_position: 4
+description: Kétágú feltételes elágazás használata PowerShell scriptben
+---
+
+# `if–else` – Feltételes elágazás két lehetséges kimenettel
+
+Az előző fejezetben megismertük az **`if` szerkezetet**, amely csak akkor hajt végre egy utasítást, **ha a feltétel igaz**.
+
+Sok esetben azonban nem elegendő csak az igaz esetet kezelni. Gyakran szükség van arra is, hogy meghatározzuk, **mi történjen akkor, ha a feltétel hamis**.
+
+Erre szolgál az **`else` ág**.
+
+Az `if–else` szerkezet lehetővé teszi, hogy a program **két különböző művelet közül válasszon** a feltétel eredménye alapján.
+
+---
+
+## Az `if–else` működési elve
+
+Az `if–else` szerkezet két lehetséges ágat tartalmaz:
+
+| Ág | Mikor fut le |
+|---|---|
+| `if` ág | ha a feltétel igaz |
+| `else` ág | ha a feltétel hamis |
+
+Az általános működés:
+
+```text
+ha feltétel igaz
+akkor ezt csináld
+különben
+csináld ezt
+```
+
+A program tehát mindig **pontosan egy ágat hajt végre**.
+
+---
+
+## Az `if–else` szintaxisa PowerShellben
+
+```powershell
+if (feltétel) {
+    utasítások
+}
+else {
+    utasítások
+}
+```
+
+### A szerkezet részei
+
+| Elem | Jelentés |
+| --- | --- |
+| `if` | feltételvizsgálat kezdete |
+| `(feltétel)` | a vizsgált logikai feltétel |
+| `{ }` | az adott ághoz tartozó utasításblokk |
+| `else` | a hamis ág kezdete |
+| utasítások | a végrehajtandó parancsok |
+
+PowerShellben nincs `then` és nincs `fi`.  
+A feltételt kerek zárójelbe írjuk, az utasításokat pedig kapcsos zárójelek közé tesszük.
+
+---
+
+## A működés logikája
+
+Az `if–else` működését az alábbi folyamat szemlélteti:
+
+```text
+         feltétel
+            │
+       igaz? ───── nem
+         │          │
+        igen        │
+         │          │
+   if utasítás   else utasítás
+```
+
+A program:
+
+1. kiértékeli a feltételt
+2. ha igaz → végrehajtja az `if` blokkot
+3. ha hamis → végrehajtja az `else` blokkot
+
+---
+
+## Gyakorlati példák
+
+### Két szám összehasonlítása
+
+```powershell
+$a = [int](Read-Host "Adj meg egy számot")
+$b = [int](Read-Host "Adj meg egy másik számot")
+
+if ($a -gt $b) {
+    Write-Host "Az első szám nagyobb."
+}
+else {
+    Write-Host "A második szám nagyobb vagy egyenlő."
+}
+```
+
+### A program működése
+
+| Lépés | Mi történik |
+| ----- | ----------- |
+| 1 | a program két számot kér be |
+| 2 | a beolvasott értékeket számmá alakítja |
+| 3 | összehasonlítja őket |
+| 4 | ha az első nagyobb → az `if` ág fut |
+| 5 | különben → az `else` ág fut |
+
+Ha a felhasználó ezt adja meg:
+
+```text
+8
+3
+```
+
+akkor az eredmény:
+
+```text
+Az első szám nagyobb.
+```
+
+---
+
+### Páros vagy páratlan szám
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+$maradek = $szam % 2
+
+if ($maradek -eq 0) {
+    Write-Host "A szám páros."
+}
+else {
+    Write-Host "A szám páratlan."
+}
+```
+
+### Magyarázat
+
+A program kiszámolja a maradékot:
+
+```powershell
+$szam % 2
+```
+
+Ha az eredmény **0**, akkor a szám páros.  
+Ha nem **0**, akkor páratlan.
+
+---
+
+### Pozitív vagy nem pozitív szám
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+if ($szam -gt 0) {
+    Write-Host "A szám pozitív."
+}
+else {
+    Write-Host "A szám nulla vagy negatív."
+}
+```
+
+Ebben az esetben a program két lehetséges kategóriát kezel:
+
+| Feltétel | Eredmény |
+| -------- | -------- |
+| szám > 0 | pozitív |
+| szám ≤ 0 | nulla vagy negatív |
+
+---
+
+## Gyakori szintaktikai hiba
+
+### Hibás forma
+
+```powershell
+if $a -gt $b {
+    Write-Host "Az első szám nagyobb."
+}
+```
+
+### Helyes forma
+
+```powershell
+if ($a -gt $b) {
+    Write-Host "Az első szám nagyobb."
+}
+```
+
+PowerShellben az `if` feltételét **kerek zárójelbe kell tenni**.
+
+---
+
+## További formai szabályok
+
+### Az utasításblokk kapcsos zárójelek közé kerül
+
+Helyes:
+
+```powershell
+if ($szam -gt 0) {
+    Write-Host "A szám pozitív."
+}
+else {
+    Write-Host "A szám nulla vagy negatív."
+}
+```
+
+Helytelen:
+
+```powershell
+if ($szam -gt 0)
+    Write-Host "A szám pozitív."
+else
+    Write-Host "A szám nulla vagy negatív."
+```
+
+PowerShellben a kapcsos zárójelek egyértelműen kijelölik, mely utasítások tartoznak az `if` és melyek az `else` ághoz.
+
+---
+
+### Az `else` az `if` blokk után következik
+
+```powershell
+if ($feltetel) {
+    Write-Host "Igaz ág."
+}
+else {
+    Write-Host "Hamis ág."
+}
+```
+
+Az `else` nem önálló feltételvizsgálat, hanem az előtte álló `if` szerkezethez tartozik.
+
+---
+
+### Számok bekérésekor érdemes típust megadni
+
+A `Read-Host` alapértelmezés szerint szövegként olvassa be az adatot.  
+Ha számokat szeretnénk összehasonlítani, célszerű az értéket számmá alakítani.
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+```
+
+Az `[int]` azt jelenti, hogy az értéket egész számként kezeljük.
+
+---
+
+## Mikor használjuk az `else` ágat?
+
+Az `else` akkor hasznos, amikor **a feltétel minden lehetséges kimenetelét kezelni szeretnénk**.
+
+Tipikus esetek:
+
+| Példa | Két lehetséges kimenet |
+| ----- | ---------------------- |
+| szám vizsgálata | páros vagy páratlan |
+| összehasonlítás | nagyobb vagy kisebb |
+| ellenőrzés | siker vagy hiba |
+| jogosultság | engedélyezett vagy tiltott |
+
+---
+
+## Összefoglalás
+
+| Fogalom | Jelentés |
+| ------- | -------- |
+| `if` | feltétel vizsgálata |
+| `else` | alternatív végrehajtás |
+| `( )` | a feltétel helye |
+| `{ }` | az utasításblokk kijelölése |
+
+Az **`if–else` szerkezet** lehetővé teszi, hogy a program **két különböző művelet közül válasszon**, attól függően, hogy a feltétel igaz vagy hamis.
+
+PowerShellben az alapforma:
+
+```powershell
+if (feltétel) {
+    igaz ág utasításai
+}
+else {
+    hamis ág utasításai
+}
+```
+
+A program minden esetben csak az egyik ágat hajtja végre.

@@ -1,0 +1,717 @@
+---
+title: PowerShell Where-Object és Measure-Object kombinált feladatok
+sidebar_position: 3
+description: PowerShell tömbök szűrése és összesítése Where-Object és Measure-Object parancsokkal
+---
+
+---
+
+## 1. feladat – Negatív számok darabszáma
+
+Feladat
+
+Hozz létre egy `$homersekletek` nevű tömböt az alábbi elemekkel:
+
+- -3
+- 4
+- -8
+- 12
+- 0
+- -1
+
+Számold meg, hány negatív szám található a tömbben.
+
+Expected output
+
+```text
+3
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$homersekletek = @(-3, 4, -8, 12, 0, -1)
+
+$db = ($homersekletek | Where-Object { $_ -lt 0 } | Measure-Object).Count
+
+Write-Host $db
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja, hogy a tömbből először kiszűrjük a negatív értékeket, majd megszámoljuk őket.
+
+```powershell
+$homersekletek = @(-3, 4, -8, 12, 0, -1)
+```
+
+- `$homersekletek`: a tömb neve.
+- `=`: értékadó operátor.
+- `@(...)`: tömb létrehozása.
+- `-3, 4, -8, 12, 0, -1`: a tömb elemei.
+
+```powershell
+$db = ($homersekletek | Where-Object { $_ -lt 0 } | Measure-Object).Count
+```
+
+- `$db`: változó, amelybe a darabszám kerül.
+- `$homersekletek`: a feldolgozandó tömb.
+- `|`: pipeline operátor, amely továbbadja az elemeket a következő parancsnak.
+- `Where-Object`: szűrő parancs.
+- `{ $_ -lt 0 }`: feltétel, amely csak a nullánál kisebb értékeket engedi tovább.
+- `$_`: az aktuálisan vizsgált tömbelem.
+- `-lt`: kisebb, mint operátor.
+- `Measure-Object`: összesítő parancs.
+- `.Count`: a továbbengedett elemek darabszámát adja vissza.
+
+A feltételnek megfelelő elemek:
+
+```text
+-3 -8 -1
+```
+
+</details>
+
+---
+
+## 2. feladat – 100-nál nagyobb értékek összege
+
+Feladat
+
+Hozz létre egy `$rendelesek` nevű tömböt az alábbi elemekkel:
+
+- 80
+- 120
+- 45
+- 300
+- 95
+- 160
+
+Számítsd ki a `100`-nál nagyobb értékek összegét.
+
+Expected output
+
+```text
+580
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$rendelesek = @(80, 120, 45, 300, 95, 160)
+
+$osszeg = ($rendelesek | Where-Object { $_ -gt 100 } | Measure-Object -Sum).Sum
+
+Write-Host $osszeg
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja, hogy csak a `100`-nál nagyobb elemek kerüljenek összegzésre.
+
+```powershell
+$rendelesek = @(80, 120, 45, 300, 95, 160)
+```
+
+- `$rendelesek`: a tömb neve.
+- `@(...)`: a tömb elemeinek megadása.
+- A tömb rendelési értékeket tartalmaz.
+
+```powershell
+$osszeg = ($rendelesek | Where-Object { $_ -gt 100 } | Measure-Object -Sum).Sum
+```
+
+- `$rendelesek`: a feldolgozandó tömb.
+- `Where-Object { $_ -gt 100 }`: csak azokat az elemeket engedi tovább, amelyek nagyobbak `100`-nál.
+- `-gt`: nagyobb, mint operátor.
+- `Measure-Object -Sum`: a szűrt elemek összegét számítja ki.
+- `.Sum`: az összeg értékét veszi ki az eredményobjektumból.
+- `$osszeg`: ebbe kerül a kiszámított érték.
+
+A szűrt elemek:
+
+```text
+120 300 160
+```
+
+A kiszámított összeg:
+
+```text
+120 + 300 + 160 = 580
+```
+
+</details>
+
+---
+
+## 3. feladat – Megfelelt dolgozatok átlaga
+
+Feladat
+
+Hozz létre egy `$szazalekok` nevű tömböt az alábbi elemekkel:
+
+- 34
+- 58
+- 71
+- 49
+- 83
+- 65
+
+Számítsd ki azoknak az értékeknek az átlagát, amelyek legalább `50` százalékosak.
+
+Expected output
+
+```text
+69.25
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szazalekok = @(34, 58, 71, 49, 83, 65)
+
+$atlag = ($szazalekok | Where-Object { $_ -ge 50 } | Measure-Object -Average).Average
+
+Write-Host $atlag
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a legalább `50` százalékos eredmények kiszűrése és ezek átlagának meghatározása.
+
+```powershell
+$szazalekok = @(34, 58, 71, 49, 83, 65)
+```
+
+- `$szazalekok`: a tömb neve.
+- A tömb százalékos eredményeket tartalmaz.
+
+```powershell
+$atlag = ($szazalekok | Where-Object { $_ -ge 50 } | Measure-Object -Average).Average
+```
+
+- `Where-Object { $_ -ge 50 }`: csak azokat az értékeket engedi tovább, amelyek legalább `50`-ek.
+- `-ge`: nagyobb vagy egyenlő operátor.
+- `Measure-Object -Average`: átlagot számít a szűrt elemekből.
+- `.Average`: az átlag értékét adja vissza.
+- `$atlag`: a kiszámított átlagot tárolja.
+
+A feltételnek megfelelő értékek:
+
+```text
+58 71 83 65
+```
+
+A számítás:
+
+```text
+(58 + 71 + 83 + 65) / 4 = 69.25
+```
+
+</details>
+
+---
+
+## 4. feladat – Alacsony értékek közül a legkisebb
+
+Feladat
+
+Hozz létre egy `$keszlet` nevű tömböt az alábbi elemekkel:
+
+- 35
+- 12
+- 8
+- 47
+- 5
+- 29
+
+Határozd meg a `30` alatti értékek közül a legkisebbet.
+
+Expected output
+
+```text
+5
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$keszlet = @(35, 12, 8, 47, 5, 29)
+
+$minimum = ($keszlet | Where-Object { $_ -lt 30 } | Measure-Object -Minimum).Minimum
+
+Write-Host $minimum
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja, hogy először csak a `30` alatti értékek maradjanak meg, majd ezek közül meghatározzuk a legkisebbet.
+
+```powershell
+$keszlet = @(35, 12, 8, 47, 5, 29)
+```
+
+- `$keszlet`: a tömb neve.
+- A tömb készletadatokat tartalmaz.
+
+```powershell
+$minimum = ($keszlet | Where-Object { $_ -lt 30 } | Measure-Object -Minimum).Minimum
+```
+
+- `Where-Object { $_ -lt 30 }`: csak a `30` alatti elemeket engedi tovább.
+- `-lt`: kisebb, mint operátor.
+- `Measure-Object -Minimum`: meghatározza a szűrt elemek közül a legkisebbet.
+- `.Minimum`: a minimumértéket adja vissza.
+- `$minimum`: ebbe kerül a legkisebb érték.
+
+A szűrt elemek:
+
+```text
+12 8 5 29
+```
+
+Ezek közül a legkisebb:
+
+```text
+5
+```
+
+</details>
+
+---
+
+## 5. feladat – Felső határ alatti legnagyobb érték
+
+Feladat
+
+Hozz létre egy `$sebessegek` nevű tömböt az alábbi elemekkel:
+
+- 52
+- 88
+- 104
+- 76
+- 99
+- 115
+
+Határozd meg a `100` alatti értékek közül a legnagyobbat.
+
+Expected output
+
+```text
+99
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$sebessegek = @(52, 88, 104, 76, 99, 115)
+
+$maximum = ($sebessegek | Where-Object { $_ -lt 100 } | Measure-Object -Maximum).Maximum
+
+Write-Host $maximum
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a `100` alatti elemek szűrése, majd a legnagyobb megmaradt érték meghatározása.
+
+```powershell
+$sebessegek = @(52, 88, 104, 76, 99, 115)
+```
+
+- `$sebessegek`: a tömb neve.
+- A tömb sebességértékeket tartalmaz.
+
+```powershell
+$maximum = ($sebessegek | Where-Object { $_ -lt 100 } | Measure-Object -Maximum).Maximum
+```
+
+- `Where-Object { $_ -lt 100 }`: csak a `100` alatti elemeket engedi tovább.
+- `Measure-Object -Maximum`: megkeresi a legnagyobb értéket a szűrt elemek között.
+- `.Maximum`: a maximumértéket adja vissza.
+- `$maximum`: a legnagyobb megfelelő értéket tárolja.
+
+A szűrt elemek:
+
+```text
+52 88 76 99
+```
+
+Ezek közül a legnagyobb:
+
+```text
+99
+```
+
+</details>
+
+---
+
+## 6. feladat – Páratlan számok darabszáma
+
+Feladat
+
+Hozz létre egy `$azonositok` nevű tömböt az alábbi elemekkel:
+
+- 101
+- 204
+- 317
+- 428
+- 539
+- 640
+
+Számold meg, hány páratlan szám található a tömbben.
+
+Expected output
+
+```text
+3
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$azonositok = @(101, 204, 317, 428, 539, 640)
+
+$db = ($azonositok | Where-Object { $_ % 2 -ne 0 } | Measure-Object).Count
+
+Write-Host $db
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a páratlan számok kiszűrése, majd ezek darabszámának meghatározása.
+
+```powershell
+$azonositok = @(101, 204, 317, 428, 539, 640)
+```
+
+- `$azonositok`: a tömb neve.
+- A tömb azonosítószámokat tartalmaz.
+
+```powershell
+$db = ($azonositok | Where-Object { $_ % 2 -ne 0 } | Measure-Object).Count
+```
+
+- `%`: maradékos osztás operátora.
+- `$_ % 2`: megadja, mennyi maradék keletkezik kettővel osztáskor.
+- `-ne 0`: azt vizsgálja, hogy a maradék nem nulla-e.
+- `Where-Object { $_ % 2 -ne 0 }`: csak a páratlan számokat engedi tovább.
+- `Measure-Object`: megszámolja a továbbengedett elemeket.
+- `.Count`: a darabszámot adja vissza.
+
+A feltételnek megfelelő elemek:
+
+```text
+101 317 539
+```
+
+</details>
+
+---
+
+## 7. feladat – Öttel osztható számok összege
+
+Feladat
+
+Hozz létre egy `$pontszamok` nevű tömböt az alábbi elemekkel:
+
+- 14
+- 25
+- 30
+- 41
+- 55
+- 62
+
+Számítsd ki az öttel osztható számok összegét.
+
+Expected output
+
+```text
+110
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$pontszamok = @(14, 25, 30, 41, 55, 62)
+
+$osszeg = ($pontszamok | Where-Object { $_ % 5 -eq 0 } | Measure-Object -Sum).Sum
+
+Write-Host $osszeg
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja az öttel osztható számok kiszűrése, majd ezek összegének kiszámítása.
+
+```powershell
+$pontszamok = @(14, 25, 30, 41, 55, 62)
+```
+
+- `$pontszamok`: a tömb neve.
+- A tömb pontszámokat tartalmaz.
+
+```powershell
+$osszeg = ($pontszamok | Where-Object { $_ % 5 -eq 0 } | Measure-Object -Sum).Sum
+```
+
+- `$_ % 5`: az aktuális szám öttel való osztási maradékát adja meg.
+- `-eq 0`: azt vizsgálja, hogy a maradék nulla-e.
+- `Where-Object { $_ % 5 -eq 0 }`: csak az öttel osztható számokat engedi tovább.
+- `Measure-Object -Sum`: összeadja a szűrt elemeket.
+- `.Sum`: az összeg értékét adja vissza.
+- `$osszeg`: a kiszámított összeget tárolja.
+
+A szűrt elemek:
+
+```text
+25 30 55
+```
+
+A számítás:
+
+```text
+25 + 30 + 55 = 110
+```
+
+</details>
+
+---
+
+## 8. feladat – Adott tartományba eső értékek átlaga
+
+Feladat
+
+Hozz létre egy `$meresek` nevű tömböt az alábbi elemekkel:
+
+- 15
+- 22
+- 37
+- 44
+- 58
+- 63
+
+Számítsd ki azoknak az értékeknek az átlagát, amelyek legalább `20`, de legfeljebb `50` értékűek.
+
+Expected output
+
+```text
+34.3333333333333
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$meresek = @(15, 22, 37, 44, 58, 63)
+
+$atlag = ($meresek | Where-Object { $_ -ge 20 -and $_ -le 50 } | Measure-Object -Average).Average
+
+Write-Host $atlag
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja egy alsó és egy felső határ alapján történő szűrés, majd a megmaradt értékek átlagának kiszámítása.
+
+```powershell
+$meresek = @(15, 22, 37, 44, 58, 63)
+```
+
+- `$meresek`: a tömb neve.
+- A tömb mérési adatokat tartalmaz.
+
+```powershell
+$atlag = ($meresek | Where-Object { $_ -ge 20 -and $_ -le 50 } | Measure-Object -Average).Average
+```
+
+- `Where-Object`: szűrő parancs.
+- `$_ -ge 20`: azt vizsgálja, hogy az aktuális elem legalább `20`-e.
+- `-and`: logikai ÉS operátor.
+- `$_ -le 50`: azt vizsgálja, hogy az aktuális elem legfeljebb `50`-e.
+- `$_ -ge 20 -and $_ -le 50`: akkor igaz, ha mindkét feltétel teljesül.
+- `Measure-Object -Average`: átlagot számít a szűrt értékekből.
+- `.Average`: az átlagértéket adja vissza.
+- `$atlag`: ebbe kerül a kiszámított átlag.
+
+A feltételnek megfelelő elemek:
+
+```text
+22 37 44
+```
+
+A számítás:
+
+```text
+(22 + 37 + 44) / 3 = 34.3333333333333
+```
+
+</details>
+
+---
+
+## 9. feladat – Nem nulla elemek száma
+
+Feladat
+
+Hozz létre egy `$valaszok` nevű tömböt az alábbi elemekkel:
+
+- 0
+- 3
+- 0
+- 7
+- 9
+- 0
+- 2
+
+Számold meg, hány elem értéke nem nulla.
+
+Expected output
+
+```text
+4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$valaszok = @(0, 3, 0, 7, 9, 0, 2)
+
+$db = ($valaszok | Where-Object { $_ -ne 0 } | Measure-Object).Count
+
+Write-Host $db
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a nullától eltérő értékek kiválogatása és megszámolása.
+
+```powershell
+$valaszok = @(0, 3, 0, 7, 9, 0, 2)
+```
+
+- `$valaszok`: a tömb neve.
+- A tömb számértékeket tartalmaz.
+
+```powershell
+$db = ($valaszok | Where-Object { $_ -ne 0 } | Measure-Object).Count
+```
+
+- `Where-Object { $_ -ne 0 }`: csak azokat az elemeket engedi tovább, amelyek nem egyenlők nullával.
+- `-ne`: nem egyenlő operátor.
+- `Measure-Object`: megszámolja a szűrés után megmaradt elemeket.
+- `.Count`: a darabszámot adja vissza.
+- `$db`: a darabszámot tárolja.
+
+A szűrt elemek:
+
+```text
+3 7 9 2
+```
+
+</details>
+
+---
+
+## 10. feladat – Határértéken kívüli elemek száma
+
+Feladat
+
+Hozz létre egy `$terhelesek` nevű tömböt az alábbi elemekkel:
+
+- 18
+- 45
+- 72
+- 91
+- 33
+- 105
+- 64
+
+Számold meg, hány érték kisebb `30`-nál vagy nagyobb `90`-nél.
+
+Expected output
+
+```text
+3
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$terhelesek = @(18, 45, 72, 91, 33, 105, 64)
+
+$db = ($terhelesek | Where-Object { $_ -lt 30 -or $_ -gt 90 } | Measure-Object).Count
+
+Write-Host $db
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja azoknak az értékeknek a megszámolása, amelyek kívül esnek a megadott tartományon.
+
+```powershell
+$terhelesek = @(18, 45, 72, 91, 33, 105, 64)
+```
+
+- `$terhelesek`: a tömb neve.
+- A tömb terhelési értékeket tartalmaz.
+
+```powershell
+$db = ($terhelesek | Where-Object { $_ -lt 30 -or $_ -gt 90 } | Measure-Object).Count
+```
+
+- `$_ -lt 30`: igaz, ha az aktuális érték kisebb `30`-nál.
+- `-or`: logikai VAGY operátor.
+- `$_ -gt 90`: igaz, ha az aktuális érték nagyobb `90`-nél.
+- `$_ -lt 30 -or $_ -gt 90`: akkor igaz, ha a két feltétel közül legalább az egyik teljesül.
+- `Where-Object`: csak a feltételnek megfelelő elemeket engedi tovább.
+- `Measure-Object`: megszámolja a megmaradt elemeket.
+- `.Count`: visszaadja a darabszámot.
+
+A feltételnek megfelelő elemek:
+
+```text
+18 91 105
+```
+
+</details>

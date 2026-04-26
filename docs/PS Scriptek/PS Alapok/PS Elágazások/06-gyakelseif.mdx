@@ -1,0 +1,131 @@
+---
+title: Gyakorló példák elseif
+sidebar_position: 7
+---
+
+
+# Gyakorló példák `elseif` szerkezethez PowerShellben
+
+---
+
+## 1. Pozitív, nulla vagy negatív
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+if ($szam -gt 0) {
+    Write-Host "A szám pozitív."
+}
+elseif ($szam -eq 0) {
+    Write-Host "A szám nulla."
+}
+else {
+    Write-Host "A szám negatív."
+}
+```
+
+Ez a program megvizsgálja, hogy a megadott szám pozitív, nulla vagy negatív.
+
+---
+
+## 2. Jegy értékelése
+
+```powershell
+$jegy = [int](Read-Host "Adj meg egy jegyet")
+
+if ($jegy -eq 5) {
+    Write-Host "Jeles."
+}
+elseif ($jegy -eq 4) {
+    Write-Host "Jó."
+}
+elseif ($jegy -eq 3) {
+    Write-Host "Közepes."
+}
+elseif ($jegy -eq 2) {
+    Write-Host "Elégséges."
+}
+else {
+    Write-Host "Elégtelen."
+}
+```
+
+Ez a program egy jegy alapján kiírja annak szöveges értékelését.
+
+---
+
+## 3. Életkor alapján kategória
+
+```powershell
+$kor = [int](Read-Host "Hány éves vagy?")
+
+if ($kor -lt 14) {
+    Write-Host "Gyerek vagy."
+}
+elseif ($kor -lt 18) {
+    Write-Host "Tini vagy."
+}
+else {
+    Write-Host "Felnőtt vagy."
+}
+```
+
+Ez a példa életkor alapján sorolja be a felhasználót egy kategóriába.
+
+---
+
+## 4. Két szám összehasonlítása
+
+```powershell
+$a = [int](Read-Host "Add meg az első számot")
+$b = [int](Read-Host "Add meg a második számot")
+
+if ($a -gt $b) {
+    Write-Host "Az első szám nagyobb."
+}
+elseif ($a -lt $b) {
+    Write-Host "A második szám nagyobb."
+}
+else {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+Ez a program összehasonlít két számot, és megmondja, melyik a nagyobb, vagy hogy egyenlőek-e.
+
+---
+
+## 5. Hónap száma alapján évszak
+
+```powershell
+$honap = [int](Read-Host "Adj meg egy hónap számot 1 és 12 között")
+
+if ($honap -eq 12) {
+    Write-Host "Tél van."
+}
+elseif ($honap -le 2) {
+    Write-Host "Tél van."
+}
+elseif ($honap -le 5) {
+    Write-Host "Tavasz van."
+}
+elseif ($honap -le 8) {
+    Write-Host "Nyár van."
+}
+else {
+    Write-Host "Ősz van."
+}
+```
+
+Ez a program a hónap száma alapján meghatározza az évszakot.
+
+---
+
+## Mire figyelj?
+
+* PowerShellben nem `elif`, hanem `elseif` szerepel.
+* Az `elseif` újabb feltételt vizsgál.
+* Az `else` csak akkor fut le, ha egyik előző feltétel sem volt igaz.
+* A feltételeket kerek zárójelbe kell írni.
+* Az utasításokat kapcsos zárójelek közé kell tenni.
+* A `Read-Host` alapértelmezés szerint szöveget olvas be, ezért számoknál érdemes `[int]` típussá alakítani.

@@ -1,0 +1,315 @@
+---
+title: Feladatok
+sidebar_position: 8
+description: PowerShell gyakorlófeladatok megoldásai
+---
+
+## 1. Szabad tárhely állapotának vizsgálata
+
+Feladat
+
+Kérd be a felhasználótól, hogy hány GB szabad tárhely van a meghajtón.  
+A program értékelje a tárhely állapotát.
+
+Ha a szabad tárhely kevesebb mint 10 GB, akkor írja ki, hogy kritikus tárhelyszint.  
+Ha a szabad tárhely legalább 10 GB, de kevesebb mint 50 GB, akkor írja ki, hogy figyelmeztetés.  
+Ha a szabad tárhely legalább 50 GB, akkor írja ki, hogy elegendő tárhely áll rendelkezésre.
+
+Expected output példa 1
+
+```text
+Add meg a szabad tárhely méretét GB-ban:
+6
+Kritikus tárhelyszint.
+```
+
+Expected output példa 2
+
+```text
+Add meg a szabad tárhely méretét GB-ban:
+25
+Figyelmeztetés: kevés a szabad tárhely.
+```
+
+Expected output példa 3
+
+```text
+Add meg a szabad tárhely méretét GB-ban:
+80
+Elegendő szabad tárhely áll rendelkezésre.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$tarhely = [int](Read-Host "Add meg a szabad tárhely méretét GB-ban")
+
+if ($tarhely -lt 10) {
+    Write-Host "Kritikus tárhelyszint."
+}
+elseif ($tarhely -lt 50) {
+    Write-Host "Figyelmeztetés: kevés a szabad tárhely."
+}
+else {
+    Write-Host "Elegendő szabad tárhely áll rendelkezésre."
+}
+```
+
+</details>
+
+---
+
+## 2. Jelszó hossza alapján minősítés
+
+Feladat
+
+Kérd be a felhasználótól egy jelszó hosszát.  
+A program minősítse a jelszót a megadott hossz alapján.
+
+Ha a jelszó rövidebb mint 8 karakter, akkor legyen gyenge.  
+Ha legalább 8 karakter hosszú, de rövidebb mint 12 karakter, akkor legyen közepes.  
+Ha legalább 12 karakter hosszú, akkor legyen erős.
+
+Expected output példa 1
+
+```text
+Add meg a jelszó hosszát:
+6
+A jelszó gyenge.
+```
+
+Expected output példa 2
+
+```text
+Add meg a jelszó hosszát:
+10
+A jelszó közepes erősségű.
+```
+
+Expected output példa 3
+
+```text
+Add meg a jelszó hosszát:
+14
+A jelszó erős.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$hossz = [int](Read-Host "Add meg a jelszó hosszát")
+
+if ($hossz -lt 8) {
+    Write-Host "A jelszó gyenge."
+}
+elseif ($hossz -lt 12) {
+    Write-Host "A jelszó közepes erősségű."
+}
+else {
+    Write-Host "A jelszó erős."
+}
+```
+
+</details>
+
+---
+
+## 3. Hibajegy prioritásának meghatározása
+
+Feladat
+
+Kérd be a felhasználótól egy hibajegy súlyossági szintjét 1 és 4 között.  
+A program írja ki a hibajegy prioritását.
+
+Az 1-es szint legyen alacsony prioritás.  
+A 2-es szint legyen közepes prioritás.  
+A 3-as szint legyen magas prioritás.  
+A 4-es szint legyen kritikus prioritás.  
+Minden más érték esetén a program írja ki, hogy érvénytelen súlyossági szint.
+
+Expected output példa 1
+
+```text
+Add meg a hibajegy súlyossági szintjét 1 és 4 között:
+1
+Alacsony prioritású hibajegy.
+```
+
+Expected output példa 2
+
+```text
+Add meg a hibajegy súlyossági szintjét 1 és 4 között:
+3
+Magas prioritású hibajegy.
+```
+
+Expected output példa 3
+
+```text
+Add meg a hibajegy súlyossági szintjét 1 és 4 között:
+4
+Kritikus prioritású hibajegy.
+```
+
+Expected output példa 4
+
+```text
+Add meg a hibajegy súlyossági szintjét 1 és 4 között:
+7
+Érvénytelen súlyossági szint.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szint = [int](Read-Host "Add meg a hibajegy súlyossági szintjét 1 és 4 között")
+
+if ($szint -eq 1) {
+    Write-Host "Alacsony prioritású hibajegy."
+}
+elseif ($szint -eq 2) {
+    Write-Host "Közepes prioritású hibajegy."
+}
+elseif ($szint -eq 3) {
+    Write-Host "Magas prioritású hibajegy."
+}
+elseif ($szint -eq 4) {
+    Write-Host "Kritikus prioritású hibajegy."
+}
+else {
+    Write-Host "Érvénytelen súlyossági szint."
+}
+```
+
+</details>
+
+---
+
+## 4. Bejelentkezési próbálkozások számának értékelése
+
+Feladat
+
+Kérd be a felhasználótól, hogy hány sikertelen bejelentkezési próbálkozás történt.  
+A program értékelje a fiók állapotát.
+
+Ha a próbálkozások száma legfeljebb 2, akkor írja ki, hogy a fiók rendben van.  
+Ha a próbálkozások száma 3 vagy 4, akkor írja ki, hogy figyelmeztetés szükséges.  
+Ha a próbálkozások száma legalább 5, akkor írja ki, hogy a fiók zárolása szükséges.
+
+Expected output példa 1
+
+```text
+Add meg a sikertelen bejelentkezési próbálkozások számát:
+1
+A fiók állapota rendben van.
+```
+
+Expected output példa 2
+
+```text
+Add meg a sikertelen bejelentkezési próbálkozások számát:
+3
+Figyelmeztetés: több sikertelen bejelentkezési kísérlet történt.
+```
+
+Expected output példa 3
+
+```text
+Add meg a sikertelen bejelentkezési próbálkozások számát:
+6
+A fiók zárolása szükséges.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$probalkozasok = [int](Read-Host "Add meg a sikertelen bejelentkezési próbálkozások számát")
+
+if ($probalkozasok -le 2) {
+    Write-Host "A fiók állapota rendben van."
+}
+elseif ($probalkozasok -le 4) {
+    Write-Host "Figyelmeztetés: több sikertelen bejelentkezési kísérlet történt."
+}
+else {
+    Write-Host "A fiók zárolása szükséges."
+}
+```
+
+</details>
+
+---
+
+## 5. Dolgozatpontszám alapján jegy meghatározása
+
+Feladat
+
+Kérd be a felhasználótól egy dolgozat pontszámát 0 és 100 között.  
+A program határozza meg a pontszámhoz tartozó érdemjegyet.
+
+0–39 pont között az eredmény legyen elégtelen.  
+40–54 pont között az eredmény legyen elégséges.  
+55–69 pont között az eredmény legyen közepes.  
+70–84 pont között az eredmény legyen jó.  
+85 ponttól az eredmény legyen jeles.
+
+Expected output példa 1
+
+```text
+Add meg a dolgozat pontszámát:
+32
+Elégtelen.
+```
+
+Expected output példa 2
+
+```text
+Add meg a dolgozat pontszámát:
+58
+Közepes.
+```
+
+Expected output példa 3
+
+```text
+Add meg a dolgozat pontszámát:
+76
+Jó.
+```
+
+Expected output példa 4
+
+```text
+Add meg a dolgozat pontszámát:
+91
+Jeles.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$pontszam = [int](Read-Host "Add meg a dolgozat pontszámát")
+
+if ($pontszam -lt 40) {
+    Write-Host "Elégtelen."
+}
+elseif ($pontszam -lt 55) {
+    Write-Host "Elégséges."
+}
+elseif ($pontszam -lt 70) {
+    Write-Host "Közepes."
+}
+elseif ($pontszam -lt 85) {
+    Write-Host "Jó."
+}
+else {
+    Write-Host "Jeles."
+}
+```
+
+</details>

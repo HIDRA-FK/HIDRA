@@ -1,0 +1,1363 @@
+---
+title: PowerShell tömbök és összesítő műveletek
+sidebar_position: 1
+description: Tömbök kezelése és összesítő parancsok használata PowerShellben
+---
+
+# PowerShell tömbök és összesítő műveletek
+
+Az eddigiekben egyszerű változókat használtunk, amelyek **egyetlen értéket** tárolnak.
+
+Például:
+
+```powershell
+$nev = "Anna"
+```
+
+Sok esetben azonban több adatot szeretnénk **egy változóban kezelni**, például:
+
+* több nevet,
+* több számot,
+* több pontszámot,
+* több fájlnevet,
+* több parancseredményt.
+
+Erre használjuk a **tömböket**.
+
+A tömb olyan adatszerkezet, amely **több értéket tárol egyetlen változóban**.
+
+---
+
+## 1. Mi az a tömb?
+
+PowerShellben a tömb több elemet tartalmazó változó.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+```
+
+Ez a tömb három elemet tárol:
+
+```text
+Anna
+Béla
+Csilla
+```
+
+A tömb neve:
+
+```powershell
+$nevek
+```
+
+A tömb elemei **index alapján** érhetők el.
+
+Az indexelés **0-tól indul**, vagyis az első elem indexe `0`.
+
+---
+
+## 2. Tömb létrehozása
+
+PowerShellben tömböt leggyakrabban az `@()` szerkezettel hozunk létre.
+
+```powershell
+$szamok = @(10, 20, 30)
+$nevek = @("Anna", "Béla", "Csilla")
+```
+
+A tömb elemeit vesszővel választjuk el egymástól.
+
+Egyszerűbb formában is létrehozható tömb:
+
+```powershell
+$szamok = 1, 2, 3, 4, 5
+```
+
+Tanulási célra az `@()` forma átláthatóbb, mert egyértelműen jelzi, hogy tömbről van szó.
+
+Üres tömb létrehozása:
+
+```powershell
+$adatok = @()
+```
+
+Ez akkor hasznos, ha a tömb elemeit később szeretnénk hozzáadni.
+
+---
+
+## 3. Számokat tartalmazó tömb
+
+Számokat tartalmazó tömb létrehozása:
+
+```powershell
+$pontszamok = @(80, 95, 72, 88)
+```
+
+Ez a tömb négy számot tartalmaz.
+
+A tömb kiírása:
+
+```powershell
+$pontszamok
+```
+
+Eredmény:
+
+```text
+80
+95
+72
+88
+```
+
+PowerShellben a tömb elemei kiíráskor gyakran külön sorban jelennek meg.
+
+---
+
+## 4. Szövegeket tartalmazó tömb
+
+Szövegeket tartalmazó tömb létrehozása:
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+```
+
+A tömb kiírása:
+
+```powershell
+$nevek
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csilla
+```
+
+---
+
+## 5. Tömb elemeinek elérése
+
+A tömb elemei index alapján érhetők el.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+$nevek[0]
+$nevek[1]
+$nevek[2]
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csilla
+```
+
+Fontos, hogy az első elem indexe `0`, nem pedig `1`.
+
+Ezért:
+
+```powershell
+$nevek[0]
+```
+
+az első elemet adja vissza.
+
+Az utolsó elem negatív indexszel is elérhető:
+
+```powershell
+$nevek[-1]
+```
+
+Eredmény:
+
+```text
+Csilla
+```
+
+---
+
+## 6. Több elem lekérése
+
+Egyszerre több elem is lekérhető indexek alapján.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla", "Dóra", "Elemér")
+
+$nevek[0, 2, 4]
+```
+
+Eredmény:
+
+```text
+Anna
+Csilla
+Elemér
+```
+
+Ebben az esetben az első, a harmadik és az ötödik elemet kérjük le.
+
+---
+
+## 7. Tömb részének lekérése tartománnyal
+
+Egymást követő elemek tartománnyal is lekérhetők.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla", "Dóra", "Elemér")
+
+$nevek[0..2]
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csilla
+```
+
+A `0..2` azt jelenti, hogy a `0`, `1` és `2` indexű elemeket kérjük le.
+
+---
+
+## 8. Tömb létrehozása tartománnyal
+
+Egymást követő számokból a `..` operátorral lehet tömböt létrehozni.
+
+```powershell
+$szamok = 1..5
+```
+
+A tömb tartalma:
+
+```text
+1
+2
+3
+4
+5
+```
+
+Visszafelé is működik:
+
+```powershell
+$szamok = 5..1
+```
+
+Eredmény:
+
+```text
+5
+4
+3
+2
+1
+```
+
+---
+
+## 9. Tömb elemeinek száma
+
+A tömb elemeinek számát a `.Count` tulajdonsággal lehet lekérdezni.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+$nevek.Count
+```
+
+Eredmény:
+
+```text
+3
+```
+
+Használható a `.Length` is:
+
+```powershell
+$nevek.Length
+```
+
+Eredmény:
+
+```text
+3
+```
+
+A `.Count` és a `.Length` tömböknél ugyanazt az értéket adja vissza.
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "A tömb elemeinek száma: $($nevek.Count)"
+```
+
+---
+
+## 10. Új elem hozzáadása
+
+Egy tömbhöz új elemet a `+=` operátorral lehet hozzáadni.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+$nevek += "Dóra"
+```
+
+A tömb tartalma ezután:
+
+```powershell
+$nevek
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csilla
+Dóra
+```
+
+Üres tömbből is el lehet indulni:
+
+```powershell
+$szamok = @()
+
+$szamok += 10
+$szamok += 20
+$szamok += 30
+```
+
+A tömb tartalma:
+
+```powershell
+$szamok
+```
+
+Eredmény:
+
+```text
+10
+20
+30
+```
+
+Megjegyzés: kisebb tanulófeladatoknál a `+=` használata megfelelő. Nagyobb mennyiségű adatnál hatékonyabb más adatszerkezetet használni.
+
+---
+
+## 11. Tömb elemének módosítása
+
+Egy meglévő elem értéke index alapján módosítható.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+$nevek[1] = "Balázs"
+```
+
+A tömb tartalma ezután:
+
+```powershell
+$nevek
+```
+
+Eredmény:
+
+```text
+Anna
+Balázs
+Csilla
+```
+
+Itt a második elem módosult, mert annak indexe `1`.
+
+---
+
+## 12. Elem keresése tömbben
+
+Ellenőrizhető, hogy egy adott érték szerepel-e a tömbben.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+"Anna" -in $nevek
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Másik forma:
+
+```powershell
+$nevek -contains "Anna"
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Példa feltétellel:
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+if ($nevek -contains "Béla") {
+    Write-Host "Béla szerepel a tömbben."
+}
+else {
+    Write-Host "Béla nem szerepel a tömbben."
+}
+```
+
+---
+
+## 13. Tömb szűrése
+
+A tömb elemei feltétel alapján szűrhetők a `Where-Object` paranccsal.
+
+```powershell
+$szamok = @(3, 8, 12, 5, 20)
+
+$nagySzamok = $szamok | Where-Object { $_ -gt 10 }
+```
+
+A `$nagySzamok` tartalma:
+
+```text
+12
+20
+```
+
+A `$_` az aktuális elemet jelenti a szűrés közben.
+
+Példa szövegekkel:
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla", "Dóra")
+
+$rovidNevek = $nevek | Where-Object { $_.Length -le 4 }
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Dóra
+```
+
+---
+
+## 14. Tömb rendezése
+
+A tömb elemei rendezhetők a `Sort-Object` paranccsal.
+
+```powershell
+$szamok = @(30, 10, 50, 20)
+
+$szamok | Sort-Object
+```
+
+Eredmény:
+
+```text
+10
+20
+30
+50
+```
+
+Szövegek rendezése:
+
+```powershell
+$nevek = @("Csilla", "Anna", "Béla")
+
+$nevek | Sort-Object
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csilla
+```
+
+Csökkenő sorrend:
+
+```powershell
+$szamok | Sort-Object -Descending
+```
+
+Eredmény:
+
+```text
+50
+30
+20
+10
+```
+
+---
+
+## 15. Ismétlődő elemek kiszűrése
+
+Az ismétlődő értékek eltávolítására a `Select-Object -Unique` használható.
+
+```powershell
+$nevek = @("Anna", "Béla", "Anna", "Csilla", "Béla")
+
+$nevek | Select-Object -Unique
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csilla
+```
+
+Ha rendezett egyedi értékeket szeretnénk kapni:
+
+```powershell
+$nevek | Sort-Object | Select-Object -Unique
+```
+
+---
+
+## 16. Elem törlése tömbből
+
+PowerShellben a hagyományos tömb mérete nem módosítható közvetlenül úgy, mint más nyelvek listáinál.
+
+Ezért törlésnél általában új tömböt hozunk létre szűréssel.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+
+$nevek = $nevek | Where-Object { $_ -ne "Béla" }
+```
+
+A tömb tartalma ezután:
+
+```text
+Anna
+Csilla
+```
+
+Itt nem közvetlenül a régi tömbből töröltünk, hanem a feltételnek megfelelő elemekből új tömböt hoztunk létre.
+
+---
+
+## 17. Vegyes típusú tömb
+
+PowerShellben egy tömb különböző típusú elemeket is tartalmazhat.
+
+```powershell
+$adatok = @("Anna", 18, 4.5, $true)
+```
+
+A tömb elemei:
+
+```text
+Anna
+18
+4.5
+True
+```
+
+Ez működik, de tanulási és programozási szempontból átláthatóbb, ha egy tömbben azonos típusú adatok szerepelnek.
+
+Ajánlott:
+
+```powershell
+$nevek = @("Anna", "Béla", "Csilla")
+$pontszamok = @(85, 72, 91)
+```
+
+Kevésbé ajánlott:
+
+```powershell
+$adatok = @("Anna", 18, $true, 4.5)
+```
+
+---
+
+## 18. Típusos tömb
+
+Megadható, hogy a tömb milyen típusú elemeket tartalmazzon.
+
+```powershell
+[string[]]$nevek = @("Anna", "Béla", "Csilla")
+[int[]]$pontszamok = @(80, 95, 72)
+```
+
+Ha olyan értéket adunk a tömbhöz, amely nem alakítható a megadott típusra, a PowerShell hibát jelezhet.
+
+```powershell
+[int[]]$szamok = @(1, 2, "alma")
+```
+
+Az `"alma"` nem alakítható egész számmá.
+
+Típusos tömböt akkor érdemes használni, ha fontos, hogy az adatok egységesek legyenek.
+
+---
+
+## 19. Parancs eredménye tömbként
+
+Sok PowerShell parancs több objektumot ad vissza. Ezeket tömbként is el lehet tárolni.
+
+```powershell
+$fajlok = Get-ChildItem
+```
+
+A `$fajlok` változó több fájl vagy mappa adatait tartalmazhatja.
+
+Elemek száma:
+
+```powershell
+$fajlok.Count
+```
+
+Első elem neve:
+
+```powershell
+$fajlok[0].Name
+```
+
+Első elem teljes elérési útja:
+
+```powershell
+$fajlok[0].FullName
+```
+
+Itt a `$fajlok` tömb elemei nem egyszerű szövegek, hanem fájlokat és mappákat leíró objektumok.
+
+---
+
+# Összesítő műveletek tömbökkel
+
+Tömbök esetén gyakran nem egyesével akarjuk feldolgozni az elemeket, hanem egy összesített eredményt szeretnénk kapni.
+
+Például:
+
+* hány elem van a tömbben,
+* mennyi az elemek összege,
+* mennyi az átlag,
+* melyik a legkisebb érték,
+* melyik a legnagyobb érték,
+* hány különböző érték szerepel benne,
+* melyik elem fordul elő többször.
+
+PowerShellben ezekhez nem szükséges külön ciklust írni. Több esetben használhatók beépített parancsok:
+
+```powershell
+Measure-Object
+Sort-Object
+Select-Object
+Group-Object
+Where-Object
+```
+
+---
+
+## 20. Elemszám lekérdezése
+
+Egy tömb elemeinek számát a `.Count` tulajdonsággal lehet lekérdezni.
+
+```powershell
+$szamok = @(10, 20, 30, 40)
+
+$szamok.Count
+```
+
+Eredmény:
+
+```text
+4
+```
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "A tömb elemeinek száma: $($szamok.Count)"
+```
+
+A `.Count` nem számolja össze az értékeket, csak azt adja meg, hogy hány elem van a tömbben.
+
+---
+
+## 21. Összeg számítása
+
+Tömb elemeinek összegzésére a `Measure-Object -Sum` használható.
+
+```powershell
+$szamok = @(10, 20, 30, 40)
+
+$szamok | Measure-Object -Sum
+```
+
+Eredmény például:
+
+```text
+Count    : 4
+Average  :
+Sum      : 100
+Maximum  :
+Minimum  :
+Property :
+```
+
+Ha csak az összeget szeretnénk kiíratni:
+
+```powershell
+$eredmeny = $szamok | Measure-Object -Sum
+
+$eredmeny.Sum
+```
+
+Eredmény:
+
+```text
+100
+```
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "Az összeg: $($eredmeny.Sum)"
+```
+
+---
+
+## 22. Átlag számítása
+
+Átlag számításához a `Measure-Object -Average` használható.
+
+```powershell
+$pontszamok = @(80, 95, 72, 88)
+
+$pontszamok | Measure-Object -Average
+```
+
+Ha csak az átlag értékére van szükség:
+
+```powershell
+$eredmeny = $pontszamok | Measure-Object -Average
+
+$eredmeny.Average
+```
+
+Eredmény:
+
+```text
+83.75
+```
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "Az átlagpontszám: $($eredmeny.Average)"
+```
+
+---
+
+## 23. Legnagyobb érték meghatározása
+
+A legnagyobb értéket a `Measure-Object -Maximum` paranccsal lehet meghatározni.
+
+```powershell
+$pontszamok = @(80, 95, 72, 88)
+
+$eredmeny = $pontszamok | Measure-Object -Maximum
+
+$eredmeny.Maximum
+```
+
+Eredmény:
+
+```text
+95
+```
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "A legnagyobb pontszám: $($eredmeny.Maximum)"
+```
+
+---
+
+## 24. Legkisebb érték meghatározása
+
+A legkisebb értéket a `Measure-Object -Minimum` adja vissza.
+
+```powershell
+$pontszamok = @(80, 95, 72, 88)
+
+$eredmeny = $pontszamok | Measure-Object -Minimum
+
+$eredmeny.Minimum
+```
+
+Eredmény:
+
+```text
+72
+```
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "A legkisebb pontszám: $($eredmeny.Minimum)"
+```
+
+---
+
+## 25. Több összesítő adat egyszerre
+
+A `Measure-Object` egyszerre több adatot is ki tud számolni.
+
+```powershell
+$pontszamok = @(80, 95, 72, 88)
+
+$pontszamok | Measure-Object -Sum -Average -Maximum -Minimum
+```
+
+Lehetséges eredmény:
+
+```text
+Count    : 4
+Average  : 83.75
+Sum      : 335
+Maximum  : 95
+Minimum  : 72
+Property :
+```
+
+Ha ezeket külön szeretnénk felhasználni:
+
+```powershell
+$statisztika = $pontszamok | Measure-Object -Sum -Average -Maximum -Minimum
+
+Write-Host "Darabszám: $($statisztika.Count)"
+Write-Host "Összeg: $($statisztika.Sum)"
+Write-Host "Átlag: $($statisztika.Average)"
+Write-Host "Legnagyobb érték: $($statisztika.Maximum)"
+Write-Host "Legkisebb érték: $($statisztika.Minimum)"
+```
+
+Eredmény:
+
+```text
+Darabszám: 4
+Összeg: 335
+Átlag: 83.75
+Legnagyobb érték: 95
+Legkisebb érték: 72
+```
+
+---
+
+## 26. Átlag kerekítése
+
+Az átlag sokszor tört szám lesz. Kerekítéshez használható a `[math]::Round()`.
+
+```powershell
+$pontszamok = @(80, 95, 72, 88)
+
+$statisztika = $pontszamok | Measure-Object -Average
+
+$kerekitettAtlag = [math]::Round($statisztika.Average, 2)
+
+Write-Host "Kerekített átlag: $kerekitettAtlag"
+```
+
+Eredmény:
+
+```text
+Kerekített átlag: 83.75
+```
+
+Egész számra kerekítés:
+
+```powershell
+[math]::Round($statisztika.Average, 0)
+```
+
+---
+
+## 27. Minimum és maximum rendezéssel
+
+A `Sort-Object` is használható minimum és maximum keresésére.
+
+```powershell
+$szamok = @(30, 10, 50, 20)
+```
+
+Növekvő rendezés:
+
+```powershell
+$szamok | Sort-Object
+```
+
+Eredmény:
+
+```text
+10
+20
+30
+50
+```
+
+Legkisebb érték:
+
+```powershell
+$szamok | Sort-Object | Select-Object -First 1
+```
+
+Eredmény:
+
+```text
+10
+```
+
+Legnagyobb érték:
+
+```powershell
+$szamok | Sort-Object -Descending | Select-Object -First 1
+```
+
+Eredmény:
+
+```text
+50
+```
+
+Ugyanez növekvő rendezés után az utolsó elemmel:
+
+```powershell
+$szamok | Sort-Object | Select-Object -Last 1
+```
+
+---
+
+## 28. Szűrés összesítés előtt
+
+Előfordulhat, hogy nem az egész tömböt, hanem csak bizonyos elemeket szeretnénk összesíteni.
+
+Például csak a 80 pont feletti eredményeket:
+
+```powershell
+$pontszamok = @(80, 95, 72, 88, 60)
+
+$pontszamok | Where-Object { $_ -gt 80 }
+```
+
+Eredmény:
+
+```text
+95
+88
+```
+
+Ezek átlaga:
+
+```powershell
+$pontszamok |
+    Where-Object { $_ -gt 80 } |
+    Measure-Object -Average
+```
+
+Ha csak az átlag értékére van szükség:
+
+```powershell
+$eredmeny = $pontszamok |
+    Where-Object { $_ -gt 80 } |
+    Measure-Object -Average
+
+$eredmeny.Average
+```
+
+Eredmény:
+
+```text
+91.5
+```
+
+Itt nem ciklust írunk, hanem parancsokat kapcsolunk össze csővezetékkel.
+
+---
+
+## 29. Feltételnek megfelelő elemek száma
+
+Ha azt szeretnénk megtudni, hogy hány elem felel meg egy feltételnek, használható a `Where-Object` és a `.Count`.
+
+```powershell
+$pontszamok = @(80, 95, 72, 88, 60)
+
+$joEredmenyek = $pontszamok | Where-Object { $_ -ge 80 }
+
+$joEredmenyek.Count
+```
+
+Eredmény:
+
+```text
+3
+```
+
+Szöveges kiírással:
+
+```powershell
+Write-Host "Legalább 80 pontos eredmények száma: $($joEredmenyek.Count)"
+```
+
+---
+
+## 30. Egyedi értékek lekérdezése
+
+Ismétlődő értékek eltávolítására használható a `Select-Object -Unique`.
+
+```powershell
+$jegyek = @(5, 4, 5, 3, 4, 2, 5)
+
+$jegyek | Select-Object -Unique
+```
+
+Eredmény:
+
+```text
+5
+4
+3
+2
+```
+
+Ha rendezve szeretnénk látni:
+
+```powershell
+$jegyek | Sort-Object | Select-Object -Unique
+```
+
+Eredmény:
+
+```text
+2
+3
+4
+5
+```
+
+---
+
+## 31. Értékek csoportosítása
+
+A `Group-Object` megmutatja, hogy melyik érték hányszor fordul elő.
+
+```powershell
+$jegyek = @(5, 4, 5, 3, 4, 2, 5)
+
+$jegyek | Group-Object
+```
+
+Lehetséges eredmény:
+
+```text
+Count Name Group
+----- ---- -----
+    1 2    {2}
+    1 3    {3}
+    2 4    {4, 4}
+    3 5    {5, 5, 5}
+```
+
+Ez alapján látható, hogy:
+
+```text
+2-esből 1 darab van
+3-asból 1 darab van
+4-esből 2 darab van
+5-ösből 3 darab van
+```
+
+---
+
+## 32. Leggyakoribb érték meghatározása
+
+A leggyakoribb érték meghatározható csoportosítással és rendezéssel.
+
+```powershell
+$jegyek = @(5, 4, 5, 3, 4, 2, 5)
+
+$jegyek |
+    Group-Object |
+    Sort-Object Count -Descending |
+    Select-Object -First 1
+```
+
+Eredmény például:
+
+```text
+Count Name Group
+----- ---- -----
+    3 5    {5, 5, 5}
+```
+
+Ez azt jelenti, hogy az `5` fordul elő a legtöbbször.
+
+---
+
+## 33. Objektumok összesítése tulajdonság alapján
+
+PowerShellben gyakori, hogy nem egyszerű számokkal, hanem objektumokkal dolgozunk.
+
+Például fájlok esetén:
+
+```powershell
+$fajlok = Get-ChildItem
+```
+
+A fájlok mérete a `Length` tulajdonságban van.
+
+Összes fájlméret:
+
+```powershell
+$fajlok | Measure-Object -Property Length -Sum
+```
+
+Csak az összeg:
+
+```powershell
+$meret = $fajlok | Measure-Object -Property Length -Sum
+
+$meret.Sum
+```
+
+Legnagyobb fájlméret:
+
+```powershell
+$fajlok | Measure-Object -Property Length -Maximum
+```
+
+Legkisebb fájlméret:
+
+```powershell
+$fajlok | Measure-Object -Property Length -Minimum
+```
+
+Átlagos fájlméret:
+
+```powershell
+$fajlok | Measure-Object -Property Length -Average
+```
+
+Itt azért kell megadni a `-Property Length` részt, mert nem magukat az objektumokat akarjuk összesíteni, hanem azok egyik tulajdonságát.
+
+---
+
+## 34. Legnagyobb fájl megkeresése
+
+Rendezéssel megkereshető a legnagyobb fájl.
+
+```powershell
+Get-ChildItem |
+    Sort-Object Length -Descending |
+    Select-Object -First 1
+```
+
+Ha csak a nevét és méretét szeretnénk látni:
+
+```powershell
+Get-ChildItem |
+    Sort-Object Length -Descending |
+    Select-Object -First 1 Name, Length
+```
+
+Lehetséges eredmény:
+
+```text
+Name        Length
+----        ------
+adatok.txt  2450
+```
+
+---
+
+## 35. Legkisebb fájl megkeresése
+
+A legkisebb fájl növekvő rendezéssel kérhető le.
+
+```powershell
+Get-ChildItem |
+    Sort-Object Length |
+    Select-Object -First 1 Name, Length
+```
+
+Lehetséges eredmény:
+
+```text
+Name       Length
+----       ------
+ures.txt   0
+```
+
+---
+
+## 36. Szűrt fájlok összesítése
+
+Például csak a `.txt` fájlok méretét szeretnénk összesíteni.
+
+```powershell
+Get-ChildItem -Filter *.txt |
+    Measure-Object -Property Length -Sum -Average -Maximum -Minimum
+```
+
+Ez a parancs a `.txt` fájlokra kiszámolja:
+
+* a darabszámot,
+* az összméretet,
+* az átlagos méretet,
+* a legnagyobb méretet,
+* a legkisebb méretet.
+
+---
+
+## 37. Gyakorlati példa pontszámokkal
+
+Adott egy pontszámokat tartalmazó tömb.
+
+```powershell
+$pontszamok = @(56, 88, 91, 74, 65, 88, 100)
+```
+
+A statisztikai adatok lekérése:
+
+```powershell
+$statisztika = $pontszamok | Measure-Object -Sum -Average -Maximum -Minimum
+```
+
+Az eredmények kiírása:
+
+```powershell
+Write-Host "Dolgozatok száma: $($statisztika.Count)"
+Write-Host "Pontszámok összege: $($statisztika.Sum)"
+Write-Host "Átlagpontszám: $([math]::Round($statisztika.Average, 2))"
+Write-Host "Legjobb eredmény: $($statisztika.Maximum)"
+Write-Host "Leggyengébb eredmény: $($statisztika.Minimum)"
+```
+
+Lehetséges eredmény:
+
+```text
+Dolgozatok száma: 7
+Pontszámok összege: 562
+Átlagpontszám: 80.29
+Legjobb eredmény: 100
+Leggyengébb eredmény: 56
+```
+
+---
+
+## 38. Gyakorlati példa jegyekkel
+
+Adott egy jegyeket tartalmazó tömb.
+
+```powershell
+$jegyek = @(5, 4, 5, 3, 4, 2, 5, 1, 4)
+```
+
+Statisztikai adatok lekérése:
+
+```powershell
+$statisztika = $jegyek | Measure-Object -Sum -Average -Maximum -Minimum
+```
+
+Jegyek eloszlásának lekérése:
+
+```powershell
+$jegyEloszlas = $jegyek | Sort-Object | Group-Object
+```
+
+Eredmények kiírása:
+
+```powershell
+Write-Host "Jegyek száma: $($statisztika.Count)"
+Write-Host "Jegyek átlaga: $([math]::Round($statisztika.Average, 2))"
+Write-Host "Legjobb jegy: $($statisztika.Maximum)"
+Write-Host "Legrosszabb jegy: $($statisztika.Minimum)"
+
+$jegyEloszlas
+```
+
+Lehetséges eredmény:
+
+```text
+Jegyek száma: 9
+Jegyek átlaga: 3.67
+Legjobb jegy: 5
+Legrosszabb jegy: 1
+```
+
+A `$jegyEloszlas` megmutatja, hogy melyik jegyből hány darab szerepel a tömbben.
+
+---
+
+## 39. Gyakran használt parancsok
+
+| Parancs | Szerepe |
+|---|---|
+| `.Count` | Tömb elemeinek darabszáma |
+| `Where-Object` | Szűrés feltétel alapján |
+| `Sort-Object` | Rendezés |
+| `Select-Object -First 1` | Első elem kiválasztása |
+| `Select-Object -Last 1` | Utolsó elem kiválasztása |
+| `Select-Object -Unique` | Ismétlődések kiszűrése |
+| `Group-Object` | Azonos értékek csoportosítása |
+| `Measure-Object -Sum` | Összeg számítása |
+| `Measure-Object -Average` | Átlag számítása |
+| `Measure-Object -Maximum` | Legnagyobb érték lekérése |
+| `Measure-Object -Minimum` | Legkisebb érték lekérése |
+
+---
+
+## 40. Rövid összefoglaló
+
+```powershell
+$szamok = @(10, 20, 30, 40)
+
+$szamok[0]                                      # első elem
+$szamok[-1]                                     # utolsó elem
+$szamok.Count                                   # elemek száma
+
+$szamok += 50                                   # új elem hozzáadása
+$szamok[1] = 25                                 # elem módosítása
+
+$szamok | Sort-Object                           # rendezés
+$szamok | Select-Object -Unique                 # egyedi értékek
+
+$szamok | Measure-Object -Sum                   # összeg
+$szamok | Measure-Object -Average               # átlag
+$szamok | Measure-Object -Maximum               # legnagyobb érték
+$szamok | Measure-Object -Minimum               # legkisebb érték
+
+$szamok | Measure-Object -Sum -Average -Maximum -Minimum
+```
+
+A tömb PowerShellben több érték tárolására szolgál. Az elemek index alapján érhetők el, az indexelés `0`-tól indul. Tömbökkel könnyen kezelhetők névsorok, pontszámok, fájlok, parancseredmények és más több elemből álló adathalmazok.
+
+Az összesítő műveletekhez nem szükséges külön ciklust írni. A `Measure-Object`, `Sort-Object`, `Select-Object`, `Where-Object` és `Group-Object` parancsokkal kiszámítható az összeg, az átlag, a minimum, a maximum, az elemek darabszáma és az értékek előfordulása.

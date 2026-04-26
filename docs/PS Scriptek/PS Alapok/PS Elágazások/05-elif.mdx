@@ -1,0 +1,351 @@
+---
+title: Az elseif szerkezet PowerShellben
+sidebar_position: 6
+description: Több feltétel vizsgálata PowerShell scriptben az elseif segítségével
+---
+
+# `elseif` – Több feltétel vizsgálata
+
+Az előző fejezetekben megismertük:
+
+| Szerkezet | Funkció |
+|---|---|
+| `if` | egy feltétel vizsgálata |
+| `if–else` | két lehetséges kimenet kezelése |
+
+Sok programban azonban **több különböző feltételt kell egymás után vizsgálni**. Ilyen esetekben használjuk az **`elseif` szerkezetet**.
+
+PowerShellben nem `elif` a kulcsszó, hanem:
+
+```text
+elseif
+```
+
+vagyis magyarul:
+
+```text
+különben ha
+```
+
+---
+
+## Az `if–elseif–else` működése
+
+Az `elseif` lehetővé teszi, hogy **több feltételt egymás után vizsgáljunk**.
+
+A program a feltételeket **felülről lefelé ellenőrzi**.
+
+Az általános működési logika:
+
+```text
+ha feltétel1 igaz
+    ezt csináld
+különben ha feltétel2 igaz
+    ezt csináld
+különben ha feltétel3 igaz
+    ezt csináld
+különben
+    ezt csináld
+```
+
+Fontos szabály:
+
+A program **az első igaz feltételnél megáll**, és a további feltételeket már nem vizsgálja.
+
+---
+
+## Az `if–elseif–else` szintaxisa PowerShellben
+
+```powershell
+if (feltétel1) {
+    utasítás
+}
+elseif (feltétel2) {
+    utasítás
+}
+elseif (feltétel3) {
+    utasítás
+}
+else {
+    utasítás
+}
+```
+
+### A szerkezet részei
+
+| Elem | Jelentés |
+| ---- | -------- |
+| `if` | az első feltétel vizsgálata |
+| `elseif` | további feltételek vizsgálata |
+| `else` | ha egyik feltétel sem igaz |
+| `( )` | a feltétel helye |
+| `{ }` | a végrehajtandó utasítások blokkja |
+
+PowerShellben nincs `then` és nincs `fi`.  
+A feltételeket kerek zárójelbe írjuk, az utasításokat pedig kapcsos zárójelek közé tesszük.
+
+---
+
+## A működés szemléltetése
+
+```text
+             feltétel1
+               │
+        igaz ──┴── hamis
+          │
+       végrehajtás
+               │
+             feltétel2
+               │
+        igaz ──┴── hamis
+          │
+       végrehajtás
+               │
+             feltétel3
+               │
+        igaz ──┴── hamis
+          │
+       végrehajtás
+               │
+              else
+```
+
+A program mindig **csak egy ágat hajt végre**.
+
+---
+
+## Gyakorlati példák
+
+### Jegy értékelése
+
+```powershell
+$jegy = [int](Read-Host "Adj meg egy jegyet")
+
+if ($jegy -eq 5) {
+    Write-Host "Jeles."
+}
+elseif ($jegy -eq 4) {
+    Write-Host "Jó."
+}
+elseif ($jegy -eq 3) {
+    Write-Host "Közepes."
+}
+elseif ($jegy -eq 2) {
+    Write-Host "Elégséges."
+}
+else {
+    Write-Host "Elégtelen."
+}
+```
+
+### A program működése
+
+| Bevitt érték | Kimenet |
+| ------------ | ------- |
+| 5 | Jeles |
+| 4 | Jó |
+| 3 | Közepes |
+| 2 | Elégséges |
+| 1 vagy más | Elégtelen |
+
+Ha a felhasználó ezt írja be:
+
+```text
+4
+```
+
+akkor a program kimenete:
+
+```text
+Jó.
+```
+
+---
+
+### Szám kategorizálása
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+if ($szam -gt 0) {
+    Write-Host "A szám pozitív."
+}
+elseif ($szam -eq 0) {
+    Write-Host "A szám nulla."
+}
+else {
+    Write-Host "A szám negatív."
+}
+```
+
+Ebben a példában három kategória létezik:
+
+| Feltétel | Eredmény |
+| -------- | -------- |
+| szám > 0 | pozitív |
+| szám = 0 | nulla |
+| szám < 0 | negatív |
+
+---
+
+### Életkor kategóriák
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+
+if ($kor -lt 14) {
+    Write-Host "Gyerek."
+}
+elseif ($kor -lt 18) {
+    Write-Host "Fiatal."
+}
+elseif ($kor -lt 65) {
+    Write-Host "Felnőtt."
+}
+else {
+    Write-Host "Idős."
+}
+```
+
+A program különböző életkori csoportokat határoz meg.
+
+| Életkor | Kategória |
+| ------- | --------- |
+| 0–13 | gyerek |
+| 14–17 | fiatal |
+| 18–64 | felnőtt |
+| 65+ | idős |
+
+---
+
+## Fontos szabályok
+
+### PowerShellben `elseif` van, nem `elif`
+
+Helyes forma:
+
+```powershell
+elseif ($feltetel) {
+    Write-Host "Ez az ág fut le."
+}
+```
+
+Helytelen forma:
+
+```powershell
+elif ($feltetel) {
+    Write-Host "Ez az ág fut le."
+}
+```
+
+A `elif` Bash-ben használható, PowerShellben viszont nem.
+
+---
+
+### Az `elseif` feltételét kerek zárójelbe kell írni
+
+Helyes forma:
+
+```powershell
+elseif ($szam -eq 0) {
+    Write-Host "A szám nulla."
+}
+```
+
+Helytelen forma:
+
+```powershell
+elseif $szam -eq 0 {
+    Write-Host "A szám nulla."
+}
+```
+
+---
+
+### Az utasításokat kapcsos zárójelek közé kell írni
+
+Helyes forma:
+
+```powershell
+if ($jegy -eq 5) {
+    Write-Host "Jeles."
+}
+elseif ($jegy -eq 4) {
+    Write-Host "Jó."
+}
+else {
+    Write-Host "Más jegy."
+}
+```
+
+A kapcsos zárójelek jelölik ki, hogy mely utasítások tartoznak az adott ághoz.
+
+---
+
+### A feltételek sorrendje számít
+
+A PowerShell **felülről lefelé halad** a feltételeken.
+
+Ha egy feltétel teljesül, a program **nem vizsgálja tovább a következőket**.
+
+Ezért a feltételeket **logikai sorrendben kell megadni**.
+
+Például életkor vizsgálatánál nem mindegy, milyen sorrendben szerepelnek a feltételek:
+
+```powershell
+if ($kor -lt 14) {
+    Write-Host "Gyerek."
+}
+elseif ($kor -lt 18) {
+    Write-Host "Fiatal."
+}
+elseif ($kor -lt 65) {
+    Write-Host "Felnőtt."
+}
+else {
+    Write-Host "Idős."
+}
+```
+
+Ha a felhasználó `12` értéket ad meg, akkor az első feltétel teljesül, ezért a program már nem vizsgálja a többi ágat.
+
+---
+
+## Mikor használjuk az `elseif` szerkezetet?
+
+Az `elseif` akkor hasznos, amikor:
+
+| Helyzet | Példa |
+| ------- | ----- |
+| több kategória van | jegyek |
+| értéktartományokat vizsgálunk | életkor |
+| több döntési lehetőség van | pontszám értékelés |
+| több állapot létezhet | rendszerállapot ellenőrzése |
+
+---
+
+## Összefoglalás
+
+| Fogalom | Jelentés |
+| ------- | -------- |
+| `if` | első feltétel |
+| `elseif` | további feltételek |
+| `else` | ha egyik feltétel sem teljesül |
+| `( )` | a feltétel helye |
+| `{ }` | az utasításblokk kijelölése |
+
+Az **`elseif` szerkezet** lehetővé teszi, hogy a PowerShell script **több feltételt vizsgáljon egymás után**, és **az első igaz feltétel alapján döntsön**.
+
+PowerShellben az alapforma:
+
+```powershell
+if (feltétel1) {
+    utasítás
+}
+elseif (feltétel2) {
+    utasítás
+}
+else {
+    utasítás
+}
+```

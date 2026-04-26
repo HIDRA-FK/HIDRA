@@ -1,0 +1,262 @@
+---
+title: Az if szerkezet PowerShellben
+sidebar_position: 2
+description: Bevezetés az if feltételes elágazás használatába PowerShell scriptben
+---
+
+# `if` – Feltételes elágazás PowerShellben
+
+A **feltételes elágazás** arra szolgál, hogy a program **döntést hozzon egy feltétel alapján**.  
+A program megvizsgál egy feltételt, majd **attól függően hajt végre utasításokat**, hogy a feltétel igaz vagy hamis.
+
+Ez a programozás egyik alapvető vezérlési szerkezete, amely PowerShellben is gyakran előfordul.
+
+---
+
+## Az `if` alapelve
+
+Az `if` szó jelentése:
+
+```text
+ha
+```
+
+A működés logikája:
+
+```text
+ha a feltétel igaz
+akkor végrehajtjuk az utasításokat
+különben
+nem történik semmi
+```
+
+Az `if` tehát lehetővé teszi, hogy a script **feltétel alapján döntsön**.
+
+---
+
+## Az `if` szintaxisa PowerShellben
+
+```powershell
+if (feltétel) {
+    utasítások
+}
+```
+
+### A szerkezet részei
+
+| Elem | Jelentés |
+| --- | --- |
+| `if` | a feltételvizsgálat kezdete |
+| `(feltétel)` | itt történik a logikai vizsgálat |
+| `{ }` | a végrehajtandó utasítások blokkja |
+| utasítások | azok a parancsok, amelyek igaz feltétel esetén lefutnak |
+
+PowerShellben az `if` után a feltételt **kerek zárójelbe** kell tenni, az utasításokat pedig **kapcsos zárójelek** közé kell írni.
+
+---
+
+## A feltétel működése
+
+A kerek zárójelben egy **logikai feltétel** szerepel.  
+A feltétel eredménye igaz vagy hamis lehet.
+
+PowerShellben gyakran használt összehasonlító operátorok:
+
+| Operátor | Jelentés |
+| --- | --- |
+| `-eq` | egyenlő |
+| `-ne` | nem egyenlő |
+| `-gt` | nagyobb |
+| `-lt` | kisebb |
+| `-ge` | nagyobb vagy egyenlő |
+| `-le` | kisebb vagy egyenlő |
+
+Ezek az operátorok hasonló szerepet töltenek be, mint más programozási nyelvekben a `==`, `!=`, `>`, `<`, `>=`, `<=` jelek.
+
+---
+
+## Gyakorlati példák
+
+### Két szám egyenlőségének vizsgálata
+
+```powershell
+$a = [int](Read-Host "Adj meg egy számot")
+$b = [int](Read-Host "Adj meg egy másik számot")
+
+if ($a -eq $b) {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+#### A program működése
+
+| Lépés | Mi történik |
+| --- | --- |
+| 1 | a program két számot kér be |
+| 2 | a beolvasott értékeket számmá alakítja |
+| 3 | összehasonlítja őket |
+| 4 | ha egyenlők, kiír egy üzenetet |
+
+---
+
+### Nagyobb szám vizsgálata
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+if ($szam -gt 10) {
+    Write-Host "A szám nagyobb mint 10."
+}
+```
+
+Ha a felhasználó ezt adja meg:
+
+```text
+15
+```
+
+akkor az eredmény:
+
+```text
+A szám nagyobb mint 10.
+```
+
+---
+
+### Negatív szám ellenőrzése
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+if ($szam -lt 0) {
+    Write-Host "A szám negatív."
+}
+```
+
+A feltétel akkor teljesül, ha a megadott szám kisebb nullánál.
+
+---
+
+### Páros szám vizsgálata
+
+```powershell
+$szam = [int](Read-Host "Adj meg egy számot")
+
+$maradek = $szam % 2
+
+if ($maradek -eq 0) {
+    Write-Host "A szám páros."
+}
+```
+
+#### Magyarázat
+
+A `%` jel **maradékos osztást** jelent.
+
+```text
+8 % 2 = 0
+```
+
+Ha egy szám kettővel osztva nulla maradékot ad, akkor a szám páros.
+
+---
+
+## Fontos szintaktikai szabályok
+
+### A feltétel kerek zárójelbe kerül
+
+Helyes:
+
+```powershell
+if ($a -eq $b) {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+Helytelen:
+
+```powershell
+if $a -eq $b {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+PowerShellben az `if` feltételét kerek zárójelbe kell tenni.
+
+---
+
+### Az utasításblokk kapcsos zárójelek közé kerül
+
+Helyes:
+
+```powershell
+if ($szam -gt 10) {
+    Write-Host "A szám nagyobb mint 10."
+}
+```
+
+Helytelen:
+
+```powershell
+if ($szam -gt 10)
+    Write-Host "A szám nagyobb mint 10."
+```
+
+PowerShellben az `if` után végrehajtandó utasításokat kapcsos zárójelek közé szokás írni.
+
+---
+
+### A változó neve elé `$` jel kell
+
+```powershell
+$szam
+```
+
+A `$` jelzi, hogy változóról van szó.
+
+Példa:
+
+```powershell
+$szam = 12
+```
+
+Ha a `$` jel hiányzik, akkor a PowerShell nem változóként értelmezi a nevet.
+
+---
+
+### Számok bekérésekor érdemes típust megadni
+
+A `Read-Host` alapértelmezés szerint szövegként olvassa be az adatot.  
+Ha számmal szeretnénk dolgozni, célszerű a beolvasott értéket számmá alakítani.
+
+```powershell
+$eletkor = [int](Read-Host "Add meg az életkorodat")
+```
+
+Ebben a példában az `[int]` azt jelenti, hogy az értéket egész számként szeretnénk kezelni.
+
+---
+
+## Az `if` működésének folyamata
+
+| Lépés | Művelet |
+| --- | --- |
+| 1 | a program kiértékeli a feltételt |
+| 2 | ha a feltétel igaz, lefuttatja a kapcsos zárójelek közötti utasításokat |
+| 3 | ha a feltétel hamis, a program az `if` blokk után folytatódik |
+
+---
+
+## Egyszerű szemléltetés
+
+```text
+        feltétel
+           │
+       igaz? ───── nem
+         │
+         igen
+         │
+   utasítások
+```
+
+A program tehát csak akkor hajtja végre az `if` blokkban szereplő utasításokat, ha a feltétel teljesül.

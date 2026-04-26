@@ -1,0 +1,1291 @@
+---
+title: PowerShell tömbök és összesítő műveletek
+sidebar_position: 2
+description: PowerShell tömbös és összesítő műveleteket gyakorló feladatok megoldásai
+---
+
+---
+
+## 1. feladat – Tömb létrehozása
+
+Feladat
+
+Hozz létre egy `$szamok` nevű tömböt az alábbi elemekkel:
+
+- 10
+- 20
+- 30
+
+Ezután írasd ki az összes elemet.
+
+Expected output
+
+```text
+10 20 30
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szamok = @(10, 20, 30)
+
+Write-Host $szamok
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja egy tömb létrehozása és a teljes tömb kiírása.
+
+```powershell
+$szamok = @(10, 20, 30)
+```
+
+- `$szamok`: változó neve. A `$` jelzi, hogy PowerShell-változóról van szó.
+- `=`: értékadó operátor. A jobb oldali értéket eltárolja a bal oldali változóban.
+- `@(...)`: tömbkifejezés. A zárójelek között megadott értékekből tömböt hoz létre.
+- `10, 20, 30`: a tömb elemei.
+- `,`: elemelválasztó jel a tömbön belül.
+
+```powershell
+Write-Host $szamok
+```
+
+- `Write-Host`: kiíró parancs.
+- `$szamok`: a kiírandó adat. Mivel itt maga a tömbváltozó szerepel, a parancs a tömb elemeit írja ki.
+
+</details>
+
+---
+
+## 2. feladat – Első elem lekérése
+
+Feladat
+
+Hozz létre egy `$ertekek` nevű tömböt az alábbi elemekkel:
+
+- 5
+- 15
+- 25
+
+Írasd ki a tömb első elemét.
+
+Expected output
+
+```text
+5
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$ertekek = @(5, 15, 25)
+
+Write-Host $ertekek[0]
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja egy tömb létrehozása, majd az első elem lekérése indexeléssel.
+
+```powershell
+$ertekek = @(5, 15, 25)
+```
+
+- `$ertekek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `5, 15, 25`: a tömb elemei.
+- `,`: az elemek elválasztására szolgál.
+
+```powershell
+Write-Host $ertekek[0]
+```
+
+- `Write-Host`: kiíró parancs.
+- `$ertekek`: a tömb neve.
+- `[0]`: indexhivatkozás. A `0` index a tömb első elemét jelenti.
+- `$ertekek[0]`: a `$ertekek` tömb első elemét adja vissza.
+- A feladat azért használ `[0]` indexet, mert a PowerShellben a tömbök indexelése nullától indul.
+
+</details>
+
+---
+
+## 3. feladat – Második elem lekérése
+
+Feladat
+
+Hozz létre egy `$pontok` nevű tömböt az alábbi elemekkel:
+
+- 7
+- 14
+- 21
+
+Írasd ki a tömb második elemét.
+
+Expected output
+
+```text
+14
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$pontok = @(7, 14, 21)
+
+Write-Host $pontok[1]
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb második elemének lekérése.
+
+```powershell
+$pontok = @(7, 14, 21)
+```
+
+- `$pontok`: változó neve.
+- `=`: értékadó operátor.
+- `@(...)`: tömbkifejezés.
+- `7, 14, 21`: a tömb elemei.
+
+```powershell
+Write-Host $pontok[1]
+```
+
+- `Write-Host`: kiíró parancs.
+- `$pontok`: a tömb neve.
+- `[1]`: indexhivatkozás.
+- `$pontok[1]`: a tömb második elemét jelenti.
+- Azért `[1]` szerepel, mert az első elem indexe `0`, a második elem indexe pedig `1`.
+
+A tömb indexei ebben a példában:
+
+```text
+$pontok[0] -> 7
+$pontok[1] -> 14
+$pontok[2] -> 21
+```
+
+</details>
+
+---
+
+## 4. feladat – Az összes elem kiírása
+
+Feladat
+
+Hozz létre egy `$jegyek` nevű tömböt az alábbi elemekkel:
+
+- 2
+- 3
+- 4
+
+Írasd ki az összes elemet.
+
+Expected output
+
+```text
+2 3 4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$jegyek = @(2, 3, 4)
+
+Write-Host $jegyek
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a teljes tömb kiírása.
+
+```powershell
+$jegyek = @(2, 3, 4)
+```
+
+- `$jegyek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `2, 3, 4`: a tömb elemei.
+
+```powershell
+Write-Host $jegyek
+```
+
+- `Write-Host`: kiíró parancs.
+- `$jegyek`: a teljes tömbre való hivatkozás.
+- Mivel nincs indexmegadás, például `$jegyek[0]`, ezért nem egyetlen elem jelenik meg, hanem a tömb teljes tartalma.
+
+</details>
+
+---
+
+## 5. feladat – Elemek számának meghatározása
+
+Feladat
+
+Hozz létre egy `$honapok` nevű tömböt az alábbi elemekkel:
+
+- 1
+- 2
+- 3
+- 4
+
+Írasd ki, hogy hány elemet tartalmaz a tömb.
+
+Expected output
+
+```text
+4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$honapok = @(1, 2, 3, 4)
+
+Write-Host $honapok.Count
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb elemszámának lekérése.
+
+```powershell
+$honapok = @(1, 2, 3, 4)
+```
+
+- `$honapok`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömbkifejezés.
+- `1, 2, 3, 4`: a tömb elemei.
+
+```powershell
+Write-Host $honapok.Count
+```
+
+- `Write-Host`: kiíró parancs.
+- `$honapok`: a tömb neve.
+- `.Count`: tulajdonság, amely a tömb elemeinek számát adja vissza.
+- `$honapok.Count`: a `$honapok` tömb elemszámát jelenti.
+- A feladatban a tömb négy elemet tartalmaz, ezért a `.Count` értéke `4`.
+
+</details>
+
+---
+
+## 6. feladat – Új elem hozzáadása
+
+Feladat
+
+Hozz létre egy `$meretek` nevű tömböt az alábbi elemekkel:
+
+- 100
+- 200
+- 300
+
+Adj hozzá egy új elemet: `400`, majd írasd ki az összes elemet.
+
+Expected output
+
+```text
+100 200 300 400
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$meretek = @(100, 200, 300)
+
+$meretek += 400
+
+Write-Host $meretek
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja egy tömb bővítése új elemmel.
+
+```powershell
+$meretek = @(100, 200, 300)
+```
+
+- `$meretek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `100, 200, 300`: a kezdeti tömbelemek.
+
+```powershell
+$meretek += 400
+```
+
+- `$meretek`: a módosítandó tömb.
+- `+=`: hozzáadó értékadó operátor.
+- `400`: az új érték, amely bekerül a tömbbe.
+- A művelet eredményeként a tömb az eredeti elemek mellett tartalmazni fogja a `400` értéket is.
+
+```powershell
+Write-Host $meretek
+```
+
+- `Write-Host`: kiíró parancs.
+- `$meretek`: a bővített tömb.
+- A kiírás már a módosított tömbállapotot jeleníti meg.
+
+</details>
+
+---
+
+## 7. feladat – Több elem hozzáadása
+
+Feladat
+
+Hozz létre egy `$szamjegyek` nevű tömböt az alábbi elemekkel:
+
+- 1
+- 2
+
+Adj hozzá még két elemet:
+
+- 3
+- 4
+
+Ezután írasd ki az összes elemet.
+
+Expected output
+
+```text
+1 2 3 4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szamjegyek = @(1, 2)
+
+$szamjegyek += 3
+$szamjegyek += 4
+
+Write-Host $szamjegyek
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja egy tömb többszöri bővítése.
+
+```powershell
+$szamjegyek = @(1, 2)
+```
+
+- `$szamjegyek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `1, 2`: a kezdeti elemek.
+
+```powershell
+$szamjegyek += 3
+$szamjegyek += 4
+```
+
+- `$szamjegyek`: a bővítendő tömb.
+- `+=`: hozzáadó értékadó operátor.
+- `3`: az első új elem.
+- `4`: a második új elem.
+- Mindkét sor külön bővítési műveletet hajt végre.
+
+```powershell
+Write-Host $szamjegyek
+```
+
+- `Write-Host`: kiíró parancs.
+- `$szamjegyek`: a végleges, négy elemből álló tömb.
+
+</details>
+
+---
+
+## 8. feladat – Egy elem módosítása
+
+Feladat
+
+Hozz létre egy `$adatok` nevű tömböt az alábbi elemekkel:
+
+- 8
+- 16
+- 24
+
+Módosítsd a második elemet `18` értékre, majd írasd ki az összes elemet.
+
+Expected output
+
+```text
+8 18 24
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$adatok = @(8, 16, 24)
+
+$adatok[1] = 18
+
+Write-Host $adatok
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja egy meglévő tömbelem módosítása index alapján.
+
+```powershell
+$adatok = @(8, 16, 24)
+```
+
+- `$adatok`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömbkifejezés.
+- `8, 16, 24`: a tömb eredeti elemei.
+
+```powershell
+$adatok[1] = 18
+```
+
+- `$adatok`: a módosítandó tömb.
+- `[1]`: indexhivatkozás, amely a tömb második elemét jelöli.
+- `=`: értékadás.
+- `18`: az új érték.
+- A sor az `1` indexű elemet cseréli le `18` értékre.
+
+```powershell
+Write-Host $adatok
+```
+
+- `Write-Host`: kiíró parancs.
+- `$adatok`: a módosított tömb.
+- A kiírásban már a módosított érték szerepel.
+
+</details>
+
+---
+
+## 9. feladat – Egy elem törlése
+
+Feladat
+
+Hozz létre egy `$szintek` nevű tömböt az alábbi elemekkel:
+
+- 11
+- 22
+- 33
+
+Töröld a második elemet, majd írasd ki a megmaradt elemeket.
+
+Expected output
+
+```text
+11 33
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szintek = @(11, 22, 33)
+
+$szintek = $szintek | Where-Object { $_ -ne 22 }
+
+Write-Host $szintek
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a `22` érték eltávolítása a tömbből szűréssel.
+
+```powershell
+$szintek = @(11, 22, 33)
+```
+
+- `$szintek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `11, 22, 33`: a tömb eredeti elemei.
+
+```powershell
+$szintek = $szintek | Where-Object { $_ -ne 22 }
+```
+
+- Bal oldali `$szintek`: az a változó, amelybe a szűrt eredmény visszakerül.
+- `=`: értékadás. A jobb oldali kifejezés eredményét eltárolja a bal oldali változóban.
+- Jobb oldali `$szintek`: az eredeti tömb, amelynek elemeit szűrjük.
+- `|`: pipeline operátor. A bal oldalon keletkező értékeket továbbítja a jobb oldali parancsnak feldolgozásra.
+- `Where-Object`: szűrő parancs. Csak azokat az elemeket engedi tovább, amelyekre a feltétel igaz.
+- `{ ... }`: scriptblokk. Ebben szerepel a szűrési feltétel.
+- `$_`: az aktuális pipeline-elem, vagyis az éppen vizsgált tömbelem.
+- `-ne`: összehasonlító operátor, jelentése: nem egyenlő.
+- `22`: az az érték, amelyet ki akarunk szűrni.
+- `$_ -ne 22`: akkor igaz, ha az aktuális elem nem `22`.
+
+A szűrés eredménye:
+
+```text
+11 33
+```
+
+```powershell
+Write-Host $szintek
+```
+
+- `Write-Host`: kiíró parancs.
+- `$szintek`: a szűrés után visszamentett tömb.
+
+</details>
+
+---
+
+## 10. feladat – A teljes tömb törlése
+
+Feladat
+
+Hozz létre egy `$jarmuszamok` nevű tömböt az alábbi elemekkel:
+
+- 1
+- 2
+- 3
+
+Töröld a teljes tömböt, majd írasd ki az összes elemét.
+
+Expected output
+
+```text
+
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$jarmuszamok = @(1, 2, 3)
+
+Remove-Variable jarmuszamok
+
+Write-Host $jarmuszamok
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a teljes változó törlése.
+
+```powershell
+$jarmuszamok = @(1, 2, 3)
+```
+
+- `$jarmuszamok`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `1, 2, 3`: a tömb elemei.
+
+```powershell
+Remove-Variable jarmuszamok
+```
+
+- `Remove-Variable`: változó törlésére szolgáló parancs.
+- `jarmuszamok`: a törlendő változó neve.
+- A változó nevét itt `$` jel nélkül kell megadni.
+- A parancs nem egy tömbelemet töröl, hanem magát a változót távolítja el.
+
+```powershell
+Write-Host $jarmuszamok
+```
+
+- `Write-Host`: kiíró parancs.
+- `$jarmuszamok`: a korábban törölt változóra való hivatkozás.
+- A törlés után a változó nem tartalmaz kiírható értéket, ezért az elvárt kimenet üres.
+
+</details>
+
+---
+
+## 11. feladat – Az indexek lekérése
+
+Feladat
+
+Hozz létre egy `$tarhelyek` nevű tömböt az alábbi elemekkel:
+
+- 128
+- 256
+- 512
+
+Írasd ki a tömb indexeit.
+
+Expected output
+
+```text
+0 1 2
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$tarhelyek = @(128, 256, 512)
+
+Write-Host (0..($tarhelyek.Count - 1))
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb érvényes indexeinek előállítása.
+
+```powershell
+$tarhelyek = @(128, 256, 512)
+```
+
+- `$tarhelyek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `128, 256, 512`: a tömb elemei.
+
+```powershell
+Write-Host (0..($tarhelyek.Count - 1))
+```
+
+- `Write-Host`: kiíró parancs.
+- `(...)`: csoportosító zárójel. A PowerShell először a zárójelben lévő kifejezést értékeli ki.
+- `0`: a tartomány kezdőértéke.
+- `..`: tartományoperátor. Egész számokból álló sorozatot hoz létre.
+- `$tarhelyek`: a tömb neve.
+- `.Count`: a tömb elemszámát adja vissza.
+- `-`: kivonás operátora.
+- `1`: azért kell kivonni, mert az utolsó index mindig az elemszámnál eggyel kisebb.
+- `$tarhelyek.Count - 1`: az utolsó érvényes index kiszámítása.
+- `0..($tarhelyek.Count - 1)`: az indexek tartományát hozza létre.
+
+A tömb három elemből áll, ezért:
+
+```text
+Count = 3
+utolsó index = 3 - 1 = 2
+indexek = 0 1 2
+```
+
+</details>
+
+---
+
+## 12. feladat – Több művelet egy feladatban
+
+Feladat
+
+Hozz létre egy `$szamlista` nevű tömböt az alábbi elemekkel:
+
+- 50
+- 60
+- 70
+
+Ezután:
+
+- add hozzá: `80`
+- módosítsd a második elemet `65` értékre
+- írasd ki az összes elemet
+- írasd ki az elemszámot
+
+Expected output
+
+```text
+50 65 70 80
+4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szamlista = @(50, 60, 70)
+
+$szamlista += 80
+$szamlista[1] = 65
+
+Write-Host $szamlista
+Write-Host $szamlista.Count
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja több tömbművelet egymás utáni végrehajtása: létrehozás, bővítés, módosítás, kiírás, elemszám lekérése.
+
+```powershell
+$szamlista = @(50, 60, 70)
+```
+
+- `$szamlista`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `50, 60, 70`: a kezdeti elemek.
+
+```powershell
+$szamlista += 80
+```
+
+- `$szamlista`: a módosítandó tömb.
+- `+=`: hozzáadó értékadó operátor.
+- `80`: az új elem.
+- A tömb a művelet után négy elemet tartalmaz.
+
+```powershell
+$szamlista[1] = 65
+```
+
+- `$szamlista`: a tömb neve.
+- `[1]`: a második elem indexe.
+- `=`: értékadás.
+- `65`: az új érték.
+- Ez a sor a korábbi `60` értéket cseréli `65`-re.
+
+```powershell
+Write-Host $szamlista
+```
+
+- `Write-Host`: kiíró parancs.
+- `$szamlista`: a teljes módosított tömb.
+
+```powershell
+Write-Host $szamlista.Count
+```
+
+- `Write-Host`: kiíró parancs.
+- `$szamlista.Count`: a tömb elemszáma.
+- A végső tömb négy elemet tartalmaz, ezért az érték `4`.
+
+</details>
+
+---
+
+## 13. feladat – Összeg kiszámítása
+
+Feladat
+
+Hozz létre egy `$pontszamok` nevű tömböt az alábbi elemekkel:
+
+- 10
+- 20
+- 30
+- 40
+
+Számítsd ki és írasd ki az elemek összegét.
+
+Expected output
+
+```text
+100
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$pontszamok = @(10, 20, 30, 40)
+
+$osszeg = ($pontszamok | Measure-Object -Sum).Sum
+
+Write-Host $osszeg
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb numerikus elemeinek összegzése.
+
+```powershell
+$pontszamok = @(10, 20, 30, 40)
+```
+
+- `$pontszamok`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `10, 20, 30, 40`: az összegzendő értékek.
+
+```powershell
+$osszeg = ($pontszamok | Measure-Object -Sum).Sum
+```
+
+- `$osszeg`: változó, amelybe az összeg kerül.
+- `=`: értékadás.
+- `(...)`: csoportosítás. A PowerShell először a zárójelben lévő pipeline-kifejezést értékeli ki.
+- `$pontszamok`: a feldolgozandó tömb.
+- `|`: pipeline operátor. A tömb elemeit továbbítja a következő parancsnak.
+- `Measure-Object`: összesítő parancs.
+- `-Sum`: paraméter. Azt adja meg, hogy összegzést kell végezni.
+- `.Sum`: tulajdonsághivatkozás. A `Measure-Object` eredményobjektumából az összeg értékét veszi ki.
+
+```powershell
+Write-Host $osszeg
+```
+
+- `Write-Host`: kiíró parancs.
+- `$osszeg`: a korábban kiszámított összeg.
+
+A feladatban kiszámított érték:
+
+```text
+10 + 20 + 30 + 40 = 100
+```
+
+</details>
+
+---
+
+## 14. feladat – Átlag kiszámítása
+
+Feladat
+
+Hozz létre egy `$jegyek` nevű tömböt az alábbi elemekkel:
+
+- 2
+- 3
+- 4
+- 5
+
+Számítsd ki és írasd ki az elemek átlagát.
+
+Expected output
+
+```text
+3.5
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$jegyek = @(2, 3, 4, 5)
+
+$atlag = ($jegyek | Measure-Object -Average).Average
+
+Write-Host $atlag
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb elemeinek átlagolása.
+
+```powershell
+$jegyek = @(2, 3, 4, 5)
+```
+
+- `$jegyek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `2, 3, 4, 5`: az átlagolandó értékek.
+
+```powershell
+$atlag = ($jegyek | Measure-Object -Average).Average
+```
+
+- `$atlag`: változó, amelybe az átlag kerül.
+- `=`: értékadás.
+- `(...)`: csoportosítás, a pipeline-kifejezés előzetes kiértékelésére.
+- `$jegyek`: a feldolgozandó tömb.
+- `|`: pipeline operátor. A tömb elemeit továbbítja a `Measure-Object` parancsnak.
+- `Measure-Object`: összesítő parancs.
+- `-Average`: paraméter. Átlagérték számítását kéri.
+- `.Average`: tulajdonsághivatkozás. A visszaadott eredményobjektumból az átlag értékét veszi ki.
+
+```powershell
+Write-Host $atlag
+```
+
+- `Write-Host`: kiíró parancs.
+- `$atlag`: a kiszámított átlag.
+
+A feladatban kiszámított érték:
+
+```text
+(2 + 3 + 4 + 5) / 4 = 3.5
+```
+
+</details>
+
+---
+
+## 15. feladat – Legkisebb érték meghatározása
+
+Feladat
+
+Hozz létre egy `$ertekek` nevű tömböt az alábbi elemekkel:
+
+- 42
+- 18
+- 67
+- 25
+
+Határozd meg és írasd ki a tömb legkisebb elemét.
+
+Expected output
+
+```text
+18
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$ertekek = @(42, 18, 67, 25)
+
+$minimum = ($ertekek | Measure-Object -Minimum).Minimum
+
+Write-Host $minimum
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb legkisebb elemének meghatározása.
+
+```powershell
+$ertekek = @(42, 18, 67, 25)
+```
+
+- `$ertekek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `42, 18, 67, 25`: a vizsgált értékek.
+
+```powershell
+$minimum = ($ertekek | Measure-Object -Minimum).Minimum
+```
+
+- `$minimum`: változó, amelybe a legkisebb érték kerül.
+- `=`: értékadás.
+- `(...)`: csoportosítás, a pipeline-kifejezés eredményének lekéréséhez.
+- `$ertekek`: a feldolgozandó tömb.
+- `|`: pipeline operátor. A tömb elemeit továbbítja a következő parancsnak.
+- `Measure-Object`: összesítő parancs.
+- `-Minimum`: paraméter. A minimumérték meghatározását kéri.
+- `.Minimum`: tulajdonsághivatkozás. A visszaadott objektumból a minimum értékét veszi ki.
+
+```powershell
+Write-Host $minimum
+```
+
+- `Write-Host`: kiíró parancs.
+- `$minimum`: a meghatározott legkisebb érték.
+
+Ebben a tömbben a minimum:
+
+```text
+18
+```
+
+</details>
+
+---
+
+## 16. feladat – Legnagyobb érték meghatározása
+
+Feladat
+
+Hozz létre egy `$meresek` nevű tömböt az alábbi elemekkel:
+
+- 120
+- 95
+- 180
+- 150
+
+Határozd meg és írasd ki a tömb legnagyobb elemét.
+
+Expected output
+
+```text
+180
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$meresek = @(120, 95, 180, 150)
+
+$maximum = ($meresek | Measure-Object -Maximum).Maximum
+
+Write-Host $maximum
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a tömb legnagyobb elemének meghatározása.
+
+```powershell
+$meresek = @(120, 95, 180, 150)
+```
+
+- `$meresek`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `120, 95, 180, 150`: a vizsgált értékek.
+
+```powershell
+$maximum = ($meresek | Measure-Object -Maximum).Maximum
+```
+
+- `$maximum`: változó, amelybe a legnagyobb érték kerül.
+- `=`: értékadás.
+- `(...)`: csoportosítás, a pipeline-kifejezés kiértékelésére.
+- `$meresek`: a feldolgozandó tömb.
+- `|`: pipeline operátor. A tömb elemeit továbbítja a `Measure-Object` parancsnak.
+- `Measure-Object`: összesítő parancs.
+- `-Maximum`: paraméter. A maximumérték meghatározását kéri.
+- `.Maximum`: tulajdonsághivatkozás. A visszaadott objektumból a maximum értékét veszi ki.
+
+```powershell
+Write-Host $maximum
+```
+
+- `Write-Host`: kiíró parancs.
+- `$maximum`: a meghatározott legnagyobb érték.
+
+Ebben a tömbben a maximum:
+
+```text
+180
+```
+
+</details>
+
+---
+
+## 17. feladat – Megadott feltételnek megfelelő elemek száma
+
+Feladat
+
+Hozz létre egy `$pontok` nevű tömböt az alábbi elemekkel:
+
+- 45
+- 62
+- 38
+- 91
+- 74
+
+Számold meg, hány elem legalább `60`.
+
+Expected output
+
+```text
+3
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$pontok = @(45, 62, 38, 91, 74)
+
+$db = ($pontok | Where-Object { $_ -ge 60 } | Measure-Object).Count
+
+Write-Host $db
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a feltételnek megfelelő elemek megszámolása.
+
+```powershell
+$pontok = @(45, 62, 38, 91, 74)
+```
+
+- `$pontok`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `45, 62, 38, 91, 74`: a vizsgált értékek.
+
+```powershell
+$db = ($pontok | Where-Object { $_ -ge 60 } | Measure-Object).Count
+```
+
+- `$db`: változó, amelybe a darabszám kerül.
+- `=`: értékadás.
+- `(...)`: csoportosítás. A teljes pipeline eredményét először kiértékeli a PowerShell.
+- `$pontok`: a feldolgozandó tömb.
+- `|`: pipeline operátor. Az adatokat a következő parancsnak adja tovább.
+- `Where-Object`: szűrő parancs.
+- `{ ... }`: scriptblokk, amely a szűrési feltételt tartalmazza.
+- `$_`: az aktuális pipeline-elem.
+- `-ge`: összehasonlító operátor, jelentése: nagyobb vagy egyenlő.
+- `60`: a feltételben szereplő határérték.
+- `$_ -ge 60`: akkor igaz, ha az aktuális elem legalább `60`.
+- Második `|`: a szűrt elemeket továbbítja a következő parancsnak.
+- `Measure-Object`: összesítő parancs.
+- `.Count`: tulajdonsághivatkozás. A visszaadott objektumból a darabszámot veszi ki.
+
+A feltételnek megfelelő elemek:
+
+```text
+62 91 74
+```
+
+A darabszám:
+
+```text
+3
+```
+
+```powershell
+Write-Host $db
+```
+
+- `Write-Host`: kiíró parancs.
+- `$db`: a kiszámított darabszám.
+
+</details>
+
+---
+
+## 18. feladat – Páros számok összegzése
+
+Feladat
+
+Hozz létre egy `$szamok` nevű tömböt az alábbi elemekkel:
+
+- 3
+- 6
+- 9
+- 12
+- 15
+- 18
+
+Számítsd ki és írasd ki a páros számok összegét.
+
+Expected output
+
+```text
+36
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+$szamok = @(3, 6, 9, 12, 15, 18)
+
+$osszeg = ($szamok | Where-Object { $_ % 2 -eq 0 } | Measure-Object -Sum).Sum
+
+Write-Host $osszeg
+```
+
+</details>
+
+<details>
+<summary>Szintaktikai bontás</summary>
+
+A feladat célja a páros elemek kiszűrése, majd ezek összegének kiszámítása.
+
+```powershell
+$szamok = @(3, 6, 9, 12, 15, 18)
+```
+
+- `$szamok`: változó neve.
+- `=`: értékadás.
+- `@(...)`: tömb létrehozása.
+- `3, 6, 9, 12, 15, 18`: a vizsgált értékek.
+
+```powershell
+$osszeg = ($szamok | Where-Object { $_ % 2 -eq 0 } | Measure-Object -Sum).Sum
+```
+
+- `$osszeg`: változó, amelybe a páros számok összege kerül.
+- `=`: értékadás.
+- `(...)`: csoportosítás. A pipeline eredményét először kiértékeli a PowerShell.
+- `$szamok`: a feldolgozandó tömb.
+- `|`: pipeline operátor. Az elemeket továbbadja a következő parancsnak.
+- `Where-Object`: szűrő parancs.
+- `{ ... }`: scriptblokk, amely a szűrési feltételt tartalmazza.
+- `$_`: az aktuális pipeline-elem.
+- `%`: maradékos osztás operátora.
+- `2`: az osztó.
+- `-eq`: összehasonlító operátor, jelentése: egyenlő.
+- `0`: a várt maradék.
+- `$_ % 2 -eq 0`: akkor igaz, ha az aktuális szám páros.
+- Második `|`: a szűrt, páros elemeket továbbadja az összesítő parancsnak.
+- `Measure-Object`: összesítő parancs.
+- `-Sum`: paraméter. Összegzést kér.
+- `.Sum`: tulajdonsághivatkozás. A visszaadott objektumból az összeg értékét veszi ki.
+
+A feltételnek megfelelő elemek:
+
+```text
+6 12 18
+```
+
+A kiszámított összeg:
+
+```text
+6 + 12 + 18 = 36
+```
+
+```powershell
+Write-Host $osszeg
+```
+
+- `Write-Host`: kiíró parancs.
+- `$osszeg`: a kiszámított összeg.
+
+</details>

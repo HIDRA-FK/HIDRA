@@ -1,0 +1,267 @@
+---
+title: PowerShell Összehasonlító Operátorok
+sidebar_position: 3
+description: A PowerShellben használt összehasonlító operátorok használata példákkal és magyarázatokkal
+---
+
+# PowerShell Összehasonlító Operátorok
+
+PowerShellben számok összehasonlítására összehasonlító operátorokat használunk.
+
+Az általános forma:
+
+```powershell
+bal_oldal operátor jobb_oldal
+```
+
+Például:
+
+```powershell
+$a -eq $b
+```
+
+Ez azt jelenti: az `a` értéke egyenlő-e a `b` értékével.
+
+Az összehasonlító operátorokat gyakran `if` szerkezetben használjuk:
+
+```powershell
+if ($a -eq $b) {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+| Operátor | Jelentés | Mire használjuk? | Példa |
+| --- | --- | --- | --- |
+| `-eq` | egyenlő | két szám ugyanaz-e | `$a -eq $b` |
+| `-ne` | nem egyenlő | két szám különbözik-e | `$a -ne $b` |
+| `-gt` | nagyobb mint | bal oldali szám nagyobb-e | `$a -gt $b` |
+| `-lt` | kisebb mint | bal oldali szám kisebb-e | `$a -lt $b` |
+| `-ge` | nagyobb vagy egyenlő | bal oldali szám nagyobb vagy ugyanannyi-e | `$a -ge $b` |
+| `-le` | kisebb vagy egyenlő | bal oldali szám kisebb vagy ugyanannyi-e | `$a -le $b` |
+
+<details>
+<summary>1. Hogyan kell használni?</summary>
+
+PowerShellben ezeket általában `if` szerkezetben használjuk.
+
+```powershell
+if (feltétel) {
+    utasítás
+}
+```
+
+Példa:
+
+```powershell
+$a = 10
+$b = 5
+
+if ($a -gt $b) {
+    Write-Host "Az a nagyobb mint a b."
+}
+```
+
+Itt:
+
+* `$a` az első változó értéke
+* `-gt` azt jelenti, hogy nagyobb mint
+* `$b` a második változó értéke
+
+Vagyis ezt vizsgálja:
+
+```text
+10 nagyobb mint 5?
+```
+
+Mivel ez igaz, ezért kiírja az üzenetet.
+
+</details>
+
+<details>
+<summary>2. A <code>-eq</code> operátor</summary>
+
+A `-eq` jelentése: **egyenlő**
+
+Akkor igaz, ha a két szám ugyanaz.
+
+```powershell
+$a = 5
+$b = 5
+
+if ($a -eq $b) {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+</details>
+
+<details>
+<summary>3. A <code>-ne</code> operátor</summary>
+
+A `-ne` jelentése: **nem egyenlő**
+
+Akkor igaz, ha a két szám különbözik.
+
+```powershell
+$a = 5
+$b = 3
+
+if ($a -ne $b) {
+    Write-Host "A két szám nem egyenlő."
+}
+```
+
+</details>
+
+<details>
+<summary>4. A <code>-gt</code> operátor</summary>
+
+A `-gt` jelentése: **nagyobb mint**
+
+Akkor igaz, ha a bal oldali szám nagyobb, mint a jobb oldali.
+
+```powershell
+$a = 8
+$b = 4
+
+if ($a -gt $b) {
+    Write-Host "Az első szám nagyobb."
+}
+```
+
+</details>
+
+<details>
+<summary>5. A <code>-lt</code> operátor</summary>
+
+A `-lt` jelentése: **kisebb mint**
+
+Akkor igaz, ha a bal oldali szám kisebb, mint a jobb oldali.
+
+```powershell
+$a = 2
+$b = 7
+
+if ($a -lt $b) {
+    Write-Host "Az első szám kisebb."
+}
+```
+
+</details>
+
+<details>
+<summary>6. A <code>-ge</code> operátor</summary>
+
+A `-ge` jelentése: **nagyobb vagy egyenlő**
+
+Akkor igaz, ha a bal oldali szám nagyobb vagy ugyanannyi.
+
+```powershell
+$a = 6
+$b = 6
+
+if ($a -ge $b) {
+    Write-Host "Az első szám nagyobb vagy egyenlő a másodikkal."
+}
+```
+
+</details>
+
+<details>
+<summary>7. A <code>-le</code> operátor</summary>
+
+A `-le` jelentése: **kisebb vagy egyenlő**
+
+Akkor igaz, ha a bal oldali szám kisebb vagy ugyanannyi.
+
+```powershell
+$a = 4
+$b = 9
+
+if ($a -le $b) {
+    Write-Host "Az első szám kisebb vagy egyenlő a másodikkal."
+}
+```
+
+</details>
+
+<details>
+<summary>8. Fontos formai szabályok</summary>
+
+PowerShellben az `if` feltételét kerek zárójelbe kell tenni.
+
+Helyes:
+
+```powershell
+if ($a -eq $b) {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+Helytelen:
+
+```powershell
+if $a -eq $b {
+    Write-Host "A két szám egyenlő."
+}
+```
+
+Az `if` után végrehajtandó utasításokat kapcsos zárójelek közé írjuk.
+
+Helyes:
+
+```powershell
+if ($a -gt $b) {
+    Write-Host "Az első szám nagyobb."
+}
+```
+
+Helytelen:
+
+```powershell
+if ($a -gt $b)
+    Write-Host "Az első szám nagyobb."
+```
+
+A változónevek elé `$` jelet kell írni.
+
+```powershell
+$a
+$b
+$szam
+```
+
+Ha a `$` jel hiányzik, akkor a PowerShell nem változóként értelmezi a nevet.
+
+</details>
+
+<details>
+<summary>Összefoglalás</summary>
+
+* `eq` = equal = egyenlő
+* `ne` = not equal = nem egyenlő
+* `gt` = greater than = nagyobb mint
+* `lt` = less than = kisebb mint
+* `ge` = greater or equal = nagyobb vagy egyenlő
+* `le` = less or equal = kisebb vagy egyenlő
+
+PowerShellben az összehasonlítás alapformája:
+
+```powershell
+$a -eq $b
+$a -ne $b
+$a -gt $b
+$a -lt $b
+$a -ge $b
+$a -le $b
+```
+
+`if` szerkezetben használva:
+
+```powershell
+if ($a -eq $b) {
+    Write-Host "A feltétel igaz."
+}
+```
+
+</details>
