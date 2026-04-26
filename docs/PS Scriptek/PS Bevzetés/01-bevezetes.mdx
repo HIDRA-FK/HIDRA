@@ -1,0 +1,120 @@
+---
+title: A PowerShell
+sidebar_position: 1
+description: Bevezető a PowerShell működésébe, különösen az objektumalapú szemlélet megértéséhez
+---
+
+# A PowerShell
+
+A **PowerShell** egy parancsértelmező és scriptnyelv, amely főleg Windows környezetben használatos, de Linuxon és macOS-en is elérhető.
+
+A PowerShell célja, hogy a felhasználó parancsok segítségével tudjon műveleteket végrehajtani, adatokat lekérdezni, rendszerelemeket kezelni vagy később akár automatizált feladatokat is készíteni.
+
+:::info Áttekintés
+A PowerShell nem egyszerűen egy parancssor.  
+Egyszerre jelent futtatókörnyezetet, parancsértelmezőt és scriptnyelvet.
+
+A működésének egyik meghatározó sajátossága, hogy **nem csak szöveggel, hanem objektumokkal dolgozik**.
+:::
+
+## PowerShell és Bash szemléletbeli különbsége
+
+A PowerShell nem ugyanúgy működik, mint a Bash.
+
+A **Bash** alapvetően szöveges kimeneteket továbbít egyik parancsból a másikba. Ez azt jelenti, hogy egy parancs eredménye többnyire szövegként jelenik meg, és a következő parancs ezt a szöveget dolgozza fel.
+
+A **PowerShell** ezzel szemben objektumokat továbbít. Ez azt jelenti, hogy egy parancs kimenete nem pusztán megjelenített szöveg, hanem tulajdonságokkal rendelkező adat.
+
+:::info Példa a különbségre
+Ha egy PowerShell-parancs folyamatokat kérdez le, akkor nem egyszerű sorokat kapunk vissza, hanem olyan folyamatobjektumokat, amelyeknek külön adatai vannak.
+
+Ilyen adat lehet például:
+
+- a folyamat neve,
+- azonosítója,
+- memóriahasználata,
+- CPU-ideje.
+:::
+
+## Parancs futtatása PowerShellben
+
+Egy egyszerű PowerShell-parancs:
+
+```powershell
+Get-Process
+````
+
+Ez a parancs a számítógépen futó folyamatokat kérdezi le.
+
+A képernyőn táblázatos formában jelennek meg az adatok, de fontos megérteni, hogy a háttérben a PowerShell nem egyszerű szöveglistát kezel. A `Get-Process` parancs **folyamatobjektumokat** ad vissza.
+
+## Mit jelent az, hogy objektum?
+
+Az objektum olyan adat, amelyhez különböző tulajdonságok tartoznak.
+
+Egy folyamatobjektumnak például lehet:
+
+| Tulajdonság   | Jelentés                              |
+| ------------- | ------------------------------------- |
+| `ProcessName` | a folyamat neve                       |
+| `Id`          | a folyamat azonosítója                |
+| `CPU`         | a folyamat által használt CPU-idő     |
+| `WorkingSet`  | a memóriahasználathoz kapcsolódó adat |
+
+Ez azért hasznos, mert a PowerShell-parancsok nem csak azt látják, ami a képernyőn megjelenik, hanem az objektumok tényleges adataival tudnak dolgozni.
+
+<details>
+<summary>Miért fontos ez?</summary>
+
+Ha egy parancs kimenete csak szöveg lenne, akkor a következő parancsnak ezt a szöveget kellene feldolgoznia.
+
+PowerShellben viszont a következő parancs már eleve strukturált adatokat kap. Emiatt pontosabban lehet szűrni, rendezni, kiválasztani vagy továbbadni az adatokat.
+
+</details>
+
+## A pipeline szerepe
+
+A PowerShellben a `|` jel neve **pipeline**.
+
+A pipeline arra szolgál, hogy az egyik parancs kimenetét továbbadjuk egy másik parancsnak.
+
+Példa:
+
+```powershell
+Get-Process | Get-Member
+```
+
+Ebben a példában a `Get-Process` lekéri a futó folyamatokat, majd ezek az objektumok továbbkerülnek a `Get-Member` parancsnak.
+
+A `Get-Member` megmutatja, hogy az előző parancs által visszaadott objektumoknak milyen tulajdonságai és metódusai vannak.
+
+:::info Mit mutat meg a Get-Member?
+A `Get-Member` segítségével megvizsgálható, hogy egy adott parancs milyen típusú objektumokat ad vissza, és ezekkel az objektumokkal milyen adatok vagy műveletek érhetők el.
+:::
+
+## Példa objektumvizsgálatra
+
+```powershell
+Get-Process | Get-Member
+```
+
+A parancs eredményében láthatóvá válik, hogy a `Get-Process` által visszaadott objektumok milyen tagokkal rendelkeznek.
+
+Ilyen tagok lehetnek például:
+
+* tulajdonságok,
+* metódusok,
+* események,
+* egyéb objektumhoz kapcsolódó elemek.
+
+<details>
+<summary>Röviden: mit kell ebből megérteni?</summary>
+
+A `Get-Process` nem egyszerű szöveget ad vissza, hanem folyamatobjektumokat.
+
+A `Get-Member` ezeknek az objektumoknak a felépítését mutatja meg.
+
+A pipeline segítségével az egyik parancs eredménye továbbadható egy másik parancsnak.
+
+</details>
+

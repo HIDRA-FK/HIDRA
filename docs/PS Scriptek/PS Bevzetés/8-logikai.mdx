@@ -1,0 +1,586 @@
+---
+title: PowerShell logikai operátorok
+sidebar_position: 8
+description: Logikai értékek, összehasonlító operátorok, logikai műveletek, igazságtáblák és összetett feltételek PowerShellben
+---
+
+# PowerShell – Logikai operátorok
+
+## Alap logikai értékek
+
+PowerShellben a logikai értékek:
+
+```powershell
+$true
+$false
+```
+
+A `$true` igaz értéket, a `$false` hamis értéket jelent.
+
+Példa:
+
+```powershell
+Write-Host (5 -gt 3)   # True
+Write-Host (2 -eq 4)   # False
+```
+
+Az összehasonlítás eredménye logikai érték.
+
+```powershell
+$eredmeny = 5 -gt 3
+
+Write-Host $eredmeny
+Write-Host $eredmeny.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+True
+Boolean
+```
+
+PowerShellben az összehasonlító operátorok nem a matematikában vagy más programozási nyelvekben megszokott jelekkel működnek.
+
+```text
+Általános forma     PowerShell
+5 > 3               5 -gt 3
+5 < 3               5 -lt 3
+5 == 3              5 -eq 3
+5 != 3              5 -ne 3
+```
+
+---
+
+## Összehasonlító operátorok
+
+A logikai kifejezésekben gyakran összehasonlítások szerepelnek. Ezek eredménye `$true` vagy `$false`.
+
+| Operátor | Jelentés | Példa |
+|---|---|---|
+| `-eq` | egyenlő | `$kor -eq 18` |
+| `-ne` | nem egyenlő | `$kor -ne 18` |
+| `-gt` | nagyobb | `$kor -gt 18` |
+| `-ge` | nagyobb vagy egyenlő | `$kor -ge 18` |
+| `-lt` | kisebb | `$kor -lt 18` |
+| `-le` | kisebb vagy egyenlő | `$kor -le 18` |
+
+Példa:
+
+```powershell
+$kor = 20
+
+Write-Host ($kor -eq 18)   # False
+Write-Host ($kor -ne 18)   # True
+Write-Host ($kor -gt 18)   # True
+Write-Host ($kor -ge 18)   # True
+Write-Host ($kor -lt 18)   # False
+Write-Host ($kor -le 18)   # False
+```
+
+A `-gt`, `-ge`, `-lt` és `-le` operátorok főleg rendezhető értékeknél használhatók, például számoknál és dátumoknál.
+
+Dátum összehasonlítása:
+
+```powershell
+$datum = Get-Date
+$hatarido = [datetime]"2026-12-31"
+
+Write-Host ($datum -lt $hatarido)
+```
+
+---
+
+## Logikai operátorok
+
+A logikai operátorok több logikai kifejezést kapcsolnak össze.
+
+| Operátor | Jelentés | Példa | Eredmény |
+|---|---|---|---|
+| `-and` | logikai ÉS | `(5 -gt 3) -and (10 -gt 2)` | `True` |
+| `-or` | logikai VAGY | `(5 -gt 10) -or (3 -gt 1)` | `True` |
+| `-not` | logikai NEM | `-not (5 -gt 3)` | `False` |
+| `-xor` | kizáró VAGY | `$true -xor $false` | `True` |
+
+Az `-and` akkor ad igaz eredményt, ha mindkét feltétel igaz.
+
+```powershell
+Write-Host ((5 -gt 3) -and (10 -gt 2))   # True
+```
+
+Az `-or` akkor ad igaz eredményt, ha legalább az egyik feltétel igaz.
+
+```powershell
+Write-Host ((5 -gt 10) -or (3 -gt 1))    # True
+```
+
+A `-not` megfordítja a logikai értéket.
+
+```powershell
+Write-Host (-not (5 -gt 3))              # False
+```
+
+Az `-xor` akkor ad igaz eredményt, ha pontosan az egyik feltétel igaz.
+
+```powershell
+Write-Host ($true -xor $false)           # True
+Write-Host ($true -xor $true)            # False
+```
+
+A `-not` helyett használható a `!` jel is.
+
+```powershell
+Write-Host (!(5 -gt 3))                  # False
+```
+
+Szakmai anyagban a `-not` alak következetesebb, mert illeszkedik a PowerShell operátorneveihez.
+
+---
+
+## Példák logikai kifejezésekre
+
+```powershell
+$a = 7
+$b = 3
+
+Write-Host ($a -gt 5 -and $b -lt 5)   # True
+Write-Host ($a -gt 10 -or $b -lt 5)   # True
+Write-Host (-not ($a -gt $b))         # False
+```
+
+Az első kifejezés:
+
+```powershell
+$a -gt 5 -and $b -lt 5
+```
+
+Értelmezése:
+
+```text
+$a -gt 5      igaz, mert 7 nagyobb mint 5
+$b -lt 5      igaz, mert 3 kisebb mint 5
+
+Az eredmény igaz, mert mindkét feltétel igaz.
+```
+
+A második kifejezés:
+
+```powershell
+$a -gt 10 -or $b -lt 5
+```
+
+Értelmezése:
+
+```text
+$a -gt 10     hamis, mert 7 nem nagyobb mint 10
+$b -lt 5      igaz, mert 3 kisebb mint 5
+
+Az eredmény igaz, mert legalább az egyik feltétel igaz.
+```
+
+A harmadik kifejezés:
+
+```powershell
+-not ($a -gt $b)
+```
+
+Értelmezése:
+
+```text
+$a -gt $b     igaz, mert 7 nagyobb mint 3
+
+A -not megfordítja az igaz értéket, ezért az eredmény hamis.
+```
+
+---
+
+## Igazságtáblák
+
+### `-and`
+
+| A | B | A `-and` B |
+|---|---|---|
+| `$true` | `$true` | `$true` |
+| `$true` | `$false` | `$false` |
+| `$false` | `$true` | `$false` |
+| `$false` | `$false` | `$false` |
+
+### `-or`
+
+| A | B | A `-or` B |
+|---|---|---|
+| `$true` | `$true` | `$true` |
+| `$true` | `$false` | `$true` |
+| `$false` | `$true` | `$true` |
+| `$false` | `$false` | `$false` |
+
+### `-not`
+
+| A | `-not` A |
+|---|---|
+| `$true` | `$false` |
+| `$false` | `$true` |
+
+### `-xor`
+
+| A | B | A `-xor` B |
+|---|---|---|
+| `$true` | `$true` | `$false` |
+| `$true` | `$false` | `$true` |
+| `$false` | `$true` | `$true` |
+| `$false` | `$false` | `$false` |
+
+A `-xor` kizáró VAGY. Akkor igaz, ha a két oldal logikai értéke eltér.
+
+---
+
+## Műveletek sorrendje
+
+A logikai operátorok kiértékelési sorrendje:
+
+```text
+1. -not
+2. -and
+3. -or, -xor
+```
+
+Példa:
+
+```powershell
+$eredmeny = $true -or $false -and (-not $false)
+
+Write-Host $eredmeny
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Lépések:
+
+```text
+-not $false
+eredménye: True
+```
+
+```text
+$false -and $true
+eredménye: False
+```
+
+```text
+$true -or $false
+eredménye: True
+```
+
+Zárójelezve:
+
+```powershell
+$eredmeny = $true -or ($false -and (-not $false))
+
+Write-Host $eredmeny
+```
+
+Összetett feltételeknél a zárójelezés nemcsak a műveleti sorrendet teszi egyértelművé, hanem a kód olvashatóságát is javítja.
+
+---
+
+## Logikai kifejezések változókkal
+
+Logikai érték közvetlenül is tárolható változóban.
+
+```powershell
+$vanJegy = $true
+$aktiv = $false
+
+Write-Host $vanJegy
+Write-Host $aktiv
+```
+
+Összehasonlítás eredménye is menthető változóba.
+
+```powershell
+$kor = 20
+$nagyKoru = $kor -ge 18
+
+Write-Host $nagyKoru
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Több feltétel összekapcsolása:
+
+```powershell
+$kor = 20
+$vanJegy = $true
+
+$belephet = ($kor -ge 18) -and $vanJegy
+
+Write-Host $belephet
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A `$vanJegy` már önmagában logikai érték, ezért nem szükséges külön így írni:
+
+```powershell
+$vanJegy -eq $true
+```
+
+A rövidebb, közvetlen forma:
+
+```powershell
+$vanJegy
+```
+
+---
+
+## Összehasonlítás és logikai operátor együtt
+
+A logikai operátorok általában összehasonlítások eredményét kapcsolják össze.
+
+```powershell
+$kor = 20
+$vanJegy = $true
+
+Write-Host (($kor -ge 18) -and $vanJegy)
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Ebben a példában:
+
+```text
+$kor -ge 18     igaz
+$vanJegy        igaz
+```
+
+A teljes kifejezés igaz, mert az `-and` mindkét oldalán igaz érték áll.
+
+Másik példa:
+
+```powershell
+$kor = 16
+$szuloiEngedely = $true
+
+$belephet = ($kor -ge 18) -or $szuloiEngedely
+
+Write-Host $belephet
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A kifejezés jelentése:
+
+```text
+A belépés engedélyezett, ha a felhasználó legalább 18 éves,
+vagy rendelkezik szülői engedéllyel.
+```
+
+---
+
+## Rövidzáras kiértékelés
+
+A PowerShell logikai operátorai rövidzáras kiértékelést alkalmaznak.
+
+`-and` esetén, ha az első feltétel hamis, a második feltételt már nem szükséges kiértékelni, mert a teljes kifejezés biztosan hamis.
+
+```powershell
+$ertek = 0
+
+($ertek -ne 0) -and ((10 / $ertek) -gt 1)
+```
+
+Ebben a példában a második rész nem kerül kiértékelésre, mert az első feltétel hamis.
+
+`-or` esetén, ha az első feltétel igaz, a második feltételt már nem szükséges kiértékelni, mert a teljes kifejezés biztosan igaz.
+
+```powershell
+$admin = $true
+$jogosultsag = $false
+
+$hozzaferhet = $admin -or $jogosultsag
+```
+
+Ebben az esetben a teljes kifejezés igaz, mert az első feltétel igaz.
+
+---
+
+## Igazként és hamisként értelmezett értékek
+
+PowerShellben egyes nem logikai értékek feltételes környezetben logikai értékként értelmeződhetnek.
+
+Példák hamisként értelmezhető értékekre:
+
+```powershell
+$false
+$null
+0
+""
+@()
+```
+
+Példák igazként értelmezhető értékekre:
+
+```powershell
+$true
+1
+"szöveg"
+@(1, 2, 3)
+```
+
+Példa:
+
+```powershell
+$nev = ""
+
+if ($nev) {
+    Write-Host "Van név."
+}
+else {
+    Write-Host "Nincs név."
+}
+```
+
+Eredmény:
+
+```text
+Nincs név.
+```
+
+Üres szöveg esetén célszerű lehet explicit ellenőrzést használni:
+
+```powershell
+if ($nev -ne "") {
+    Write-Host "Van név."
+}
+```
+
+Vagy .NET metódussal:
+
+```powershell
+if (-not [string]::IsNullOrWhiteSpace($nev)) {
+    Write-Host "Van név."
+}
+```
+
+---
+
+## Gyakorlati példa
+
+```powershell
+$kor = 17
+$szuloiEngedely = $true
+
+$belephet = ($kor -ge 18) -or $szuloiEngedely
+
+Write-Host $belephet
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A kifejezés jelentése:
+
+```text
+A felhasználó beléphet, ha legalább 18 éves,
+vagy van szülői engedélye.
+```
+
+Másik példa több feltétellel:
+
+```powershell
+$kor = 22
+$aktivTagsag = $true
+$tartozas = 0
+
+$belephet = ($kor -ge 18) -and $aktivTagsag -and ($tartozas -eq 0)
+
+Write-Host $belephet
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A feltétel akkor igaz, ha:
+
+```text
+a kor legalább 18,
+az aktív tagság igaz,
+a tartozás értéke 0.
+```
+
+---
+
+## Összefoglalás
+
+PowerShellben a logikai értékek:
+
+```powershell
+$true
+$false
+```
+
+A fő logikai operátorok:
+
+| Operátor | Jelentés |
+|---|---|
+| `-and` | logikai ÉS |
+| `-or` | logikai VAGY |
+| `-not` | logikai NEM |
+| `-xor` | kizáró VAGY |
+
+Gyakori összehasonlító operátorok:
+
+| Operátor | Jelentés |
+|---|---|
+| `-eq` | egyenlő |
+| `-ne` | nem egyenlő |
+| `-gt` | nagyobb |
+| `-ge` | nagyobb vagy egyenlő |
+| `-lt` | kisebb |
+| `-le` | kisebb vagy egyenlő |
+
+Összetett feltételeknél célszerű zárójeleket használni.
+
+```powershell
+($kor -ge 18) -and $vanJegy
+```
+
+A zárójelek egyértelművé teszik, melyik részkifejezés tartozik össze.
+
+A logikai kifejezések eredménye `Boolean` típusú érték.
+
+```powershell
+($kor -ge 18).GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+Boolean
+```

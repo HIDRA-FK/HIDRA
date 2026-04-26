@@ -1,0 +1,626 @@
+---
+title: PowerShell parancsok felépítése
+sidebar_position: 4
+description: A PowerShell-parancsok szerkezete, paraméterezése, parancstípusai, aliasai és pipeline-alapú összekapcsolása
+---
+
+# PowerShell – Parancsok felépítése
+
+##  Mi az a parancs?
+
+A PowerShellben a parancs egy végrehajtható utasítás, amely lekérdezést, módosítást, létrehozást, eltávolítást vagy más műveletet hajt végre.
+
+Példák:
+
+```powershell
+Get-Process
+Get-Service
+Get-ChildItem
+New-Item
+Remove-Item
+```
+
+A PowerShell saját parancsait **cmdletnek** nevezzük. A cmdletek olyan beépített PowerShell-parancsok, amelyek általában objektumokat fogadnak bemenetként, és objektumokat adnak vissza kimenetként.
+
+---
+
+## A PowerShell-parancsok neve
+
+A PowerShell cmdletjeinek neve jellemzően az alábbi szerkezetet követi:
+
+```text
+Ige-Főnév
+```
+
+Példák:
+
+```powershell
+Get-Process
+Get-Service
+Get-ChildItem
+New-Item
+Remove-Item
+Set-Content
+Add-Content
+```
+
+Az első rész az elvégzendő művelet típusát jelöli.
+
+| Ige | Jelentés | Példa |
+|---|---|---|
+| `Get` | lekérdezés | `Get-Process` |
+| `New` | létrehozás | `New-Item` |
+| `Set` | beállítás vagy értékadás | `Set-Content` |
+| `Add` | hozzáadás | `Add-Content` |
+| `Remove` | eltávolítás | `Remove-Item` |
+| `Start` | indítás | `Start-Service` |
+| `Stop` | leállítás | `Stop-Service` |
+
+A második rész azt jelöli, hogy a művelet milyen típusú elemre, erőforrásra vagy fogalomra vonatkozik.
+
+| Főnév | Jelentés | Példa |
+|---|---|---|
+| `Process` | folyamat | `Get-Process` |
+| `Service` | szolgáltatás | `Get-Service` |
+| `ChildItem` | egy tároló alatti elemek | `Get-ChildItem` |
+| `Item` | fájl, mappa vagy más kezelhető elem | `New-Item` |
+| `Content` | tartalom | `Get-Content` |
+| `Location` | aktuális hely | `Get-Location` |
+
+Példa:
+
+```powershell
+Get-Process
+```
+
+A parancs folyamatokat kérdez le.
+
+```powershell
+Remove-Item
+```
+
+A parancs elemet távolít el.
+
+A névadási konvenció miatt a parancs szerepe sok esetben a parancsnévből is következtethető.
+
+---
+
+## Parancs, paraméter, paraméterérték
+
+Egy PowerShell-parancs parancsnévből, paraméterekből és paraméterértékekből állhat.
+
+```powershell
+Get-ChildItem -Path C:\Temp -Filter *.txt
+```
+
+A parancs részei:
+
+```text
+Get-ChildItem      parancsnév
+-Path              paraméter
+C:\Temp            paraméterérték
+-Filter            paraméter
+*.txt              paraméterérték
+```
+
+A paraméterek a parancs működését pontosítják. Megadhatják például, hogy a parancs melyik útvonalon dolgozzon, milyen elemeket vegyen figyelembe, milyen feltételt alkalmazzon, vagy hogyan jelenítse meg az eredményt.
+
+Példa:
+
+```powershell
+Get-ChildItem -Path C:\Temp
+```
+
+A parancs a `C:\Temp` mappa tartalmát listázza.
+
+```powershell
+Get-ChildItem -Path C:\Temp -Filter *.txt
+```
+
+A parancs a `C:\Temp` mappából csak a `.txt` kiterjesztésű elemeket adja vissza.
+
+A paraméterek névvel történő megadása olvashatóbbá teszi a parancsot, mert egyértelműen látszik, hogy az adott érték milyen célra szolgál.
+
+---
+
+## Kapcsolóparaméterek
+
+A kapcsolóparaméter olyan paraméter, amelyhez nem szükséges külön értéket megadni. A kapcsoló jelenléte önmagában módosítja a parancs működését.
+
+Példa:
+
+```powershell
+Get-ChildItem -File
+```
+
+A parancs csak fájlokat ad vissza.
+
+```powershell
+Get-ChildItem -Directory
+```
+
+A parancs csak mappákat ad vissza.
+
+```powershell
+Get-ChildItem -Recurse
+```
+
+A parancs az almappák tartalmát is figyelembe veszi.
+
+Törlésnél:
+
+```powershell
+Remove-Item -Path .\teszt -Recurse
+```
+
+A `-Recurse` azt jelzi, hogy a művelet az almappákra és azok tartalmára is vonatkozzon.
+
+Gyakori kapcsolóparaméterek:
+
+| Kapcsoló | Jelentés |
+|---|---|
+| `-File` | csak fájlokat ad vissza |
+| `-Directory` | csak mappákat ad vissza |
+| `-Recurse` | almappákra is kiterjeszti a műveletet |
+| `-Force` | kényszerített végrehajtást kér |
+| `-WhatIf` | megmutatja, mit hajtana végre a parancs tényleges módosítás nélkül |
+| `-Confirm` | megerősítést kér a végrehajtás előtt |
+
+A kapcsolóparaméterek használata különösen fontos olyan műveleteknél, amelyek sok elemet érinthetnek, vagy módosítást hajtanak végre a rendszeren.
+
+---
+
+## Teljes és rövidített parancsalakok
+
+PowerShellben sok parancsnak van rövidített neve. Ezeket **aliasoknak** nevezzük.
+
+Az alias egy rövid név, amely egy hosszabb parancsra mutat.
+
+| Rövid alak | Teljes parancs |
+|---|---|
+| `ls` | `Get-ChildItem` |
+| `dir` | `Get-ChildItem` |
+| `gci` | `Get-ChildItem` |
+| `cd` | `Set-Location` |
+| `pwd` | `Get-Location` |
+| `cat` | `Get-Content` |
+| `ni` | `New-Item` |
+| `rm` | `Remove-Item` |
+| `cp` | `Copy-Item` |
+| `mv` | `Move-Item` |
+
+Példa teljes parancsnévvel:
+
+```powershell
+Get-ChildItem
+```
+
+Ugyanez aliasszal:
+
+```powershell
+ls
+```
+
+Alias lekérdezése:
+
+```powershell
+Get-Alias ls
+```
+
+Példa eredmény:
+
+```text
+CommandType     Name     Version    Source
+-----------     ----     -------    ------
+Alias           ls -> Get-ChildItem
+```
+
+Tananyagban és dokumentációban célszerű a teljes parancsneveket használni, mert ezekből egyértelműbben látszik a művelet szerepe. Az aliasok interaktív használat közben gyorsabb munkát tesznek lehetővé, de kevésbé önmagyarázók.
+
+---
+
+## Parancstípusok
+
+A PowerShellben nem minden beírt utasítás azonos típusú parancs. Egy név utalhat cmdletre, aliasra, függvényre, scriptre vagy külső programra is.
+
+| Típus | Jelentés | Példa |
+|---|---|---|
+| Cmdlet | PowerShell saját parancstípusa | `Get-Process` |
+| Alias | rövid név egy másik parancsra | `ls` |
+| Function | PowerShellben definiált függvény | `prompt` |
+| Script | `.ps1` kiterjesztésű PowerShell-script | `.\script.ps1` |
+| Application | külső futtatható program | `ipconfig.exe` |
+
+Egy parancs típusát a `Get-Command` paranccsal lehet lekérdezni.
+
+```powershell
+Get-Command Get-ChildItem
+```
+
+Másik példa:
+
+```powershell
+Get-Command ipconfig
+```
+
+Ez megmutatja, hogy az adott név PowerShell-cmdlet, alias, függvény, script vagy külső alkalmazás-e.
+
+Ez azért fontos, mert a PowerShellben a parancsok feloldása név alapján történik, és ugyanabban a konzolban PowerShell-parancsokat és külső programokat is lehet futtatni.
+
+---
+
+## Parancsok keresése
+
+Parancsok keresésére a `Get-Command` használható.
+
+Minden elérhető parancs listázása:
+
+```powershell
+Get-Command
+```
+
+Olyan parancsok keresése, amelyek nevében szerepel az `Item`:
+
+```powershell
+Get-Command *Item*
+```
+
+Olyan parancsok keresése, amelyek `Get` igével kezdődnek:
+
+```powershell
+Get-Command Get-*
+```
+
+Csak cmdletek keresése:
+
+```powershell
+Get-Command -CommandType Cmdlet
+```
+
+Példa `Item`-alapú parancsokra:
+
+```powershell
+Get-Command *Item*
+```
+
+Lehetséges találatok:
+
+```text
+Get-Item
+Get-ChildItem
+New-Item
+Copy-Item
+Move-Item
+Rename-Item
+Remove-Item
+```
+
+A `Get-Command` parancs nem a használati leírást adja vissza, hanem az elérhető parancsokat keresi meg. Egy konkrét parancs részletes használatához a `Get-Help` használható.
+
+---
+
+## Parancs súgójának lekérése
+
+Egy PowerShell-parancsról a `Get-Help` ad részletesebb információt.
+
+```powershell
+Get-Help Get-ChildItem
+```
+
+Példák megjelenítése:
+
+```powershell
+Get-Help Get-ChildItem -Examples
+```
+
+Részletesebb leírás:
+
+```powershell
+Get-Help Get-ChildItem -Detailed
+```
+
+Teljes súgó:
+
+```powershell
+Get-Help Get-ChildItem -Full
+```
+
+A parancs szintaxisának lekérése:
+
+```powershell
+Get-Command Get-ChildItem -Syntax
+```
+
+Példa szintaxisrészlet:
+
+```text
+Get-ChildItem [[-Path] <string[]>] [-Filter <string>] [-Recurse] [-File]
+```
+
+A szintaxisrészlet értelmezése:
+
+| Jelölés | Jelentés |
+|---|---|
+| `[-Path]` | opcionális paraméter |
+| `<string[]>` | szöveges érték vagy szöveges értékek tömbje |
+| `[-Filter <string>]` | opcionális szűrési paraméter szöveges értékkel |
+| `[-Recurse]` | kapcsolóparaméter |
+| `[-File]` | kapcsolóparaméter |
+
+A szögletes zárójel általában opcionális elemet jelöl. A `<string>` szöveges értéket, a `<string[]>` pedig egy vagy több szöveges értéket jelent.
+
+---
+
+## Pozicionális paraméterek
+
+PowerShellben egyes paraméterek neve elhagyható, ha a rendszer a megadott érték helyzete alapján azonosítani tudja, hogy melyik paraméterhez tartozik.
+
+Teljes alak:
+
+```powershell
+Get-ChildItem -Path C:\Temp
+```
+
+Pozicionális alak:
+
+```powershell
+Get-ChildItem C:\Temp
+```
+
+Mindkét parancs a `C:\Temp` mappa tartalmát listázza.
+
+Másik példa:
+
+```powershell
+Copy-Item -Path .\adatok.txt -Destination C:\Temp
+```
+
+Pozicionális alakban:
+
+```powershell
+Copy-Item .\adatok.txt C:\Temp
+```
+
+A pozicionális paraméterezés rövidebb, de kevésbé egyértelmű. Szakmai dokumentációban és tanulási célú anyagban a névvel megadott paraméterek átláthatóbbak, mert pontosan látszik, hogy az adott érték melyik paraméterhez tartozik.
+
+---
+
+## Pipeline használata parancsok között
+
+A pipeline jele:
+
+```powershell
+|
+```
+
+A pipeline az egyik parancs kimenetét továbbadja a következő parancsnak.
+
+Példa:
+
+```powershell
+Get-Process | Sort-Object CPU
+```
+
+A parancs értelmezése:
+
+```text
+Get-Process       lekéri a folyamatokat
+Sort-Object CPU   CPU-használat szerint rendezi őket
+```
+
+Másik példa:
+
+```powershell
+Get-ChildItem -File | Select-Object Name, Length
+```
+
+A parancs értelmezése:
+
+```text
+Get-ChildItem -File          lekéri a fájlokat
+Select-Object Name, Length   csak a Name és Length tulajdonságokat választja ki
+```
+
+Több parancs összekapcsolása:
+
+```powershell
+Get-ChildItem -File |
+    Where-Object { $_.Length -gt 1MB } |
+    Sort-Object Length -Descending |
+    Select-Object Name, Length
+```
+
+A parancslánc értelmezése:
+
+```text
+1. Lekéri az aktuális mappa fájljait.
+2. Kiszűri az 1 MB-nál nagyobb fájlokat.
+3. Méret szerint csökkenő sorrendbe rendezi őket.
+4. Csak a nevüket és méretüket jeleníti meg.
+```
+
+A PowerShell pipeline-ja objektumokat ad tovább. Ezért a következő parancs nem egyszerű szövegsorokat kap, hanem olyan objektumokat, amelyeknek tulajdonságai és metódusai lehetnek.
+
+A `Where-Object` példában:
+
+```powershell
+Where-Object { $_.Length -gt 1MB }
+```
+
+a `$_` az aktuálisan feldolgozott objektumot jelöli, a `Length` pedig ennek az objektumnak a tulajdonsága.
+
+---
+
+## Parancs eredményének változóba mentése
+
+Egy parancs eredménye változóba menthető.
+
+```powershell
+$fajlok = Get-ChildItem
+```
+
+A változó tartalma ezután külön is felhasználható:
+
+```powershell
+$fajlok
+```
+
+Elemek száma:
+
+```powershell
+$fajlok.Count
+```
+
+Egy konkrét parancseredmény tulajdonságainak elérése:
+
+```powershell
+$fajl = Get-Item .\adatok.txt
+
+$fajl.Name
+$fajl.Length
+$fajl.FullName
+```
+
+Ebben az esetben a `$fajl` változó nem egyszerű szöveget tárol, hanem egy objektumot. Ezért lehet a változó után ponttal tulajdonságokra hivatkozni.
+
+```powershell
+$fajl.Name
+```
+
+A pont utáni rész az objektum egyik tulajdonsága vagy metódusa lehet.
+
+---
+
+## Parancsok futtatása scriptfájlból
+
+A PowerShell scriptfájl kiterjesztése:
+
+```text
+.ps1
+```
+
+Példa fájlnév:
+
+```text
+elso-script.ps1
+```
+
+Példa tartalom:
+
+```powershell
+Write-Host "Script indul"
+Get-Location
+Get-ChildItem
+```
+
+Script futtatása az aktuális mappából:
+
+```powershell
+.\elso-script.ps1
+```
+
+A `.\` az aktuális mappát jelöli. Ezzel egyértelműen megadjuk, hogy a futtatandó script az aktuális munkakönyvtárban található.
+
+Ez önmagában nem megfelelő forma:
+
+```powershell
+elso-script.ps1
+```
+
+Helyes forma:
+
+```powershell
+.\elso-script.ps1
+```
+
+A PowerShell biztonsági okokból nem futtat automatikusan az aktuális mappából származó scriptet pusztán a fájlnév megadásával. Az aktuális mappára való hivatkozást külön meg kell adni.
+
+---
+
+## Gyakori kezdő parancsok
+
+| Parancs | Jelentés |
+|---|---|
+| `Get-Location` | aktuális hely lekérdezése |
+| `Set-Location` | mappaváltás |
+| `Get-ChildItem` | tároló alatti elemek listázása |
+| `Get-Item` | konkrét elem lekérdezése |
+| `New-Item` | új elem létrehozása |
+| `Copy-Item` | elem másolása |
+| `Move-Item` | elem mozgatása |
+| `Rename-Item` | elem átnevezése |
+| `Remove-Item` | elem eltávolítása |
+| `Get-Content` | tartalom beolvasása |
+| `Set-Content` | tartalom beállítása vagy felülírása |
+| `Add-Content` | tartalom hozzáfűzése |
+| `Test-Path` | útvonal létezésének ellenőrzése |
+| `Get-Command` | parancs keresése |
+| `Get-Help` | parancssúgó lekérése |
+| `Get-Alias` | alias lekérdezése |
+
+---
+
+## Példák parancsokra
+
+Aktuális hely lekérdezése:
+
+```powershell
+Get-Location
+```
+
+Tároló alatti elemek listázása:
+
+```powershell
+Get-ChildItem
+```
+
+Új mappa létrehozása:
+
+```powershell
+New-Item -ItemType Directory -Name gyakorlat
+```
+
+Új fájl létrehozása:
+
+```powershell
+New-Item -ItemType File -Name adatok.txt
+```
+
+Fájl tartalmának beírása:
+
+```powershell
+Set-Content -Path .\adatok.txt -Value "Első sor"
+```
+
+Tartalom hozzáfűzése:
+
+```powershell
+Add-Content -Path .\adatok.txt -Value "Második sor"
+```
+
+Fájl tartalmának kiolvasása:
+
+```powershell
+Get-Content -Path .\adatok.txt
+```
+
+Fájl másolása:
+
+```powershell
+Copy-Item -Path .\adatok.txt -Destination .\masolat.txt
+```
+
+Fájl átnevezése:
+
+```powershell
+Rename-Item -Path .\masolat.txt -NewName archiv.txt
+```
+
+Fájl törlése:
+
+```powershell
+Remove-Item -Path .\archiv.txt
+```
+
+A példákban szereplő `-Path`, `-Destination`, `-Name`, `-Value` és `-NewName` paraméterek megadják, hogy a parancs milyen útvonalon, milyen névvel vagy milyen értékkel dolgozzon.
+

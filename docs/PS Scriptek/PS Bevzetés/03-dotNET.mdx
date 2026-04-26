@@ -1,0 +1,369 @@
+---
+title: A .NET szerepe a PowerShell mögött
+sidebar_position: 3
+description: Rövid bevezető a .NET fogalmába és abba, hogyan kapcsolódik a PowerShell objektumalapú működéséhez
+---
+
+# A .NET szerepe a PowerShell mögött
+
+A **.NET** egy Microsoft által fejlesztett fejlesztői platform. Arra szolgál, hogy különböző típusú programokat lehessen készíteni, futtatni és karbantartani.
+
+A .NET nem egyetlen program, hanem egy nagyobb fejlesztői környezet, amely több részből áll.
+
+```text
+.NET =
+    futtatókörnyezet
+    osztálykönyvtárak
+    fejlesztői eszközök
+    több programozási nyelv támogatása
+```
+
+:::info Áttekintés
+A .NET általános fejlesztői platform.
+
+Nem kizárólag a PowerShellhez tartozik, hanem sokféle alkalmazás készítéséhez használható.  
+A PowerShell azért fontos ebben a témában, mert a működése szorosan kapcsolódik a .NET objektumaihoz.
+:::
+
+## Mire használható a .NET?
+
+.NET segítségével többféle programtípus készíthető.
+
+Például:
+
+```text
+asztali alkalmazás
+webalkalmazás
+REST API
+szerveroldali program
+mobilalkalmazás
+felhős szolgáltatás
+háttérben futó szolgáltatás
+parancssori program
+```
+
+Ezért nem pontos úgy gondolni rá, hogy:
+
+```text
+PowerShell használ .NET-et, ezért .NET = PowerShell háttércucc
+```
+
+Pontosabban:
+
+```text
+A .NET egy általános fejlesztői platform.
+A PowerShell a .NET lehetőségeire épít.
+```
+
+:::note
+A PowerShell szempontjából a .NET azért fontos, mert a PowerShell-parancsok kimenete sok esetben .NET-objektumként jelenik meg.
+:::
+
+## A .NET fő részei
+
+A .NET több összetevőből áll. Ebben a tananyagban ezek közül három fontos:
+
+```text
+futtatókörnyezet
+osztálykönyvtárak
+fejlesztői eszközök
+```
+
+## 1. Futtatókörnyezet
+
+A **.NET Runtime** feladata a .NET-re készült programok futtatása.
+
+Ha például egy program C# nyelven készül, akkor a forráskódot előbb le kell fordítani. A lefordított program futtatásában a .NET futtatókörnyezet vesz részt.
+
+Egyszerűsítve:
+
+```text
+C# forráskód
+   ↓
+.NET-re fordított program
+   ↓
+.NET Runtime futtatja
+   ↓
+az operációs rendszer végrehajtja
+```
+
+Ez a leírás egyszerűsített, de szemlélteti a lényeget: a .NET nemcsak könyvtárakat ad, hanem futtatási környezetet is biztosít.
+
+<details>
+<summary>Miért csak egyszerűsített ez az ábra?</summary>
+
+A valós működés ennél részletesebb. A .NET-es programok fordítása és futtatása során szerepet kaphat köztes kód, futás közbeni fordítás és több más technikai elem is.
+
+Ebben a bevezetőben viszont nem ezek részletes működése a cél, hanem annak megértése, hogy a .NET egy futtatási környezetet is biztosít a rá épülő programok számára.
+
+</details>
+
+## 2. Osztálykönyvtárak
+
+A .NET sok előre elkészített típust és osztályt biztosít. Ezeket nevezzük osztálykönyvtáraknak.
+
+Ezek olyan kész építőelemek, amelyeket a fejlesztők és a PowerShell is használni tudnak.
+
+Példák fájlok és mappák kezeléséhez:
+
+```text
+System.IO.File
+System.IO.FileInfo
+System.IO.Directory
+System.IO.DirectoryInfo
+```
+
+Példa dátumok kezeléséhez:
+
+```text
+System.DateTime
+```
+
+Példa folyamatok kezeléséhez:
+
+```text
+System.Diagnostics.Process
+```
+
+Példa szövegek kezeléséhez:
+
+```text
+System.String
+```
+
+Példa listák kezeléséhez:
+
+```text
+System.Collections.Generic.List
+```
+
+:::info Fontos
+Ezek nem PowerShell-specifikus elemek.
+
+Ezek .NET-típusok, amelyeket a PowerShell is képes használni.
+:::
+
+## 3. Fejlesztői eszközök
+
+A .NET-hez fejlesztői eszközök is tartoznak. Ezek segítenek programokat létrehozni, fordítani, futtatni és karbantartani.
+
+Ilyen eszköz lehet például:
+
+```text
+.NET SDK
+fordító
+parancssori fejlesztői eszközök
+fejlesztőkörnyezetek támogatása
+```
+
+PowerShell-tananyag szempontjából ezek részletes használata most nem cél. Itt az a lényeg, hogy a .NET nem csak futtatókörnyezet, hanem teljes fejlesztői platform.
+
+## Hogyan kapcsolódik a .NET a PowerShellhez?
+
+A PowerShell .NET-alapokra épül. Ezért amikor PowerShellben dolgozunk, gyakran .NET-objektumokkal találkozunk.
+
+Példa:
+
+```powershell
+$file = Get-Item .\adatok.txt
+$file.GetType().FullName
+```
+
+A visszaadott eredmény például ez lehet:
+
+```text
+System.IO.FileInfo
+```
+
+Ez azt jelenti, hogy a `Get-Item` parancs nem egyszerű szöveget adott vissza, hanem egy fájlt leíró .NET-objektumot.
+
+Objektumszerűen elképzelve:
+
+```text
+[System.IO.FileInfo] {
+    Name          = "adatok.txt"
+    FullName      = "C:\munka\adatok.txt"
+    Length        = 2450
+    Extension     = ".txt"
+    LastWriteTime = "2026.04.26. 10:15:00"
+}
+```
+
+Ezért működhetnek például az alábbi hivatkozások:
+
+```powershell
+$file.Name
+$file.Length
+$file.Extension
+```
+
+A `Name`, a `Length` és az `Extension` nem véletlenszerű szövegrészek, hanem az objektum tulajdonságai.
+
+:::note
+A PowerShellben a képernyőn megjelenő táblázat sokszor csak az objektumok megjelenített formája.
+
+A háttérben továbbra is tulajdonságokkal és metódusokkal rendelkező objektumokkal dolgozunk.
+:::
+
+## Példa: folyamatok objektumként
+
+A `Get-Process` parancs lekéri a futó folyamatokat.
+
+```powershell
+Get-Process
+```
+
+A parancs kimenete nem egyszerű szöveglista, hanem folyamatobjektumok gyűjteménye.
+
+Egy folyamat objektumszerűen például így képzelhető el:
+
+```text
+[System.Diagnostics.Process] {
+    ProcessName = "chrome"
+    Id          = 12480
+    CPU         = 35.42
+    WorkingSet  = 245366784
+}
+```
+
+Ezért írható például ilyen parancs:
+
+```powershell
+Get-Process | Where-Object { $_.CPU -gt 10 }
+```
+
+Ebben a példában a `CPU` nem egy szövegoszlop neve.  
+A `CPU` a folyamatobjektum egyik tulajdonsága.
+
+<details>
+<summary>Mit jelent itt a $_?</summary>
+
+A `$_` az aktuálisan feldolgozott objektumot jelenti.
+
+Ebben a példában a `Where-Object` egyesével megkapja a `Get-Process` által visszaadott folyamatobjektumokat.
+
+```powershell
+Get-Process | Where-Object { $_.CPU -gt 10 }
+```
+
+A feltétel jelentése:
+
+```text
+azok a folyamatok kellenek,
+amelyeknél az aktuális objektum CPU tulajdonsága nagyobb, mint 10
+```
+
+</details>
+
+## .NET-típusok közvetlen használata PowerShellből
+
+PowerShellből közvetlenül is elérhetők bizonyos .NET-osztályok és típusaik.
+
+Példa az aktuális dátum és idő lekérésére:
+
+```powershell
+[DateTime]::Now
+```
+
+Ez a .NET `System.DateTime` típusát használja.
+
+Példa matematikai kerekítésre:
+
+```powershell
+[Math]::Round(3.14159, 2)
+```
+
+Eredmény:
+
+```text
+3.14
+```
+
+Itt a `[Math]` a .NET `System.Math` osztályára utal.
+
+Példa egyedi azonosító létrehozására:
+
+```powershell
+[Guid]::NewGuid()
+```
+
+Ez szintén egy .NET-típus használata PowerShellből.
+
+:::info Szintaxis
+A PowerShellben a szögletes zárójeles forma gyakran típust jelöl.
+
+Például:
+
+```powershell
+[DateTime]
+[Math]
+[Guid]
+```
+
+Ezek .NET-típusokra hivatkoznak.
+:::
+
+## PowerShell és .NET objektumok
+
+A PowerShell objektumalapú működése szorosan kapcsolódik a .NET-hez.
+
+Példák:
+
+| PowerShell-parancs vagy érték | Lehetséges .NET-típus | Mit jelent? |
+|---|---|---|
+| `Get-Item .\adatok.txt` | `System.IO.FileInfo` | Egy fájlt leíró objektum |
+| `Get-Process` | `System.Diagnostics.Process` | Folyamatokat leíró objektumok |
+| `[DateTime]::Now` | `System.DateTime` | Dátumot és időt kezelő objektum |
+| `"szöveg"` | `System.String` | Szöveget reprezentáló objektum |
+
+Ez magyarázza, hogy PowerShellben miért lehet tulajdonságokra hivatkozni:
+
+```powershell
+$file.Name
+$file.Length
+```
+
+vagy metódusokat meghívni:
+
+```powershell
+"alma".ToUpper()
+```
+
+A `"alma".ToUpper()` eredménye:
+
+```text
+ALMA
+```
+
+Itt a `ToUpper()` a szövegobjektum egyik metódusa.
+
+## Miért fontos ez PowerShellben?
+
+Azért, mert PowerShellben sok parancs nem sima szöveget ad vissza, hanem objektumot.
+
+Ez a gyakorlatban azt jelenti, hogy az adatok pontosabban kezelhetők.
+
+Például egy fájlnál nem szövegből kell kinyerni a méretet vagy a kiterjesztést, hanem közvetlenül elérhető tulajdonságként:
+
+```powershell
+$file.Length
+$file.Extension
+```
+
+Egy folyamatnál nem szöveges oszlopokat kell értelmezni, hanem használhatók az objektum tulajdonságai:
+
+```powershell
+Get-Process | Where-Object { $_.ProcessName -eq "chrome" }
+```
+
+```powershell
+Get-Process | Where-Object { $_.CPU -gt 10 }
+```
+
+:::note
+Ez az egyik nagy különbség a PowerShell és a hagyományos szövegalapú parancssori feldolgozás között.
+
+A PowerShell a parancsok között nem pusztán szöveget, hanem objektumokat is tovább tud adni.
+:::
+
+

@@ -1,0 +1,3 @@
+$env:GIT_USER="csukardi"  
+npx docusaurus build
+npx docusaurus deploy

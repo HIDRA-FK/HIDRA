@@ -1,0 +1,721 @@
+---
+title: PowerShell bemenet és kimenet
+sidebar_position: 11
+description: Adatok beolvasása, kiírása, szövegbe illesztése, típuskonverzió és a konzolos kimenet kezelése PowerShellben
+---
+
+# PowerShell – Bemenet és kimenet
+
+## Bemenet és kimenet fogalma
+
+A **bemenet** olyan adat, amelyet a script vagy parancs felhasznál a működése során. Ez érkezhet például felhasználói beírásból, változóból, fájlból vagy egy másik parancs kimenetéből.
+
+A **kimenet** olyan adat, amelyet a parancs vagy script visszaad, megjelenít, továbbít vagy eltárolhatóvá tesz.
+
+PowerShellben fontos különbséget tenni aközött, hogy egy parancs:
+
+```text
+megjelenít valamit a konzolon
+vagy
+továbbadható kimenetet állít elő
+```
+
+Ez a különbség főleg a `Write-Host` és a `Write-Output` használatánál lényeges.
+
+---
+
+## Konzolra írás: Write-Host
+
+A `Write-Host` közvetlenül a konzolos felületre ír ki szöveget.
+
+```powershell
+Write-Host "PowerShell script indul"
+```
+
+Kimenet:
+
+```text
+PowerShell script indul
+```
+
+Változó kiírása:
+
+```powershell
+$nev = "Anna"
+
+Write-Host $nev
+```
+
+Kimenet:
+
+```text
+Anna
+```
+
+Több érték kiírása:
+
+```powershell
+$nev = "Anna"
+$kor = 18
+
+Write-Host "Név:" $nev
+Write-Host "Életkor:" $kor
+```
+
+Kimenet:
+
+```text
+Név: Anna
+Életkor: 18
+```
+
+A `Write-Host` elsődlegesen embernek szánt konzolos üzenetekhez használható, például státuszüzenetekhez, tájékoztatáshoz vagy egyszerű gyakorlófeladatok kiírásához.
+
+```powershell
+Write-Host "Adatok feldolgozása folyamatban..."
+```
+
+---
+
+## Kimenet továbbadása: Write-Output
+
+A `Write-Output` kimenetet küld a PowerShell pipeline-ba.
+
+```powershell
+Write-Output "PowerShell"
+```
+
+Konzolon ez ugyanúgy megjelenhet:
+
+```text
+PowerShell
+```
+
+A lényegi különbség az, hogy a `Write-Output` által visszaadott érték továbbadható más parancsnak, eltárolható változóban, vagy feldolgozható pipeline-on keresztül.
+
+Példa változóba mentésre:
+
+```powershell
+$eredmeny = Write-Output "PowerShell"
+
+Write-Host $eredmeny
+```
+
+Kimenet:
+
+```text
+PowerShell
+```
+
+Pipeline példa:
+
+```powershell
+Write-Output "PowerShell" | ForEach-Object { $_.ToUpper() }
+```
+
+Kimenet:
+
+```text
+POWERSHELL
+```
+
+A `Write-Output` tehát nem egyszerűen kiír valamit, hanem kimeneti objektumot ad tovább.
+
+---
+
+## Write-Host és Write-Output különbsége
+
+| Parancs | Szerep |
+|---|---|
+| `Write-Host` | közvetlen konzolos megjelenítés |
+| `Write-Output` | kimenet küldése a pipeline-ba |
+
+Példa `Write-Host` használatára:
+
+```powershell
+Write-Host "Ez egy konzolos üzenet."
+```
+
+Példa `Write-Output` használatára:
+
+```powershell
+Write-Output "Ez feldolgozható kimenet."
+```
+
+A különbség akkor látszik jobban, ha a kimenetet változóba mentjük.
+
+```powershell
+$adat = Write-Output "Anna"
+Write-Host "Mentett érték: $adat"
+```
+
+Kimenet:
+
+```text
+Mentett érték: Anna
+```
+
+A `Write-Host` ezzel szemben nem általános adatátadásra való.
+
+```powershell
+$adat = Write-Host "Anna"
+Write-Host "Mentett érték: $adat"
+```
+
+A `Write-Host` által kiírt szöveg megjelenik a konzolon, de nem úgy viselkedik, mint egy feldolgozásra szánt parancskimenet.
+
+:::note
+Gyakorlófeladatoknál a `Write-Host` megfelelő lehet egyszerű kiírásra.
+
+Scriptlogikában, ahol az eredményt tovább kell adni, változóba kell menteni vagy pipeline-ban kell feldolgozni, a `Write-Output` vagy a közvetlen objektum-visszaadás szakmailag pontosabb.
+:::
+
+---
+
+## Implicit kimenet
+
+PowerShellben nem mindig szükséges `Write-Output` parancsot írni. Ha egy kifejezés önmagában áll, az eredménye kimenetre kerülhet.
+
+```powershell
+"PowerShell"
+```
+
+Kimenet:
+
+```text
+PowerShell
+```
+
+Változó kiírása:
+
+```powershell
+$nev = "Anna"
+
+$nev
+```
+
+Kimenet:
+
+```text
+Anna
+```
+
+Parancs eredménye:
+
+```powershell
+Get-Date
+```
+
+A `Get-Date` objektumot ad vissza, amelyet a PowerShell megjelenít a konzolon.
+
+Ezért a következő két forma egyszerű esetben hasonló eredményt adhat:
+
+```powershell
+Write-Output $nev
+```
+
+```powershell
+$nev
+```
+
+A különbség inkább összetettebb scripteknél és pipeline-használatnál válik fontossá.
+
+---
+
+## Felhasználói bemenet: Read-Host
+
+Felhasználói adat bekérésére a `Read-Host` használható.
+
+```powershell
+$nev = Read-Host "Add meg a neved"
+
+Write-Host "Szia, $nev!"
+```
+
+Példa futás:
+
+```text
+Add meg a neved: Anna
+Szia, Anna!
+```
+
+A `Read-Host` mindig szöveget ad vissza.
+
+```powershell
+$kor = Read-Host "Add meg az életkorod"
+
+$kor.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+String
+```
+
+Ez akkor is igaz, ha a felhasználó számot ír be.
+
+```powershell
+$kor = Read-Host "Add meg az életkorod"
+```
+
+Ha a felhasználó ezt írja be:
+
+```text
+18
+```
+
+a `$kor` változó értéke szövegként érkezik, nem egész számként.
+
+---
+
+## Read-Host eredményének konvertálása
+
+Ha a beolvasott értékkel számolni kell, típuskonverzió szükséges.
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+
+Write-Host "Jövőre ennyi éves leszel: $($kor + 1)"
+```
+
+Példa futás:
+
+```text
+Add meg az életkorod: 18
+Jövőre ennyi éves leszel: 19
+```
+
+Ha nincs konverzió, a beolvasott érték szövegként viselkedik.
+
+```powershell
+$kor = Read-Host "Add meg az életkorod"
+
+Write-Host ($kor + 1)
+```
+
+Ha a felhasználó `18` értéket ír be, az eredmény lehet:
+
+```text
+181
+```
+
+Ez azért történik, mert a `+` operátor szövegek esetén összefűzést is végezhet.
+
+Helyes számítás:
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+
+Write-Host ($kor + 1)
+```
+
+Eredmény:
+
+```text
+19
+```
+
+---
+
+## Ellenőrzött számbeolvasás
+
+A közvetlen típuskényszerítés hibát okozhat, ha a felhasználó nem számot ír be.
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+```
+
+Ha a felhasználó például ezt írja be:
+
+```text
+alma
+```
+
+akkor a konverzió hibát eredményez.
+
+Biztonságosabb megoldás a `TryParse()` használata.
+
+```powershell
+$bemenet = Read-Host "Add meg az életkorod"
+
+if ([int]::TryParse($bemenet, [ref]$kor)) {
+    Write-Host "Jövőre ennyi éves leszel: $($kor + 1)"
+}
+else {
+    Write-Host "Nem érvényes egész számot adtál meg."
+}
+```
+
+A `TryParse()` logikai értékkel jelzi, hogy sikerült-e az átalakítás.
+
+```text
+sikeres konverzió      True
+sikertelen konverzió   False
+```
+
+Siker esetén a konvertált szám a `[ref]$kor` változóba kerül.
+
+---
+
+## Szövegbe illesztés változóval
+
+Dupla idézőjeles szövegben a változó értéke behelyettesítődik.
+
+```powershell
+$nev = "Anna"
+
+Write-Host "A tanuló neve: $nev"
+```
+
+Kimenet:
+
+```text
+A tanuló neve: Anna
+```
+
+Egyszeres idézőjel esetén nincs behelyettesítés.
+
+```powershell
+$nev = "Anna"
+
+Write-Host 'A tanuló neve: $nev'
+```
+
+Kimenet:
+
+```text
+A tanuló neve: $nev
+```
+
+| Írásmód | Jelentés |
+|---|---|
+| `"..."` | változóbehelyettesítést végez |
+| `'...'` | szó szerint kezeli a tartalmat |
+
+---
+
+## Kifejezés beillesztése szövegbe
+
+Ha nem egyszerű változót, hanem kifejezést kell beilleszteni, a `$()` forma használható.
+
+```powershell
+$kor = 17
+
+Write-Host "Jövőre ennyi éves lesz: $($kor + 1)"
+```
+
+Kimenet:
+
+```text
+Jövőre ennyi éves lesz: 18
+```
+
+Tulajdonság beillesztésekor is a `$()` forma a pontosabb megoldás.
+
+```powershell
+$fajl = Get-Item .\adatok.txt
+
+Write-Host "Fájlnév: $($fajl.Name)"
+Write-Host "Méret: $($fajl.Length) bájt"
+```
+
+Ha ezt írjuk:
+
+```powershell
+Write-Host "Fájlnév: $fajl.Name"
+```
+
+akkor a PowerShell nem a `Name` tulajdonság értékét illeszti be úgy, ahogy a legtöbb esetben várnánk. Objektumtulajdonság vagy számítás beillesztéséhez a `$()` forma használata egyértelműbb.
+
+---
+
+## Több érték kiírása
+
+Több változó értéke külön sorban is kiírható.
+
+```powershell
+$nev = "Anna"
+$kor = 18
+$osztaly = "13A"
+
+Write-Host "Név: $nev"
+Write-Host "Életkor: $kor"
+Write-Host "Osztály: $osztaly"
+```
+
+Kimenet:
+
+```text
+Név: Anna
+Életkor: 18
+Osztály: 13A
+```
+
+Egy sorba szerkesztve:
+
+```powershell
+Write-Host "Név: $nev, életkor: $kor, osztály: $osztaly"
+```
+
+Kimenet:
+
+```text
+Név: Anna, életkor: 18, osztály: 13A
+```
+
+Formázott szöveg `-f` operátorral:
+
+```powershell
+$nev = "Anna"
+$kor = 18
+
+$szoveg = "Név: {0}, életkor: {1}" -f $nev, $kor
+
+Write-Host $szoveg
+```
+
+Kimenet:
+
+```text
+Név: Anna, életkor: 18
+```
+
+A `{0}` az első, a `{1}` a második behelyettesített értékre hivatkozik.
+
+---
+
+## Objektum kiírása
+
+PowerShellben sok parancs objektumokat ad vissza. Ezek megjelenítésekor a PowerShell formázott nézetet készít.
+
+```powershell
+Get-Process
+```
+
+A kimenet táblázatos formában jelenhet meg, de a háttérben nem egyszerű szöveglistáról van szó, hanem folyamatobjektumokról.
+
+Csak bizonyos tulajdonságok megjelenítése:
+
+```powershell
+Get-Process | Select-Object ProcessName, Id, CPU
+```
+
+Fájlobjektum példája:
+
+```powershell
+$fajl = Get-Item .\adatok.txt
+
+Write-Output $fajl
+```
+
+Tulajdonságok célzott kiírása:
+
+```powershell
+Write-Host "Név: $($fajl.Name)"
+Write-Host "Méret: $($fajl.Length)"
+Write-Host "Teljes útvonal: $($fajl.FullName)"
+```
+
+Objektumoknál szakmailag gyakran jobb tulajdonságokat kiválasztani, mint a teljes objektumot formázatlanul kiírni.
+
+---
+
+## Kimenet formázása
+
+A `Format-Table` táblázatos megjelenítést készít.
+
+```powershell
+Get-Process | Format-Table ProcessName, Id, CPU
+```
+
+A `Format-List` listás megjelenítést készít.
+
+```powershell
+Get-Process | Select-Object -First 1 | Format-List *
+```
+
+:::warning
+A `Format-Table` és `Format-List` megjelenítésre való. Ezeket általában a pipeline végén célszerű használni.
+
+Ha az adatokat még tovább kell szűrni, rendezni vagy exportálni, előbb a feldolgozó parancsokat kell alkalmazni, és csak a végén érdemes formázni.
+:::
+
+Példa megfelelő sorrendre:
+
+```powershell
+Get-Process |
+    Where-Object { $_.CPU -gt 10 } |
+    Sort-Object CPU -Descending |
+    Select-Object ProcessName, Id, CPU |
+    Format-Table
+```
+
+---
+
+## Kimenet mentése fájlba
+
+A kimenet fájlba is menthető.
+
+Egyszerű szöveg fájlba írása:
+
+```powershell
+"Első sor" | Set-Content -Path .\naplo.txt
+```
+
+Tartalom hozzáfűzése:
+
+```powershell
+"Második sor" | Add-Content -Path .\naplo.txt
+```
+
+Parancs kimenetének mentése:
+
+```powershell
+Get-Process | Out-File -FilePath .\folyamatok.txt
+```
+
+Rövidebb átirányítás:
+
+```powershell
+Get-Process > .\folyamatok.txt
+```
+
+Hozzáfűzés átirányítással:
+
+```powershell
+Get-Date >> .\naplo.txt
+```
+
+| Forma | Jelentés |
+|---|---|
+| `>` | fájlba ír, a meglévő tartalmat felülírja |
+| `>>` | fájlhoz hozzáfűz |
+
+A `Set-Content` és az `Add-Content` tartalomírásra használható. Az `Out-File` parancskimenet fájlba irányítására alkalmas.
+
+---
+
+## Kimenet elnyelése
+
+Ha egy parancs kimenetére nincs szükség, az elnyelhető.
+
+```powershell
+Get-Process | Out-Null
+```
+
+Másik forma:
+
+```powershell
+$result = Get-Process
+```
+
+Ebben az esetben a kimenet nem jelenik meg közvetlenül, hanem változóba kerül.
+
+A `$null` értéknek is adható kimenet:
+
+```powershell
+$null = Get-Process
+```
+
+Az `Out-Null` olvashatóbb, ha kifejezetten a kimenet eldobása a cél.
+
+---
+
+## Hibák és figyelmeztetések kiírása
+
+PowerShellben nem minden kimenet azonos célú. A normál kimenet mellett léteznek külön figyelmeztető és hibaüzenetek is.
+
+Figyelmeztetés:
+
+```powershell
+Write-Warning "Ez egy figyelmeztetés."
+```
+
+Hibaüzenet:
+
+```powershell
+Write-Error "Ez egy hibaüzenet."
+```
+
+Információs üzenet:
+
+```powershell
+Write-Information "Információs üzenet"
+```
+
+Verbose üzenet:
+
+```powershell
+Write-Verbose "Részletes naplóüzenet"
+```
+
+A `Write-Verbose` alapértelmezetten nem mindig jelenik meg. Megjelenítéséhez gyakran a `-Verbose` kapcsolót kell használni a megfelelő parancs vagy script esetén.
+
+Egyszerű tanulói scriptekben általában a `Write-Host` és a `Write-Output` elegendő, de szakmai környezetben fontos tudni, hogy a PowerShell több kimeneti csatornát kezel.
+
+---
+
+## Gyakorlati példa
+
+```powershell
+$nev = Read-Host "Add meg a neved"
+$korBemenet = Read-Host "Add meg az életkorod"
+
+if ([int]::TryParse($korBemenet, [ref]$kor)) {
+    Write-Host "Név: $nev"
+    Write-Host "Életkor: $kor"
+    Write-Host "Jövőre ennyi éves leszel: $($kor + 1)"
+}
+else {
+    Write-Host "A megadott életkor nem érvényes egész szám."
+}
+```
+
+A példa:
+
+```text
+bekér egy nevet,
+bekér egy életkort,
+ellenőrzi, hogy az életkor egész számmá alakítható-e,
+sikeres konverzió esetén számítást végez,
+hibás bemenet esetén hibaüzenetet ír ki.
+```
+
+---
+
+## Összefoglalás
+
+| Parancs vagy forma | Jelentés |
+|---|---|
+| `Read-Host` | felhasználói bemenet beolvasása |
+| `Write-Host` | közvetlen konzolos kiírás |
+| `Write-Output` | kimenet küldése a pipeline-ba |
+| `Write-Warning` | figyelmeztetés kiírása |
+| `Write-Error` | hibaüzenet kiírása |
+| `Write-Verbose` | részletes futási üzenet |
+| `Set-Content` | tartalom fájlba írása, felülírással |
+| `Add-Content` | tartalom hozzáfűzése fájlhoz |
+| `Out-File` | parancskimenet fájlba írása |
+| `Out-Null` | kimenet elnyelése |
+| `>` | kimenet fájlba irányítása felülírással |
+| `>>` | kimenet fájlba irányítása hozzáfűzéssel |
+
+A `Read-Host` eredménye mindig szöveg, ezért numerikus számításhoz konverzió szükséges.
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+```
+
+Biztonságosabb ellenőrzéssel:
+
+```powershell
+[int]::TryParse($bemenet, [ref]$kor)
+```
+
+A `Write-Host` megjelenítésre használható, a `Write-Output` pedig feldolgozható kimenetet ad tovább.
+
+```powershell
+Write-Host "Konzolos üzenet"
+Write-Output "Pipeline-ba küldött érték"
+```

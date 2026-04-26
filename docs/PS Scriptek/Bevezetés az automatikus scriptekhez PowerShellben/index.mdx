@@ -1,0 +1,104 @@
+---
+title: Bevezetés a rendszerüzemeltetésbe PowerShell segítségével
+description: A PowerShell rendszerüzemeltetési célú használatának áttekintése
+---
+
+# Bevezetés a rendszerüzemeltetésbe PowerShell segítségével
+
+Ez a fejezet a PowerShell rendszerüzemeltetési célú használatát vezeti be. A témakör középpontjában azok a feladatok állnak, amelyek egy Windows alapú rendszer állapotának lekérdezéséhez, ellenőrzéséhez és kezeléséhez kapcsolódnak.
+
+A fejezet nem általános PowerShell-szintaxist ismétel, hanem azt mutatja meg, hogyan használhatók a korábban megismert parancsok, változók, pipeline-műveletek és objektumok rendszeradminisztrációs környezetben.
+
+:::info Hamarosan
+A fejezet anyagai fokozatosan kerülnek feltöltésre.  
+A későbbi leckékben konkrét rendszerüzemeltetési feladatok PowerShell-alapú megoldása szerepel majd.
+:::
+
+## Várható témakörök
+
+A fejezetben többek között az alábbi területek jelennek meg:
+
+```text
+rendszerinformációk lekérdezése
+felhasználók kezelése
+helyi csoportok kezelése
+csoporttagságok vizsgálata
+jogosultságok lekérdezése
+fájl- és mappajogosultságok kezelése
+folyamatok vizsgálata
+szolgáltatások kezelése
+eseménynaplók alapvető lekérdezése
+hálózati információk lekérdezése
+rendszerállapot ellenőrzése
+````
+
+## Felhasználók és csoportok kezelése
+
+A rendszerüzemeltetés egyik alapvető területe a felhasználói fiókok és csoportok kezelése.
+
+A későbbi leckékben szó lesz például arról, hogyan lehet:
+
+```text
+helyi felhasználókat lekérdezni
+új felhasználót létrehozni
+felhasználói adatokat módosítani
+felhasználót letiltani vagy engedélyezni
+helyi csoportokat lekérdezni
+csoporttagságokat ellenőrizni
+felhasználót csoporthoz rendelni
+felhasználót csoportból eltávolítani
+```
+
+Ezek a műveletek azért fontosak, mert a felhasználók és csoportok határozzák meg, hogy egy adott rendszerben ki milyen jogosultsággal rendelkezik.
+
+## Jogosultságok és hozzáférések
+
+A jogosultságkezelés során azt vizsgáljuk, hogy egy felhasználó vagy csoport milyen műveleteket hajthat végre egy adott fájlon, mappán vagy rendszerelemen.
+
+A fejezetben később előkerülnek például az alábbi témák:
+
+```text
+fájl- és mappajogosultságok lekérdezése
+hozzáférési szabályok értelmezése
+öröklött jogosultságok vizsgálata
+hozzáférések módosítása
+jogosultsági hibák felismerése
+```
+
+A cél az, hogy a jogosultságok ne csak grafikus felületen, hanem PowerShell segítségével is ellenőrizhetők és értelmezhetők legyenek.
+
+## Folyamatok és szolgáltatások
+
+A rendszer működésének vizsgálatához szükséges a futó folyamatok és szolgáltatások lekérdezése.
+
+A fejezetben szerepelni fognak például ilyen műveletek:
+
+```text
+futó folyamatok listázása
+folyamatok szűrése név vagy erőforrás-használat alapján
+folyamat leállítása
+szolgáltatások listázása
+szolgáltatás állapotának ellenőrzése
+szolgáltatás indítása
+szolgáltatás leállítása
+szolgáltatás újraindítása
+```
+
+Ezek a műveletek gyakoriak hibakeresésnél, karbantartásnál és alapvető rendszerfelügyeleti feladatoknál.
+
+## Rendszerinformációk lekérdezése
+
+A rendszerüzemeltetés során rendszeresen szükség lehet a gép állapotának és beállításainak lekérdezésére.
+
+A későbbi anyagokban ilyen témák is megjelennek:
+
+```text
+operációs rendszer adatainak lekérdezése
+gépnév és felhasználói környezet vizsgálata
+hálózati beállítások lekérdezése
+IP-címek és adapterek vizsgálata
+lemezterület ellenőrzése
+rendszeridő és környezeti változók lekérdezése
+```
+
+A PowerShell ebben a témakörben nemcsak kézi lekérdezésre használható, hanem későbbi automatizált ellenőrzések alapja is lehet.

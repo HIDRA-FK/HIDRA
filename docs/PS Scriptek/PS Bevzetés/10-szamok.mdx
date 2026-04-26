@@ -1,0 +1,812 @@
+---
+title: PowerShell szám típusok
+sidebar_position: 10
+description: Számértékek, egész számok, lebegőpontos számok, decimális számok, típuskonverzió és numerikus műveletek PowerShellben
+---
+
+# PowerShell – Szám típusok
+
+## Számértékek PowerShellben
+
+PowerShellben a számértékek mögött .NET-típusok állnak. Egy szám nem csak karakterek sorozata, hanem konkrét numerikus típusú érték.
+
+Példák:
+
+```powershell
+$egesz = 42
+$tort = 3.14
+$nagySzam = 3000000000
+```
+
+Típus lekérdezése:
+
+```powershell
+$egesz.GetType().FullName
+$tort.GetType().FullName
+$nagySzam.GetType().FullName
+```
+
+Lehetséges eredmény:
+
+```text
+System.Int32
+System.Double
+System.Int64
+```
+
+A PowerShell az érték alapján automatikusan választ típust. Kisebb egész számnál gyakran `Int32`, nagyobb egész számnál `Int64`, tört számnál pedig jellemzően `Double` típust használ.
+
+---
+
+## Gyakori numerikus típusok
+
+| Típus | Rövid alak PowerShellben | Jelentés |
+|---|---|---|
+| `System.Int32` | `[int]` | 32 bites egész szám |
+| `System.Int64` | `[long]` | 64 bites egész szám |
+| `System.Double` | `[double]` | lebegőpontos tört szám |
+| `System.Decimal` | `[decimal]` | nagyobb pontosságú decimális szám |
+| `System.Byte` | `[byte]` | 0 és 255 közötti egész szám |
+
+Példák:
+
+```powershell
+[int]$kor = 18
+[long]$nagySzam = 3000000000
+[double]$atlag = 4.75
+[decimal]$ar = 1999.99
+[byte]$pont = 255
+```
+
+Típusok lekérdezése:
+
+```powershell
+$kor.GetType().Name
+$nagySzam.GetType().Name
+$atlag.GetType().Name
+$ar.GetType().Name
+$pont.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+Int32
+Int64
+Double
+Decimal
+Byte
+```
+
+---
+
+## Egész számok
+
+Egész számok esetén nincs tizedesrész.
+
+```powershell
+$db = 10
+$kor = 18
+$pontszam = 95
+```
+
+Típus lekérdezése:
+
+```powershell
+$db.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+Int32
+```
+
+Az `Int32` korlátozott tartományú egész szám. Ha az érték túl nagy lenne `Int32` típushoz, a PowerShell nagyobb típust választ vagy hibát jelezhet, ha a típust előre rögzítettük.
+
+```powershell
+[int]$ertek = 3000000000
+```
+
+Ez hibát eredményezhet, mert a megadott érték kívül esik az `Int32` tartományán.
+
+Nagyobb egész számhoz használható a `[long]` típus:
+
+```powershell
+[long]$ertek = 3000000000
+```
+
+---
+
+## Tört számok
+
+Tört számoknál a PowerShell gyakran `Double` típust használ.
+
+```powershell
+$atlag = 4.52
+
+$atlag.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+Double
+```
+
+A `Double` lebegőpontos számábrázolást használ. Ez általános számításokra megfelelő, de bizonyos decimális értékek nem mindig ábrázolhatók pontosan bináris lebegőpontos formában.
+
+Példa:
+
+```powershell
+$ertek = 0.1 + 0.2
+Write-Host $ertek
+```
+
+Az eredmény megjelenítése környezettől és formázástól függően eltérhet attól, amit fejben decimális számként várnánk.
+
+Pénzügyi vagy árakkal kapcsolatos számításokhoz célszerűbb lehet a `Decimal` típus.
+
+---
+
+## Decimal típus
+
+A `Decimal` nagyobb pontosságú decimális számábrázolást ad. Különösen olyan esetekben hasznos, ahol pontos tizedes számításokra van szükség.
+
+```powershell
+[decimal]$ar = 1999.99
+[decimal]$darab = 3
+
+$vegosszeg = $ar * $darab
+
+Write-Host $vegosszeg
+```
+
+Eredmény:
+
+```text
+5999.97
+```
+
+Árakkal kapcsolatos példa:
+
+```powershell
+[decimal]$nettoAr = 10000
+[decimal]$afaKulcs = 0.27
+
+$afa = $nettoAr * $afaKulcs
+$bruttoAr = $nettoAr + $afa
+
+Write-Host "Nettó ár: $nettoAr"
+Write-Host "ÁFA: $afa"
+Write-Host "Bruttó ár: $bruttoAr"
+```
+
+A `Decimal` használata nem azt jelenti, hogy minden számításnál kötelező ezt választani. Általános adminisztrációs vagy scriptelési feladatoknál a PowerShell automatikus típuskezelése sokszor elegendő. Pontos decimális számításoknál viszont érdemes tudatosan típust választani.
+
+---
+
+## Típus megadása változó létrehozásakor
+
+A változó típusa külön is megadható.
+
+```powershell
+[int]$darab = 5
+[double]$atlag = 4.5
+[decimal]$ar = 2500.50
+```
+
+Ezután a PowerShell megpróbálja a változóba kerülő értéket az adott típus szerint kezelni.
+
+```powershell
+[int]$kor = 18
+$kor = 19
+```
+
+Ez működik.
+
+```powershell
+[int]$kor = 18
+$kor = "alma"
+```
+
+Ez hibát eredményezhet, mert az `"alma"` nem alakítható egész számmá.
+
+A típus megadása akkor hasznos, ha egy változóban következetesen adott típusú értéket akarunk tárolni.
+
+---
+
+## Típuskonverzió
+
+A típuskonverzió során egy értéket másik típusú értékké alakítunk.
+
+Szöveg átalakítása egész számmá:
+
+```powershell
+$szoveg = "100"
+$szam = [int]$szoveg
+
+Write-Host ($szam + 20)
+```
+
+Eredmény:
+
+```text
+120
+```
+
+Szöveg átalakítása tört számmá:
+
+```powershell
+$szoveg = "4.5"
+$atlag = [double]$szoveg
+```
+
+Szám szöveggé alakítása:
+
+```powershell
+$szam = 25
+$szoveg = [string]$szam
+```
+
+Hibás konverzió:
+
+```powershell
+[int]$ertek = "alma"
+```
+
+Az `"alma"` nem alakítható egész számmá.
+
+---
+
+## Beolvasott érték számként kezelése
+
+A `Read-Host` mindig szöveget ad vissza.
+
+```powershell
+$kor = Read-Host "Add meg az életkorod"
+
+$kor.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+String
+```
+
+Ha a beolvasott értékkel számolni kell, konverzió szükséges.
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+
+Write-Host "Jövőre ennyi éves leszel: $($kor + 1)"
+```
+
+Biztonságosabb megoldás lehet a konverzió ellenőrzése:
+
+```powershell
+$bemenet = Read-Host "Add meg az életkorod"
+
+if ([int]::TryParse($bemenet, [ref]$kor)) {
+    Write-Host "Jövőre ennyi éves leszel: $($kor + 1)"
+}
+else {
+    Write-Host "Nem érvényes egész számot adtál meg."
+}
+```
+
+A `TryParse()` nem hibával áll le sikertelen átalakításnál, hanem logikai eredménnyel jelzi, hogy sikerült-e az átalakítás.
+
+---
+
+## Számítási műveletek
+
+A numerikus típusokon aritmetikai műveletek végezhetők.
+
+```powershell
+$a = 10
+$b = 3
+
+$osszeg = $a + $b
+$kulonbseg = $a - $b
+$szorzat = $a * $b
+$hanyados = $a / $b
+$maradek = $a % $b
+```
+
+Kiírás:
+
+```powershell
+Write-Host $osszeg
+Write-Host $kulonbseg
+Write-Host $szorzat
+Write-Host $hanyados
+Write-Host $maradek
+```
+
+Eredmény:
+
+```text
+13
+7
+30
+3.33333333333333
+1
+```
+
+A `/` operátor osztást végez, amely tört eredményt is adhat.
+
+PowerShellben nincs külön `//` egész osztás operátor.
+
+---
+
+## Egész osztás jellegű eredmény
+
+Egész osztás jellegű eredményhez kerekítés vagy csonkolás használható.
+
+Lefelé kerekítés:
+
+```powershell
+[Math]::Floor(10 / 3)
+```
+
+Eredmény:
+
+```text
+3
+```
+
+Nulla felé csonkolás:
+
+```powershell
+[Math]::Truncate(10 / 3)
+```
+
+Eredmény:
+
+```text
+3
+```
+
+Negatív számoknál a két művelet eltérhet.
+
+```powershell
+[Math]::Floor(-10 / 3)
+[Math]::Truncate(-10 / 3)
+```
+
+Lehetséges eredmény:
+
+```text
+-4
+-3
+```
+
+A `[int]` típuskényszerítés nem valódi egész osztás. Konverziót végez, és kerekítési szabályok is érvényesülhetnek.
+
+```powershell
+[int](8 / 3)
+```
+
+Ez nem ugyanaz a fogalom, mint egy külön egész osztás operátor.
+
+---
+
+## Kerekítés
+
+A kerekítéshez a .NET `System.Math` osztály használható.
+
+```powershell
+[Math]::Round(3.14159, 2)
+```
+
+Eredmény:
+
+```text
+3.14
+```
+
+Lefelé kerekítés:
+
+```powershell
+[Math]::Floor(3.9)
+```
+
+Eredmény:
+
+```text
+3
+```
+
+Felfelé kerekítés:
+
+```powershell
+[Math]::Ceiling(3.1)
+```
+
+Eredmény:
+
+```text
+4
+```
+
+Nulla felé csonkolás:
+
+```powershell
+[Math]::Truncate(3.9)
+```
+
+Eredmény:
+
+```text
+3
+```
+
+A leggyakoribb kerekítési műveletek:
+
+| Művelet | PowerShell |
+|---|---|
+| Matematikai kerekítés | `[Math]::Round(x, n)` |
+| Lefelé kerekítés | `[Math]::Floor(x)` |
+| Felfelé kerekítés | `[Math]::Ceiling(x)` |
+| Nulla felé csonkolás | `[Math]::Truncate(x)` |
+
+---
+
+## Hatványozás és négyzetgyök
+
+PowerShellben nincs `**` hatványozás operátor. Hatványozáshoz a `[Math]::Pow()` használható.
+
+```powershell
+[Math]::Pow(2, 3)
+```
+
+Eredmény:
+
+```text
+8
+```
+
+Négyzetgyök:
+
+```powershell
+[Math]::Sqrt(16)
+```
+
+Eredmény:
+
+```text
+4
+```
+
+További matematikai műveletek:
+
+| Művelet | PowerShell |
+|---|---|
+| Abszolút érték | `[Math]::Abs(x)` |
+| Hatványozás | `[Math]::Pow(a, b)` |
+| Négyzetgyök | `[Math]::Sqrt(x)` |
+| Minimum | `[Math]::Min(a, b)` |
+| Maximum | `[Math]::Max(a, b)` |
+
+Példák:
+
+```powershell
+[Math]::Abs(-7)
+[Math]::Pow(2, 5)
+[Math]::Sqrt(25)
+[Math]::Min(8, 3)
+[Math]::Max(8, 3)
+```
+
+---
+
+## Rövidített értékadás számoknál
+
+Ha egy változó értékét a saját korábbi értéke alapján módosítjuk, használható rövidített értékadás.
+
+| Rövid forma | Hosszú forma |
+|---|---|
+| `$x += 3` | `$x = $x + 3` |
+| `$x -= 2` | `$x = $x - 2` |
+| `$x *= 5` | `$x = $x * 5` |
+| `$x /= 2` | `$x = $x / 2` |
+| `$x %= 2` | `$x = $x % 2` |
+
+Példa:
+
+```powershell
+$x = 10
+
+$x += 5
+Write-Host $x
+
+$x *= 2
+Write-Host $x
+
+$x -= 4
+Write-Host $x
+```
+
+Eredmény:
+
+```text
+15
+30
+26
+```
+
+Növelés eggyel:
+
+```powershell
+$x = 10
+$x++
+
+Write-Host $x
+```
+
+Eredmény:
+
+```text
+11
+```
+
+Csökkentés eggyel:
+
+```powershell
+$x = 10
+$x--
+
+Write-Host $x
+```
+
+Eredmény:
+
+```text
+9
+```
+
+---
+
+## Numerikus összehasonlítás
+
+Számok összehasonlítására a PowerShell összehasonlító operátorai használhatók.
+
+| Operátor | Jelentés |
+|---|---|
+| `-eq` | egyenlő |
+| `-ne` | nem egyenlő |
+| `-gt` | nagyobb |
+| `-ge` | nagyobb vagy egyenlő |
+| `-lt` | kisebb |
+| `-le` | kisebb vagy egyenlő |
+
+Példa:
+
+```powershell
+$kor = 20
+
+$kor -ge 18
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Több feltétel:
+
+```powershell
+$pontszam = 78
+
+$megfelelt = ($pontszam -ge 50) -and ($pontszam -le 100)
+
+Write-Host $megfelelt
+```
+
+Eredmény:
+
+```text
+True
+```
+
+---
+
+## Numerikus literálok mértékegységgel
+
+PowerShellben használhatók kényelmi numerikus jelölések is, például fájlméretekhez.
+
+```powershell
+1KB
+1MB
+1GB
+```
+
+Példa:
+
+```powershell
+$meret = 5MB
+
+Write-Host $meret
+```
+
+Lehetséges eredmény:
+
+```text
+5242880
+```
+
+Ez bájtban értelmezett számértéket ad.
+
+Fájlméret szűrésénél:
+
+```powershell
+Get-ChildItem -File |
+    Where-Object { $_.Length -gt 10MB }
+```
+
+A `10MB` itt numerikus értékként szerepel, nem szövegként.
+
+---
+
+## Gyakori hibák számoknál
+
+Szövegként tárolt szám esetén a `+` operátor szövegösszefűzést végezhet.
+
+```powershell
+$a = "10"
+$b = "5"
+
+Write-Host ($a + $b)
+```
+
+Eredmény:
+
+```text
+105
+```
+
+Számként kezelve:
+
+```powershell
+$a = [int]"10"
+$b = [int]"5"
+
+Write-Host ($a + $b)
+```
+
+Eredmény:
+
+```text
+15
+```
+
+Osztás nullával:
+
+```powershell
+$a = 10
+$b = 0
+
+$a / $b
+```
+
+Ez hibát eredményezhet. Osztás előtt ellenőrizni kell az osztót.
+
+```powershell
+if ($b -ne 0) {
+    $eredmeny = $a / $b
+    Write-Host $eredmeny
+}
+else {
+    Write-Host "Nullával nem lehet osztani."
+}
+```
+
+Túl nagy érték megadott típushoz:
+
+```powershell
+[int]$ertek = 3000000000
+```
+
+Ez hibát okozhat, mert az érték nem fér bele az `Int32` tartományába.
+
+Megoldás:
+
+```powershell
+[long]$ertek = 3000000000
+```
+
+---
+
+## Gyakorlati példa
+
+```powershell
+[decimal]$termekAr = 2499.90
+[int]$darab = 3
+[decimal]$kedvezmenySzazalek = 10
+
+$eredetiOsszeg = $termekAr * $darab
+$kedvezmeny = $eredetiOsszeg * ($kedvezmenySzazalek / 100)
+$fizetendo = $eredetiOsszeg - $kedvezmeny
+
+Write-Host "Termék ára: $termekAr Ft"
+Write-Host "Darabszám: $darab"
+Write-Host "Eredeti összeg: $eredetiOsszeg Ft"
+Write-Host "Kedvezmény: $kedvezmeny Ft"
+Write-Host "Fizetendő: $fizetendo Ft"
+```
+
+Lehetséges eredmény:
+
+```text
+Termék ára: 2499.90 Ft
+Darabszám: 3
+Eredeti összeg: 7499.70 Ft
+Kedvezmény: 749.970 Ft
+Fizetendő: 6749.730 Ft
+```
+
+Kerekítve:
+
+```powershell
+$fizetendo = [Math]::Round($fizetendo, 2)
+
+Write-Host "Kerekített fizetendő: $fizetendo Ft"
+```
+
+---
+
+## Összefoglalás
+
+PowerShellben a számok .NET-alapú numerikus típusokként jelennek meg.
+
+Gyakori típusok:
+
+| Típus | Jelentés |
+|---|---|
+| `[int]` | 32 bites egész szám |
+| `[long]` | 64 bites egész szám |
+| `[double]` | lebegőpontos tört szám |
+| `[decimal]` | nagyobb pontosságú decimális szám |
+| `[byte]` | 0 és 255 közötti egész szám |
+
+Gyakori műveletek:
+
+| Művelet | Operátor vagy megoldás |
+|---|---|
+| Összeadás | `+` |
+| Kivonás | `-` |
+| Szorzás | `*` |
+| Osztás | `/` |
+| Maradék | `%` |
+| Hatványozás | `[Math]::Pow()` |
+| Négyzetgyök | `[Math]::Sqrt()` |
+| Kerekítés | `[Math]::Round()` |
+
+Típus lekérdezése:
+
+```powershell
+$ertek.GetType().Name
+```
+
+Szövegből szám konvertálása:
+
+```powershell
+$szam = [int]"100"
+```
+
+Biztonságosabb ellenőrzött konverzió:
+
+```powershell
+[int]::TryParse($bemenet, [ref]$eredmeny)
+```
+
+Fájlméret jellegű numerikus literálok:
+
+```powershell
+1KB
+1MB
+1GB
+```

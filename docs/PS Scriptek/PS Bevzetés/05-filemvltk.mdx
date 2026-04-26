@@ -1,0 +1,831 @@
+---
+title: PowerShell fájlműveletek
+sidebar_position: 5
+description: Fájlok és mappák kezelése PowerShellben parancsokkal, paraméterekkel és objektumalapú feldolgozással
+---
+
+# PowerShell – Fájlműveletek
+
+A PowerShellben a fájlok és mappák a fájlrendszeren belül kezelhető elemekként jelennek meg. A fájlrendszerhez kapcsolódó műveletek jelentős része az `Item` parancsokra épül.
+
+```text
+Item = fájl, mappa vagy más kezelhető elem
+```
+
+Gyakori fájl- és mappakezelő parancsok:
+
+```powershell
+Get-Item
+Get-ChildItem
+New-Item
+Copy-Item
+Move-Item
+Rename-Item
+Remove-Item
+```
+
+:::note
+Az `Item` parancsok nem kizárólag fájlokra használhatók, de ebben a fejezetben a fájlrendszerhez kapcsolódó használatuk szerepel.
+:::
+
+---
+
+## Aktuális hely lekérdezése
+
+A fájlműveletek mindig valamilyen mappához vagy útvonalhoz kapcsolódnak. Az aktuális munkamappa lekérdezésére a `Get-Location` parancs használható.
+
+```powershell
+Get-Location
+```
+
+Rövid alak:
+
+```powershell
+pwd
+```
+
+Példa kimenet:
+
+```text
+Path
+----
+C:\Users\Diak\Desktop
+```
+
+A kimenet azt mutatja meg, hogy a PowerShell jelenleg melyik mappát tekinti aktuális munkamappának.
+
+Relatív útvonal használatakor a PowerShell ehhez a mappához képest értelmezi az útvonalat.
+
+---
+
+## Mappaváltás
+
+Másik mappába lépéshez a `Set-Location` parancs használható.
+
+```powershell
+Set-Location C:\Temp
+```
+
+Rövid alak:
+
+```powershell
+cd C:\Temp
+```
+
+Egy szinttel feljebb lépés:
+
+```powershell
+cd ..
+```
+
+Aktuális mappa jelölése:
+
+```powershell
+.
+```
+
+Szülőmappa jelölése:
+
+```powershell
+..
+```
+
+Példa relatív útvonal használatára:
+
+```powershell
+Set-Location .\gyakorlat
+```
+
+Ez az aktuális mappán belüli `gyakorlat` nevű almappába lép be.
+
+```powershell
+Set-Location ..
+```
+
+Ez a szülőmappába lép vissza.
+
+---
+
+## Mappa tartalmának listázása
+
+A mappa tartalmát a `Get-ChildItem` parancs listázza.
+
+```powershell
+Get-ChildItem
+```
+
+Rövid alakok:
+
+```powershell
+ls
+dir
+gci
+```
+
+Adott mappa tartalmának listázása:
+
+```powershell
+Get-ChildItem -Path C:\Temp
+```
+
+Csak fájlok listázása:
+
+```powershell
+Get-ChildItem -File
+```
+
+Csak mappák listázása:
+
+```powershell
+Get-ChildItem -Directory
+```
+
+Almappák tartalmával együtt:
+
+```powershell
+Get-ChildItem -Recurse
+```
+
+Csak `.txt` fájlok listázása:
+
+```powershell
+Get-ChildItem -Filter *.txt
+```
+
+Az aktuális mappából indulva minden `.ps1` fájl keresése almappákban is:
+
+```powershell
+Get-ChildItem -Path . -Filter *.ps1 -File -Recurse
+```
+
+A `Get-ChildItem` nem egyetlen elemet kér le, hanem egy tároló, például egy mappa alatti elemeket ad vissza.
+
+---
+
+## Konkrét fájl vagy mappa lekérdezése
+
+Egy konkrét fájl vagy mappa adatait a `Get-Item` parancs adja vissza.
+
+```powershell
+Get-Item .\adatok.txt
+```
+
+Példa tulajdonságok elérésére:
+
+```powershell
+$fajl = Get-Item .\adatok.txt
+
+$fajl.Name
+$fajl.Length
+$fajl.FullName
+$fajl.LastWriteTime
+```
+
+A `Get-Item` egy adott elemet kér le.  
+A `Get-ChildItem` egy mappa alatti elemeket listáz.
+
+Objektumszerűen egy fájl például így írható le:
+
+```text
+[System.IO.FileInfo] {
+    Name          = "adatok.txt"
+    Extension     = ".txt"
+    Length        = 2450
+    FullName      = "C:\Users\Diak\Desktop\adatok.txt"
+    LastWriteTime = "2026.04.26. 10:15:00"
+}
+```
+
+A `Name`, `Length`, `FullName` és `LastWriteTime` nem szövegrész, hanem a fájlobjektum tulajdonsága.
+
+---
+
+## Új mappa létrehozása
+
+Mappa létrehozására a `New-Item` használható `Directory` elemtípussal.
+
+```powershell
+New-Item -ItemType Directory -Name gyakorlat
+```
+
+Teljesebb alak:
+
+```powershell
+New-Item -Path . -Name gyakorlat -ItemType Directory
+```
+
+Rövid alak:
+
+```powershell
+mkdir gyakorlat
+```
+
+A `mkdir` mappa létrehozására használt rövid forma. A teljes PowerShell-parancs azonban pontosabban megmutatja, hogy egy új elemet hozunk létre, amelynek típusa mappa.
+
+```powershell
+New-Item -Path . -Name gyakorlat -ItemType Directory
+```
+
+A parancs az aktuális mappában létrehoz egy `gyakorlat` nevű mappát.
+
+---
+
+## Új fájl létrehozása
+
+Fájl létrehozására a `New-Item` használható `File` elemtípussal.
+
+```powershell
+New-Item -ItemType File -Name adatok.txt
+```
+
+Teljesebb alak:
+
+```powershell
+New-Item -Path . -Name adatok.txt -ItemType File
+```
+
+Rövid alak:
+
+```powershell
+ni adatok.txt
+```
+
+A `ni` a `New-Item` aliasa.
+
+Ha a fájl már létezik, a `-Force` paraméter használható:
+
+```powershell
+New-Item -ItemType File -Name adatok.txt -Force
+```
+
+:::warning
+A `-Force` meglévő elem esetén módosíthatja a parancs viselkedését. Használata előtt ellenőrizni kell, hogy a művelet melyik fájlt vagy mappát érinti.
+:::
+
+---
+
+## Fájltartalom kiírása
+
+Fájl tartalmának beolvasására a `Get-Content` parancs használható.
+
+```powershell
+Get-Content .\adatok.txt
+```
+
+Rövid alak:
+
+```powershell
+cat .\adatok.txt
+```
+
+Példa:
+
+```powershell
+Get-Content -Path .\naplo.txt
+```
+
+A `Get-Content` a fájl tartalmát olvassa be. Szövegfájl esetén a tartalmat soronként adja vissza.
+
+---
+
+## Fájltartalom felülírása
+
+A `Set-Content` új tartalmat ír a fájlba. Ha a fájlban korábban volt tartalom, azt felülírja.
+
+```powershell
+Set-Content -Path .\adatok.txt -Value "Első sor"
+```
+
+Példa:
+
+```powershell
+Set-Content -Path .\naplo.txt -Value "A script elindult."
+```
+
+A tartalom ellenőrzése:
+
+```powershell
+Get-Content -Path .\naplo.txt
+```
+
+Lehetséges kimenet:
+
+```text
+A script elindult.
+```
+
+:::warning
+A `Set-Content` nem hozzáfűz, hanem felülír. Meglévő fájl esetén a korábbi tartalom elveszhet.
+:::
+
+---
+
+## Fájltartalom hozzáfűzése
+
+Az `Add-Content` nem törli a meglévő tartalmat, hanem új tartalmat fűz hozzá.
+
+```powershell
+Add-Content -Path .\adatok.txt -Value "Második sor"
+```
+
+Példa:
+
+```powershell
+Set-Content -Path .\naplo.txt -Value "Első sor"
+Add-Content -Path .\naplo.txt -Value "Második sor"
+Add-Content -Path .\naplo.txt -Value "Harmadik sor"
+```
+
+Kiolvasás:
+
+```powershell
+Get-Content -Path .\naplo.txt
+```
+
+Eredmény:
+
+```text
+Első sor
+Második sor
+Harmadik sor
+```
+
+A három parancs szerepe:
+
+```text
+Get-Content    tartalom beolvasása
+Set-Content    tartalom beállítása vagy felülírása
+Add-Content    tartalom hozzáfűzése
+```
+
+---
+
+## Fájl másolása
+
+Fájl másolása ugyanabba a mappába más néven:
+
+```powershell
+Copy-Item -Path .\adatok.txt -Destination .\masolat.txt
+```
+
+Fájl másolása másik mappába:
+
+```powershell
+Copy-Item -Path .\adatok.txt -Destination C:\Temp
+```
+
+Fájl másolása másik mappába új névvel:
+
+```powershell
+Copy-Item -Path .\adatok.txt -Destination C:\Temp\adatok-masolat.txt
+```
+
+Több `.txt` fájl másolása:
+
+```powershell
+Copy-Item -Path *.txt -Destination C:\Temp
+```
+
+Rövid alak:
+
+```powershell
+cp .\adatok.txt .\masolat.txt
+```
+
+A `Copy-Item` az eredeti elemet változatlanul hagyja, és a célhelyen létrehoz egy másolatot.
+
+Ha a célhelyen már létezik azonos nevű fájl, a `-Force` paraméter használható a felülírás kényszerítésére:
+
+```powershell
+Copy-Item -Path .\adatok.txt -Destination C:\Temp\adatok.txt -Force
+```
+
+---
+
+## Mappa másolása
+
+Mappa másolása tartalommal együtt:
+
+```powershell
+Copy-Item -Path .\gyakorlat -Destination C:\Temp -Recurse
+```
+
+A `-Recurse` azért szükséges, mert a mappa alatti fájlokat és almappákat is másolni kell.
+
+A parancs a `gyakorlat` nevű mappát és annak tartalmát a `C:\Temp` célhelyre másolja.
+
+Mappa másolása új névvel:
+
+```powershell
+Copy-Item -Path .\gyakorlat -Destination C:\Temp\gyakorlat-masolat -Recurse
+```
+
+---
+
+## Fájl mozgatása
+
+Fájl áthelyezése másik mappába:
+
+```powershell
+Move-Item -Path .\adatok.txt -Destination C:\Temp
+```
+
+Fájl mozgatása új névvel:
+
+```powershell
+Move-Item -Path .\adatok.txt -Destination C:\Temp\naplo.txt
+```
+
+Több `.log` fájl mozgatása:
+
+```powershell
+Move-Item -Path *.log -Destination C:\Temp
+```
+
+Rövid alak:
+
+```powershell
+mv .\adatok.txt C:\Temp
+```
+
+A `Move-Item` áthelyezi az elemet. A forráshelyről eltűnik, és a célhelyen jelenik meg.
+
+Ha a célhelyen már van azonos nevű fájl, a `-Force` paraméter használható:
+
+```powershell
+Move-Item -Path .\adatok.txt -Destination C:\Temp\adatok.txt -Force
+```
+
+---
+
+## Fájl vagy mappa átnevezése
+
+Fájl átnevezése:
+
+```powershell
+Rename-Item -Path .\adatok.txt -NewName naplo.txt
+```
+
+Mappa átnevezése:
+
+```powershell
+Rename-Item -Path .\gyakorlat -NewName teszt
+```
+
+Rövidebb alak:
+
+```powershell
+Rename-Item adatok.txt naplo.txt
+```
+
+A `Rename-Item` csak a nevet módosítja.  
+A `Move-Item` helyet is tud változtatni.
+
+Példa különbségre:
+
+```powershell
+Rename-Item -Path .\adatok.txt -NewName naplo.txt
+```
+
+Ez ugyanabban a mappában átnevezi a fájlt.
+
+```powershell
+Move-Item -Path .\adatok.txt -Destination C:\Temp\naplo.txt
+```
+
+Ez áthelyezi a fájlt a `C:\Temp` mappába, és közben új nevet is ad neki.
+
+---
+
+## Fájl törlése
+
+Fájl törlése:
+
+```powershell
+Remove-Item -Path .\naplo.txt
+```
+
+Rövid alakok:
+
+```powershell
+rm .\naplo.txt
+del .\naplo.txt
+```
+
+Több `.txt` fájl törlése:
+
+```powershell
+Remove-Item -Path *.txt
+```
+
+:::warning
+A `Remove-Item` törlési műveletet végez. Több fájl törlése előtt célszerű a `-WhatIf` paraméterrel ellenőrizni, hogy pontosan mely elemeket érintené a parancs.
+:::
+
+---
+
+## Mappa törlése
+
+Üres mappa törlése:
+
+```powershell
+Remove-Item -Path .\gyakorlat
+```
+
+Nem üres mappa törlése:
+
+```powershell
+Remove-Item -Path .\gyakorlat -Recurse
+```
+
+Kényszerített törlés:
+
+```powershell
+Remove-Item -Path .\gyakorlat -Recurse -Force
+```
+
+A `-Recurse` az almappákra és azok tartalmára is vonatkozik.  
+A `-Force` rejtett vagy írásvédett elemeknél is megpróbálja végrehajtani a műveletet.
+
+Mappa törlésénél a `-Recurse` különösen lényeges, mert nélküle a nem üres mappa törlése hibát vagy megerősítési kérést eredményezhet.
+
+---
+
+## Törlés ellenőrzése végrehajtás előtt
+
+A `-WhatIf` megmutatja, mit hajtana végre a parancs, de nem végzi el a műveletet.
+
+```powershell
+Remove-Item -Path *.txt -WhatIf
+```
+
+Mappa törlésének ellenőrzése:
+
+```powershell
+Remove-Item -Path .\gyakorlat -Recurse -WhatIf
+```
+
+Ez akkor hasznos, ha több fájlt vagy egész mappaszerkezetet érintene a törlés.
+
+Helyettesítő karakterek használatakor különösen indokolt az ellenőrzés:
+
+```powershell
+Remove-Item -Path adat* -WhatIf
+```
+
+A `-WhatIf` használatával a parancs végrehajtás előtt ellenőrizhető anélkül, hogy módosítaná a fájlrendszert.
+
+---
+
+## Létezés ellenőrzése
+
+A `Test-Path` megmondja, hogy létezik-e a megadott fájl vagy mappa.
+
+```powershell
+Test-Path .\adatok.txt
+```
+
+Lehetséges eredmény:
+
+```text
+True
+```
+
+vagy:
+
+```text
+False
+```
+
+Mappa ellenőrzése:
+
+```powershell
+Test-Path C:\Temp
+```
+
+Példa scriptben:
+
+```powershell
+if (Test-Path .\adatok.txt) {
+    Get-Content .\adatok.txt
+}
+```
+
+A `Test-Path` gyakran használható olyan műveletek előtt, amelyek hibát okoznának, ha az érintett fájl vagy mappa nem létezne.
+
+---
+
+## Szűrés fájlműveleteknél
+
+Minden `.txt` fájl listázása:
+
+```powershell
+Get-ChildItem -Filter *.txt
+```
+
+Minden `.ps1` fájl keresése almappákban is:
+
+```powershell
+Get-ChildItem -Path . -Filter *.ps1 -Recurse
+```
+
+Minden `.log` fájl törlésének ellenőrzése:
+
+```powershell
+Remove-Item -Path *.log -WhatIf
+```
+
+Minden `.txt` fájl másolása:
+
+```powershell
+Copy-Item -Path *.txt -Destination C:\Temp
+```
+
+A `*` helyettesítő karakter több tetszőleges karaktert jelent.
+
+```text
+*.txt
+```
+
+jelentése: minden olyan elem, amelynek neve tetszőleges, de `.txt` végződésű.
+
+```text
+adat*
+```
+
+jelentése: minden olyan elem, amelynek neve `adat` karakterekkel kezdődik.
+
+---
+
+## Fájlok szűrése tulajdonság alapján
+
+A fájlok objektumként jelennek meg, ezért lehet tulajdonság alapján szűrni.
+
+1 MB-nál nagyobb fájlok:
+
+```powershell
+Get-ChildItem -File |
+    Where-Object { $_.Length -gt 1MB }
+```
+
+10 KB-nál kisebb fájlok:
+
+```powershell
+Get-ChildItem -File |
+    Where-Object { $_.Length -lt 10KB }
+```
+
+Mai napon módosított fájlok:
+
+```powershell
+Get-ChildItem -File |
+    Where-Object { $_.LastWriteTime.Date -eq (Get-Date).Date }
+```
+
+Fájlok rendezése méret szerint:
+
+```powershell
+Get-ChildItem -File |
+    Sort-Object Length -Descending
+```
+
+Csak név, méret és módosítási dátum megjelenítése:
+
+```powershell
+Get-ChildItem -File |
+    Select-Object Name, Length, LastWriteTime
+```
+
+A `Name`, `Length` és `LastWriteTime` a fájlobjektum tulajdonságai.
+
+```powershell
+Where-Object { $_.Length -gt 1MB }
+```
+
+Ebben a kifejezésben a `$_` az aktuálisan feldolgozott fájlobjektumot jelenti, a `Length` pedig annak méretét bájtban.
+
+---
+
+## Path és LiteralPath
+
+A `-Path` paraméter értelmezi a helyettesítő karaktereket.
+
+```powershell
+Get-ChildItem -Path *.txt
+```
+
+Ez minden `.txt` végződésű elemet jelent az aktuális mappában.
+
+A `-LiteralPath` szó szerint értelmezi az útvonalat.
+
+```powershell
+Get-Item -LiteralPath ".\adat[1].txt"
+```
+
+Ez akkor hasznos, ha a fájlnév olyan karaktert tartalmaz, amelyet a PowerShell egyébként mintaként értelmezne.
+
+Például a szögletes zárójel fájlnévben zavart okozhat `-Path` használatakor:
+
+```powershell
+Get-Item -Path ".\adat[1].txt"
+```
+
+Ilyen esetben a pontos fájlnév megadásához a `-LiteralPath` biztonságosabb.
+
+---
+
+## Gyakorlati példa
+
+```powershell
+Get-Location
+
+New-Item -ItemType Directory -Name gyakorlat
+Set-Location .\gyakorlat
+
+New-Item -ItemType File -Name naplo.txt
+Set-Content -Path .\naplo.txt -Value "Első sor"
+Add-Content -Path .\naplo.txt -Value "Második sor"
+
+Get-Content -Path .\naplo.txt
+
+Copy-Item -Path .\naplo.txt -Destination .\naplo-masolat.txt
+Rename-Item -Path .\naplo-masolat.txt -NewName archiv.txt
+
+Get-ChildItem
+
+Remove-Item -Path .\archiv.txt
+
+Get-ChildItem
+```
+
+A példa sorrendben:
+
+```text
+1. Lekérdezi az aktuális helyet.
+2. Létrehoz egy gyakorlat nevű mappát.
+3. Belép a létrehozott mappába.
+4. Létrehoz egy naplo.txt fájlt.
+5. Tartalmat ír a fájlba.
+6. Új sort fűz hozzá.
+7. Kiolvassa a fájl tartalmát.
+8. Másolatot készít a fájlról.
+9. Átnevezi a másolatot.
+10. Listázza a mappa tartalmát.
+11. Törli az átnevezett fájlt.
+12. Újra listázza a mappa tartalmát.
+```
+
+A példa végén a `gyakorlat` mappában a `naplo.txt` fájl marad meg, az `archiv.txt` törlésre kerül.
+
+---
+
+## Összefoglalás
+
+| Parancs | Jelentés |
+|---|---|
+| `Get-Location` | aktuális hely lekérdezése |
+| `Set-Location` | mappaváltás |
+| `Get-ChildItem` | mappa tartalmának listázása |
+| `Get-Item` | konkrét fájl vagy mappa lekérdezése |
+| `New-Item` | fájl vagy mappa létrehozása |
+| `Get-Content` | fájltartalom beolvasása |
+| `Set-Content` | fájltartalom beállítása vagy felülírása |
+| `Add-Content` | fájltartalomhoz hozzáfűzés |
+| `Copy-Item` | másolás |
+| `Move-Item` | mozgatás |
+| `Rename-Item` | átnevezés |
+| `Remove-Item` | törlés |
+| `Test-Path` | létezés ellenőrzése |
+
+Gyakori paraméterek és kapcsolók:
+
+| Paraméter vagy kapcsoló | Jelentés |
+|---|---|
+| `-Path` | érintett útvonal |
+| `-LiteralPath` | szó szerint értelmezett útvonal |
+| `-Destination` | célhely |
+| `-Name` | név |
+| `-NewName` | új név |
+| `-Value` | írandó érték |
+| `-Filter` | szűrés fájlnévre |
+| `-File` | csak fájlok |
+| `-Directory` | csak mappák |
+| `-Recurse` | almappákra is kiterjesztett művelet |
+| `-Force` | kényszerített végrehajtás |
+| `-WhatIf` | próba végrehajtás nélkül |
+
+Aliasok:
+
+| Alias | Teljes parancs |
+|---|---|
+| `pwd` | `Get-Location` |
+| `cd` | `Set-Location` |
+| `ls` | `Get-ChildItem` |
+| `dir` | `Get-ChildItem` |
+| `gci` | `Get-ChildItem` |
+| `ni` | `New-Item` |
+| `cat` | `Get-Content` |
+| `cp` | `Copy-Item` |
+| `mv` | `Move-Item` |
+| `rm` | `Remove-Item` |
+| `del` | `Remove-Item` |

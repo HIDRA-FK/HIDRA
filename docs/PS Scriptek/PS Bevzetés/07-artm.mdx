@@ -1,0 +1,579 @@
+---
+title: PowerShell aritmetikai műveletek
+sidebar_position: 7
+description: Aritmetikai operátorok, műveleti sorrend, rövidített értékadás, számtípusok és matematikai függvények PowerShellben
+---
+
+# PowerShell – Aritmetikai műveletek
+
+## Alapműveletek
+
+PowerShellben az alapvető aritmetikai műveletek a megszokott matematikai operátorokkal végezhetők el.
+
+| Művelet | Operátor vagy megoldás | Példa | Eredmény |
+|---|---|---|---|
+| Összeadás | `+` | `5 + 3` | `8` |
+| Kivonás | `-` | `10 - 4` | `6` |
+| Szorzás | `*` | `7 * 2` | `14` |
+| Osztás | `/` | `8 / 3` | `2.666...` |
+| Maradék | `%` | `8 % 3` | `2` |
+| Hatványozás | `[Math]::Pow()` | `[Math]::Pow(2, 3)` | `8` |
+
+PowerShellben nincs külön `//` egész osztás operátor, és nincs `**` hatványozás operátor sem.
+
+Hatványozáshoz a .NET `System.Math` osztályának `Pow()` metódusa használható:
+
+```powershell
+[Math]::Pow(2, 3)
+```
+
+Eredmény:
+
+```text
+8
+```
+
+Egész osztás jellegű eredményhez nem célszerű egyszerűen `[int]` típuskényszerítést használni, mert az nem valódi egész osztás, hanem számmá alakítás közben kerekítést végezhet.
+
+Lefelé kerekítés:
+
+```powershell
+[Math]::Floor(8 / 3)
+```
+
+Eredmény:
+
+```text
+2
+```
+
+Nulla felé csonkolás:
+
+```powershell
+[Math]::Truncate(8 / 3)
+```
+
+Eredmény:
+
+```text
+2
+```
+
+:::note
+A `[Math]::Floor()` mindig lefelé kerekít.  
+A `[Math]::Truncate()` a tizedesrészt levágja, vagyis nulla felé csonkol.
+
+Pozitív számoknál ezek sokszor azonos eredményt adnak, negatív számoknál viszont eltérhetnek.
+:::
+
+---
+
+## Példák kódban
+
+```powershell
+$a = 15
+$b = 4
+
+Write-Host ($a + $b)              # 19
+Write-Host ($a - $b)              # 11
+Write-Host ($a * $b)              # 60
+Write-Host ($a / $b)              # 3.75
+Write-Host ($a % $b)              # 3
+Write-Host ([Math]::Pow($a, $b))  # 50625
+```
+
+Egész osztás jellegű eredmény lefelé kerekítéssel:
+
+```powershell
+$a = 15
+$b = 4
+
+Write-Host ([Math]::Floor($a / $b))  # 3
+```
+
+Egész osztás jellegű eredmény csonkolással:
+
+```powershell
+$a = 15
+$b = 4
+
+Write-Host ([Math]::Truncate($a / $b))  # 3
+```
+
+Maradék számítása:
+
+```powershell
+$a = 15
+$b = 4
+
+Write-Host ($a % $b)  # 3
+```
+
+A maradék azt mutatja meg, hogy az egész osztás után mennyi marad vissza.
+
+```text
+15 / 4 = 3, maradék 3
+```
+
+---
+
+## Műveletek sorrendje
+
+A PowerShell az aritmetikai kifejezések kiértékelésénél a szokásos műveleti sorrendet követi.
+
+```text
+1. Zárójelek: ()
+2. Szorzás, osztás, maradék: * / %
+3. Összeadás, kivonás: + -
+```
+
+Példa:
+
+```powershell
+$eredmeny = 2 + 3 * 4
+Write-Host $eredmeny
+```
+
+Eredmény:
+
+```text
+14
+```
+
+A szorzás előbb történik meg, ezért a kifejezés így értelmezhető:
+
+```text
+2 + (3 * 4)
+```
+
+Zárójellel módosított műveleti sorrend:
+
+```powershell
+$eredmeny = (2 + 3) * 4
+Write-Host $eredmeny
+```
+
+Eredmény:
+
+```text
+20
+```
+
+A zárójelek használata nemcsak a sorrendet módosítja, hanem olvashatóbbá is teszi az összetettebb kifejezéseket.
+
+Hatványozásnál a `[Math]::Pow()` metódust kell használni:
+
+```powershell
+$eredmeny = [Math]::Pow(2, 3)
+Write-Host $eredmeny
+```
+
+Eredmény:
+
+```text
+8
+```
+
+---
+
+## Rövidített értékadás
+
+Ha egy változót a saját korábbi értéke alapján módosítunk, használható rövidített értékadás.
+
+| Rövid forma | Hosszú forma | Jelentés |
+|---|---|---|
+| `$x += 3` | `$x = $x + 3` | növelés |
+| `$x -= 2` | `$x = $x - 2` | csökkentés |
+| `$x *= 5` | `$x = $x * 5` | szorzás |
+| `$x /= 2` | `$x = $x / 2` | osztás |
+| `$x %= 2` | `$x = $x % 2` | maradék képzése |
+
+Példa:
+
+```powershell
+$x = 10
+
+$x += 5
+Write-Host $x   # 15
+
+$x *= 2
+Write-Host $x   # 30
+
+$x -= 4
+Write-Host $x   # 26
+```
+
+Növelés eggyel:
+
+```powershell
+$x = 10
+$x++
+
+Write-Host $x   # 11
+```
+
+Csökkentés eggyel:
+
+```powershell
+$x = 10
+$x--
+
+Write-Host $x   # 9
+```
+
+A `++` és `--` operátorok egész számoknál gyakoriak, különösen ciklusoknál és számlálóknál.
+
+---
+
+## Számok típusai aritmetikában
+
+PowerShellben a szám típusa az értéktől és a művelettől is függhet.
+
+Egész szám:
+
+```powershell
+$x = 10
+Write-Host $x.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+Int32
+```
+
+Tört szám:
+
+```powershell
+$y = 10.5
+Write-Host $y.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+Double
+```
+
+Osztás eredménye:
+
+```powershell
+$a = 5
+$b = 2
+
+$eredmeny = $a / $b
+
+Write-Host $eredmeny
+Write-Host $eredmeny.GetType().Name
+```
+
+Eredmény:
+
+```text
+2.5
+Double
+```
+
+A `/` operátor osztást végez, és az eredmény tört szám is lehet.
+
+Típus megadása külön:
+
+```powershell
+[int]$kor = 18
+[double]$atlag = 4.5
+```
+
+Típuskonverzió szövegből számmá:
+
+```powershell
+$szoveg = "100"
+$szam = [int]$szoveg
+
+Write-Host ($szam + 20)   # 120
+```
+
+Ha a szöveg nem alakítható számmá, a konverzió hibát eredményezhet:
+
+```powershell
+$szoveg = "alma"
+$szam = [int]$szoveg
+```
+
+---
+
+## Int, Double és Decimal
+
+A PowerShellben a számok mögött .NET-típusok állnak. A leggyakrabban előforduló típusok:
+
+| Típus | Jelentés | Példa |
+|---|---|---|
+| `Int32` | egész szám | `42` |
+| `Double` | lebegőpontos tört szám | `3.14` |
+| `Decimal` | nagyobb pontosságú decimális szám | `[decimal]3.14` |
+
+Példa `Decimal` használatára:
+
+```powershell
+[decimal]$ar = 1999.99
+[decimal]$darab = 3
+
+$vegosszeg = $ar * $darab
+Write-Host $vegosszeg
+```
+
+Pénzügyi vagy árakkal kapcsolatos számításoknál a `Decimal` pontosabb választás lehet, mint a `Double`, mert a `Double` bináris lebegőpontos ábrázolást használ.
+
+Általános gyakorlófeladatoknál a PowerShell automatikus típuskezelése általában elegendő, de szakmai környezetben érdemes figyelni arra, hogy a számítás milyen típusokkal történik.
+
+---
+
+## Beépített matematikai megoldások
+
+PowerShellben a matematikai műveletekhez gyakran a .NET `System.Math` osztályát használjuk. Rövid alakban ez PowerShellben `[Math]` néven érhető el.
+
+| Művelet | PowerShell |
+|---|---|
+| Abszolút érték | `[Math]::Abs(x)` |
+| Kerekítés | `[Math]::Round(x, n)` |
+| Lefelé kerekítés | `[Math]::Floor(x)` |
+| Felfelé kerekítés | `[Math]::Ceiling(x)` |
+| Nulla felé csonkolás | `[Math]::Truncate(x)` |
+| Hatványozás | `[Math]::Pow(a, b)` |
+| Négyzetgyök | `[Math]::Sqrt(x)` |
+| Minimum | `[Math]::Min(a, b)` |
+| Maximum | `[Math]::Max(a, b)` |
+
+Példa:
+
+```powershell
+Write-Host ([Math]::Abs(-7))           # 7
+Write-Host ([Math]::Round(3.1415, 2))  # 3.14
+Write-Host ([Math]::Floor(3.9))        # 3
+Write-Host ([Math]::Ceiling(3.1))      # 4
+Write-Host ([Math]::Truncate(3.9))     # 3
+Write-Host ([Math]::Pow(2, 5))         # 32
+Write-Host ([Math]::Sqrt(16))          # 4
+Write-Host ([Math]::Min(8, 3))         # 3
+Write-Host ([Math]::Max(8, 3))         # 8
+```
+
+A `[Math]::Round(x, n)` esetén az `x` a kerekítendő szám, az `n` pedig a tizedesjegyek száma.
+
+```powershell
+[Math]::Round(3.14159, 2)
+```
+
+Eredmény:
+
+```text
+3.14
+```
+
+---
+
+## Negatív számok és zárójelezés
+
+Negatív számok használatakor érdemes figyelni az olvasható zárójelezésre.
+
+```powershell
+$x = -5
+$y = 3
+
+Write-Host ($x + $y)  # -2
+Write-Host ($x * $y)  # -15
+```
+
+Hatványozásnál különösen fontos a zárójelezés, mert a `[Math]::Pow()` metódus két értéket vár: az alapot és a kitevőt.
+
+```powershell
+[Math]::Pow(-2, 3)
+```
+
+Eredmény:
+
+```text
+-8
+```
+
+Zárójellel egyértelműbbé tehető az alap:
+
+```powershell
+[Math]::Pow((-2), 3)
+```
+
+---
+
+## Számítás változókkal
+
+Aritmetikai műveleteknél gyakran változókban tároljuk az értékeket.
+
+```powershell
+$termekAr = 2500
+$darab = 3
+
+$vegosszeg = $termekAr * $darab
+
+Write-Host "Termék ára: $termekAr Ft"
+Write-Host "Darabszám: $darab"
+Write-Host "Fizetendő összeg: $vegosszeg Ft"
+```
+
+Eredmény:
+
+```text
+Termék ára: 2500 Ft
+Darabszám: 3
+Fizetendő összeg: 7500 Ft
+```
+
+Másik példa átlag számítására:
+
+```powershell
+$pont1 = 80
+$pont2 = 65
+$pont3 = 90
+
+$atlag = ($pont1 + $pont2 + $pont3) / 3
+
+Write-Host "Átlag: $atlag"
+```
+
+Eredmény:
+
+```text
+Átlag: 78.3333333333333
+```
+
+Kerekítve:
+
+```powershell
+$kerekitettAtlag = [Math]::Round($atlag, 2)
+
+Write-Host "Kerekített átlag: $kerekitettAtlag"
+```
+
+Eredmény:
+
+```text
+Kerekített átlag: 78.33
+```
+
+---
+
+## Gyakori hibák aritmetikai műveleteknél
+
+Szövegként tárolt szám esetén a művelet eredménye eltérhet a várt működéstől, főleg a `+` operátornál.
+
+```powershell
+$a = "10"
+$b = "5"
+
+Write-Host ($a + $b)
+```
+
+Eredmény:
+
+```text
+105
+```
+
+Ebben az esetben a `+` szövegösszefűzést végez.
+
+Számként kezelve:
+
+```powershell
+$a = [int]"10"
+$b = [int]"5"
+
+Write-Host ($a + $b)
+```
+
+Eredmény:
+
+```text
+15
+```
+
+A műveletek előtt ezért fontos ellenőrizni, hogy a változók milyen típusú adatot tartalmaznak.
+
+```powershell
+$a.GetType().Name
+$b.GetType().Name
+```
+
+Osztás nullával:
+
+```powershell
+$a = 10
+$b = 0
+
+$a / $b
+```
+
+Az osztás nullával hibát eredményezhet. Osztás előtt ellenőrizhető az osztó értéke:
+
+```powershell
+if ($b -ne 0) {
+    $eredmeny = $a / $b
+    Write-Host $eredmeny
+}
+else {
+    Write-Host "Nullával nem lehet osztani."
+}
+```
+
+---
+
+## Összefoglalás
+
+PowerShellben az alap aritmetikai műveletek a következők:
+
+```text
++    összeadás
+-    kivonás
+*    szorzás
+/    osztás
+%    maradék
+```
+
+Hatványozáshoz nincs `**` operátor, helyette a `[Math]::Pow()` használható.
+
+```powershell
+[Math]::Pow(2, 3)
+```
+
+Egész osztáshoz nincs külön `//` operátor. Lefelé kerekítéshez használható:
+
+```powershell
+[Math]::Floor(8 / 3)
+```
+
+Csonkoláshoz használható:
+
+```powershell
+[Math]::Truncate(8 / 3)
+```
+
+Rövidített értékadás:
+
+```text
++=
+-=
+*=
+/=
+%=
+```
+
+A számok típusa lekérdezhető:
+
+```powershell
+$ertek.GetType().Name
+```
+
+A matematikai segédfüggvények a .NET `System.Math` osztályán keresztül érhetők el:
+
+```powershell
+[Math]::Round(3.14159, 2)
+[Math]::Sqrt(16)
+[Math]::Max(8, 3)
+```

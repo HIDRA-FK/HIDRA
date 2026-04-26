@@ -1,0 +1,533 @@
+---
+title: Objektumok és objektumorientáltság röviden
+sidebar_position: 2
+description: Bevezető az objektum, osztály, tulajdonság, metódus és objektumorientált szemlélet alapfogalmaiba
+---
+
+# Objektumok és objektumorientáltság röviden
+
+Az **objektum** a programozásban egy olyan egység, amelynek van **állapota** és **viselkedése**.
+
+Egyszerűen:
+
+```text
+Objektum =
+    állapot
+    + viselkedés
+````
+
+Az objektum **állapotát** az adatai írják le. Ezeket gyakran **tulajdonságoknak**, **attribútumoknak** vagy mezőknek nevezzük.
+
+Az objektum **viselkedését** a hozzá tartozó műveletek adják. Ezeket **metódusoknak** nevezzük.
+
+:::info Áttekintés
+Az objektumorientált szemléletben a programban szereplő fogalmakat önálló egységekként írjuk le.
+
+Egy objektum:
+
+* állapotot tárol,
+* viselkedést valósít meg metódusokon keresztül,
+* meghatározott szerepet tölt be a program működésében.
+  :::
+
+## Objektum egyszerű példával
+
+Egy `Felhasználó` objektum például elképzelhető így:
+
+```text
+Felhasználó {
+    név = "Kiss Anna"
+    email = "anna@example.com"
+    aktív = true
+
+    bejelentkezik()
+    kijelentkezik()
+    jelszótMódosít()
+}
+```
+
+Ebben a példában a következők az objektum állapotához tartozó adatok:
+
+```text
+név
+email
+aktív
+```
+
+Ezek azt írják le, hogy az adott felhasználó egy adott pillanatban milyen adatokkal rendelkezik.
+
+A következők metódusok:
+
+```text
+bejelentkezik()
+kijelentkezik()
+jelszótMódosít()
+```
+
+Ezek az objektumhoz kapcsolódó műveleteket jelölik.
+
+## Tulajdonság és metódus
+
+Egy objektumot általában két oldalról érdemes megérteni:
+
+| Fogalom     | Jelentés                          | Példa                                 |
+| ----------- | --------------------------------- | ------------------------------------- |
+| Tulajdonság | Az objektum állapotának egy része | `név`, `email`, `ár`, `darabszám`     |
+| Metódus     | Az objektumhoz tartozó művelet    | `mentés()`, `törlés()`, `frissítés()` |
+
+Például egy termék esetén:
+
+```text
+Termék {
+    név = "Monitor"
+    ár = 64990
+    készletenVan = true
+
+    árMódosít()
+    készletetFrissít()
+    adatokatMegjelenít()
+}
+```
+
+Itt a `név`, az `ár` és a `készletenVan` az objektum állapotához tartozik.
+Az `árMódosít()`, a `készletetFrissít()` és az `adatokatMegjelenít()` pedig az objektumhoz kapcsolódó viselkedést jelöli.
+
+<details>
+<summary>Megközelítés szerepe</summary>
+
+A programban szereplő adatok és a hozzájuk kapcsolódó műveletek nem különálló, szétszórt részekként jelennek meg, hanem logikai egységekbe rendezhetők.
+
+Egy termékhez a termék adatai és a termékkel végezhető műveletek tartoznak.
+Egy felhasználóhoz a felhasználó adatai és a felhasználóhoz kapcsolódó műveletek tartoznak.
+
+Ez áttekinthetőbbé teszi a program szerkezetét.
+
+</details>
+
+## Osztály és objektum
+
+Az **osztály** egy leírás vagy sablon, amely meghatározza, hogy az adott típusú objektumok milyen adatokkal és műveletekkel rendelkezhetnek.
+
+Az **objektum** az osztály alapján létrehozott konkrét példány.
+
+Egyszerűen:
+
+```text
+Osztály = típusleírás vagy sablon
+Objektum = konkrét példány
+```
+
+Példa:
+
+```text
+Osztály: Autó
+
+Tulajdonságok:
+    márka
+    típus
+    sebesség
+
+Metódusok:
+    elindul()
+    gyorsít()
+    megáll()
+```
+
+Ez még nem egy konkrét autó, hanem annak leírása, hogy egy autó típusú objektum milyen adatokkal és műveletekkel rendelkezhet.
+
+Konkrét objektumok:
+
+```text
+Autó objektum 1:
+    márka = "Toyota"
+    típus = "Corolla"
+    sebesség = 0
+
+Autó objektum 2:
+    márka = "Ford"
+    típus = "Focus"
+    sebesség = 0
+```
+
+Mindkét objektum ugyanarra az osztályra épül, de az állapotuk eltérhet.
+
+:::info Osztály és objektum kapcsolata
+Az osztály az objektumok szerkezetét írja le.
+Az objektum egy konkrét példány, amelynek már tényleges adatai vannak.
+:::
+
+## Példány
+
+A **példány** az osztályból létrehozott konkrét objektum.
+
+```text
+Osztály: Felhasználó
+
+Példány:
+    Kiss Anna nevű konkrét felhasználó
+```
+
+Egy másik példány lehet:
+
+```text
+Nagy Péter nevű konkrét felhasználó
+```
+
+Mindkettő `Felhasználó` típusú objektum, de az állapotuk eltérő lehet.
+
+```text
+Felhasználó objektum 1:
+    név = "Kiss Anna"
+    email = "anna@example.com"
+    aktív = true
+
+Felhasználó objektum 2:
+    név = "Nagy Péter"
+    email = "peter@example.com"
+    aktív = false
+```
+
+## Állapot
+
+Az **állapot** az objektum aktuális adatainak összessége egy adott pillanatban.
+
+Például egy kosár objektum állapota lehet ez:
+
+```text
+Kosár {
+    termékek száma = 3
+    végösszeg = 12500
+}
+```
+
+Ha új termék kerül a kosárba, akkor az objektum állapota megváltozik.
+
+```text
+Kosár {
+    termékek száma = 4
+    végösszeg = 17990
+}
+```
+
+## Az objektumorientált szemlélet lényege
+
+Az objektumorientált programozásban a programot nem csak egymás után végrehajtott utasítások sorozataként értelmezzük, hanem egymással együttműködő objektumok rendszereként.
+
+Egy objektum:
+
+```text
+állapotot tárol,
+metódusokon keresztül viselkedést valósít meg,
+más objektumokkal is együttműködhet,
+meghatározott szerepet tölt be a programban.
+```
+
+Például egy rendelési rendszerben szerepelhetnek ilyen objektumok:
+
+```text
+Felhasználó
+Termék
+Kosár
+Rendelés
+Számla
+Fizetés
+```
+
+Mindegyik objektum más szerepet tölt be a rendszerben.
+
+A `Felhasználó` a felhasználóhoz kapcsolódó adatokat képviseli.
+A `Termék` egy megvásárolható terméket ír le.
+A `Kosár` a kiválasztott termékeket és azok összesítését kezeli.
+A `Rendelés` a vásárlási folyamat adatait fogja össze.
+A `Fizetés` a fizetéshez kapcsolódó műveleteket képviseli.
+
+<details>
+<summary>Példa egy egyszerű rendelési folyamatra</summary>
+
+Egy rendelési rendszerben a működés elképzelhető így:
+
+```text
+A felhasználó kiválaszt egy terméket.
+A termék bekerül a kosárba.
+A kosár kiszámolja a végösszeget.
+A rendelés eltárolja a vásárlás adatait.
+A fizetés kezeli a fizetési műveletet.
+```
+
+</details>
+
+## Alapfogalmak röviden
+
+### Tulajdonság
+
+A tulajdonság az objektum állapotának egy része.
+
+Példák:
+
+```text
+név
+életkor
+ár
+darabszám
+aktív állapot
+létrehozás dátuma
+```
+
+Egy `Diák` objektum tulajdonságai lehetnek például:
+
+```text
+Diák {
+    név = "Kovács Bence"
+    osztály = "12.A"
+    életkor = 18
+    aktívTanuló = true
+}
+```
+
+### Metódus
+
+A metódus az objektumhoz tartozó művelet.
+
+Példák:
+
+```text
+mentés()
+törlés()
+frissítés()
+számítás()
+ellenőrzés()
+```
+
+Egy `Diák` objektumhoz tartozhatnak például ilyen metódusok:
+
+```text
+Diák {
+    jegyetKap()
+    adatotMódosít()
+    hiányzástRögzít()
+}
+```
+
+A metódusok gyakran az objektum állapotát használják fel vagy módosítják.
+
+### Osztály
+
+Az osztály egy sablon vagy típusleírás, amely meghatározza, hogy az adott típusú objektum milyen tulajdonságokkal és metódusokkal rendelkezhet.
+
+```text
+Osztály: Diák
+
+Tulajdonságok:
+    név
+    osztály
+    életkor
+
+Metódusok:
+    jegyetKap()
+    adatotMódosít()
+    hiányzástRögzít()
+```
+
+### Objektum
+
+Az objektum az osztály konkrét példánya.
+
+```text
+Diák objektum:
+    név = "Kovács Bence"
+    osztály = "12.A"
+    életkor = 18
+```
+
+### Állapot
+
+Az állapot az objektum aktuális tulajdonságértékeinek összessége.
+
+```text
+Diák {
+    név = "Kovács Bence"
+    osztály = "12.A"
+    hiányzások száma = 2
+}
+```
+
+Ha új hiányzás kerül rögzítésre, az objektum állapota megváltozik.
+
+```text
+Diák {
+    név = "Kovács Bence"
+    osztály = "12.A"
+    hiányzások száma = 3
+}
+```
+
+## Az objektumorientáltság fő elvei
+
+Az objektumorientált programozásnak több alapelve van. A leggyakrabban említett fogalmak:
+
+```text
+egységbe zárás
+absztrakció
+öröklődés
+polimorfizmus
+```
+
+Ebben a bevezetőben ezek rövid, szemléleti értelmezése szerepel.
+
+## Egységbe zárás
+
+Az **egységbe zárás** azt jelenti, hogy az objektum az állapotát és a hozzá kapcsolódó műveleteket egy egységként kezeli.
+
+Szakmai értelemben ez nem pusztán azt jelenti, hogy az adatok és metódusok egy helyen vannak. Az egységbe zárás célja az is, hogy az objektum belső állapota szabályozott módon legyen elérhető és módosítható.
+
+Példa:
+
+```text
+Bankszámla {
+    egyenleg
+
+    befizet()
+    pénztKivesz()
+    egyenlegetLekérdez()
+}
+```
+
+Ebben az esetben az `egyenleg` a bankszámla állapotának része.
+A `befizet()`, a `pénztKivesz()` és az `egyenlegetLekérdez()` azok a műveletek, amelyeken keresztül a bankszámla használható.
+
+:::info Egységbe zárás egyszerűen
+Az objektum az állapotát és az állapotához kapcsolódó műveleteket egy egységként kezeli.
+
+A külső programrészek ideális esetben nem közvetlenül módosítják az objektum belső állapotát, hanem az objektum által biztosított metódusokon keresztül dolgoznak vele.
+:::
+
+## Absztrakció
+
+Az **absztrakció** azt jelenti, hogy egy objektumban vagy osztályban csak az adott feladat szempontjából lényeges adatokat és műveleteket emeljük ki.
+
+Egy `Felhasználó` objektumnál például fontos lehet:
+
+```text
+név
+email-cím
+jogosultság
+aktív állapot
+```
+
+Nem biztos, hogy fontos:
+
+```text
+hajszín
+cipőméret
+kedvenc étel
+```
+
+Az absztrakció segít abban, hogy a program ne a valóság minden részletét próbálja lemásolni, hanem csak azokat a jellemzőket kezelje, amelyek az adott rendszer működéséhez szükségesek.
+
+<details>
+<summary>Példa absztrakcióra</summary>
+
+Ha egy iskolai nyilvántartó rendszert készítünk, akkor egy `Diák` objektumnál fontos lehet:
+
+```text
+név
+osztály
+oktatási azonosító
+hiányzások száma
+jegyek
+```
+
+Ugyanebben a rendszerben valószínűleg nem fontos:
+
+```text
+kedvenc szín
+kedvenc film
+cipőméret
+```
+
+A programban azokat az adatokat és műveleteket tartjuk meg, amelyek a rendszer feladataihoz szükségesek.
+
+</details>
+
+## Öröklődés
+
+Az **öröklődés** azt jelenti, hogy egy osztály egy másik, általánosabb osztályból származtatható.
+
+A származtatott osztály átveheti az általánosabb osztály tulajdonságait és metódusait, majd ezeket kiegészítheti saját elemekkel.
+
+Példa:
+
+```text
+Személy
+    név
+    életkor
+
+Diák
+    örökölt adatok:
+        név
+        életkor
+
+    saját adatok:
+        osztály
+        tanulmányi átlag
+
+Tanár
+    örökölt adatok:
+        név
+        életkor
+
+    saját adatok:
+        tantárgy
+        beosztás
+```
+
+A `Diák` és a `Tanár` is speciálisabb típusa lehet a `Személy` fogalmának.
+Ezért lehetnek közös adataik, például a `név` és az `életkor`, de lehetnek saját, csak rájuk jellemző adataik is.
+
+## Polimorfizmus
+
+A **polimorfizmus** azt jelenti, hogy különböző típusú objektumok azonos nevű műveletre eltérő módon reagálhatnak.
+
+Példa:
+
+```text
+Rajzelem {
+    kirajzol()
+}
+
+Kör:
+    kirajzol() → kört rajzol
+
+Téglalap:
+    kirajzol() → téglalapot rajzol
+
+Háromszög:
+    kirajzol() → háromszöget rajzol
+```
+
+A metódus neve mindhárom esetben ugyanaz:
+
+```text
+kirajzol()
+```
+
+A tényleges működés viszont attól függ, hogy milyen konkrét objektumról van szó.
+
+:::info Polimorfizmus egyszerűen
+Ugyanaz a műveletnév többféle objektumnál is használható, miközben a konkrét végrehajtás az objektum típusától függ.
+:::
+
+## Összefoglaló táblázat
+
+| Fogalom        | Rövid jelentés                                                      | Egyszerű példa                              |
+| -------------- | ------------------------------------------------------------------- | ------------------------------------------- |
+| Objektum       | Állapottal és viselkedéssel rendelkező programegység                | `Felhasználó`, `Termék`, `Kosár`            |
+| Osztály        | Sablon vagy típusleírás objektumok létrehozásához                   | `Autó`, `Diák`, `Rendelés`                  |
+| Példány        | Egy osztályból létrehozott konkrét objektum                         | Egy konkrét Toyota autó                     |
+| Tulajdonság    | Az objektum állapotának egy része                                   | `név`, `ár`, `életkor`                      |
+| Metódus        | Az objektumhoz tartozó művelet                                      | `mentés()`, `törlés()`, `frissítés()`       |
+| Állapot        | Az objektum aktuális adatainak összessége                           | Kosár végösszege: `12500`                   |
+| Egységbe zárás | Állapot és műveletek egységben kezelése, szabályozott hozzáféréssel | `Bankszámla` és az `egyenleg` kezelése      |
+| Absztrakció    | A feladat szempontjából lényeges jellemzők kiemelése                | Diáknál név, osztály, oktatási azonosító    |
+| Öröklődés      | Általánosabb osztály alapján speciálisabb osztály létrehozása       | `Diák` mint a `Személy` speciálisabb típusa |
+| Polimorfizmus  | Azonos műveletnév, eltérő konkrét viselkedés                        | `kirajzol()` körnél és téglalapnál          |

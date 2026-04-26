@@ -1,0 +1,1019 @@
+---
+title: PowerShell szöveges típus
+sidebar_position: 9
+description: Szöveges adatok kezelése PowerShellben, idézőjelek, változóbehelyettesítés, metódusok, darabolás, keresés és összehasonlítás
+---
+
+# PowerShell – Szöveges típus
+
+## Szöveg PowerShellben
+
+PowerShellben a szöveges érték típusa általában `String`.
+
+```powershell
+$nev = "Anna"
+$uzenet = "PowerShell tananyag"
+```
+
+A szöveg mögött a .NET `System.String` típusa áll.
+
+```powershell
+$nev.GetType().FullName
+```
+
+Lehetséges eredmény:
+
+```text
+System.String
+```
+
+A szöveg nem egyszerű karakterláncként kezelhető, hanem objektumként is. Emiatt tulajdonságai és metódusai vannak.
+
+```powershell
+$nev.Length
+$nev.ToUpper()
+$nev.ToLower()
+```
+
+---
+
+## Szöveg megadása idézőjelekkel
+
+PowerShellben szöveget egyszeres vagy dupla idézőjelek között lehet megadni.
+
+```powershell
+$szoveg1 = "PowerShell"
+$szoveg2 = 'PowerShell'
+```
+
+Mindkettő szöveges értéket hoz létre, de nem teljesen ugyanúgy viselkednek.
+
+| Forma | Jelentés |
+|---|---|
+| `"szöveg"` | változókat és kifejezéseket is ki tud értékelni |
+| `'szöveg'` | szó szerint kezeli a tartalmat |
+
+Dupla idézőjelnél a változó értéke behelyettesítődik.
+
+```powershell
+$nev = "Anna"
+Write-Host "A tanuló neve: $nev"
+```
+
+Eredmény:
+
+```text
+A tanuló neve: Anna
+```
+
+Egyszeres idézőjelnél nincs változóbehelyettesítés.
+
+```powershell
+$nev = "Anna"
+Write-Host 'A tanuló neve: $nev'
+```
+
+Eredmény:
+
+```text
+A tanuló neve: $nev
+```
+
+Szakmai gyakorlatban akkor érdemes egyszeres idézőjelet használni, ha a szöveget pontosan úgy kell kezelni, ahogy le van írva. Dupla idézőjel akkor indokolt, ha változókat vagy kifejezéseket kell a szövegbe illeszteni.
+
+---
+
+## Változó beillesztése szövegbe
+
+Dupla idézőjeles szövegben a változó értéke automatikusan behelyettesítődik.
+
+```powershell
+$nev = "Kiss Anna"
+$osztaly = "13A"
+
+Write-Host "Név: $nev"
+Write-Host "Osztály: $osztaly"
+```
+
+Eredmény:
+
+```text
+Név: Kiss Anna
+Osztály: 13A
+```
+
+Ha nem egyszerű változót, hanem kifejezést kell beilleszteni, a `$()` alak használható.
+
+```powershell
+$kor = 17
+
+Write-Host "Jövőre ennyi éves lesz: $($kor + 1)"
+```
+
+Eredmény:
+
+```text
+Jövőre ennyi éves lesz: 18
+```
+
+Tulajdonság beillesztésénél is a `$()` alak szükséges, ha a teljes kifejezést szeretnénk kiértékelni.
+
+```powershell
+$fajl = Get-Item .\adatok.txt
+
+Write-Host "A fájl neve: $($fajl.Name)"
+Write-Host "A fájl mérete: $($fajl.Length) bájt"
+```
+
+Ez pontosabb, mint az alábbi forma:
+
+```powershell
+Write-Host "A fájl neve: $fajl.Name"
+```
+
+Ebben az esetben a PowerShell nem feltétlenül a várt módon értelmezi a tulajdonságelérést.
+
+---
+
+## Szöveg összefűzése
+
+Szövegek összefűzésére használható a `+` operátor.
+
+```powershell
+$vezetekNev = "Kiss"
+$keresztNev = "Anna"
+
+$teljesNev = $vezetekNev + " " + $keresztNev
+
+Write-Host $teljesNev
+```
+
+Eredmény:
+
+```text
+Kiss Anna
+```
+
+Változóbehelyettesítéssel olvashatóbb forma is használható.
+
+```powershell
+$teljesNev = "$vezetekNev $keresztNev"
+Write-Host $teljesNev
+```
+
+Több érték összefűzésére használható a `-join` operátor.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csaba")
+
+$szoveg = $nevek -join ", "
+
+Write-Host $szoveg
+```
+
+Eredmény:
+
+```text
+Anna, Béla, Csaba
+```
+
+A `-join` különösen akkor hasznos, ha tömb elemeiből kell egyetlen szöveget előállítani.
+
+---
+
+## Formázott szöveg
+
+PowerShellben használható a `-f` formázó operátor.
+
+```powershell
+$nev = "Anna"
+$jegy = 5
+
+$szoveg = "Tanuló: {0}, jegy: {1}" -f $nev, $jegy
+
+Write-Host $szoveg
+```
+
+Eredmény:
+
+```text
+Tanuló: Anna, jegy: 5
+```
+
+A `{0}`, `{1}`, `{2}` jelölések a megadott értékek sorrendjére hivatkoznak.
+
+```powershell
+"{0} + {1} = {2}" -f 5, 3, (5 + 3)
+```
+
+Eredmény:
+
+```text
+5 + 3 = 8
+```
+
+Számformázás:
+
+```powershell
+$ertek = 3.14159
+
+"{0:N2}" -f $ertek
+```
+
+Eredmény:
+
+```text
+3.14
+```
+
+A `N2` két tizedesjegyre formázott számot jelent.
+
+---
+
+## Szöveg hossza
+
+A szöveg hosszát a `Length` tulajdonság adja meg.
+
+```powershell
+$szoveg = "PowerShell"
+
+Write-Host $szoveg.Length
+```
+
+Eredmény:
+
+```text
+10
+```
+
+A `Length` a karakterek számát adja vissza.
+
+Üres szöveg esetén:
+
+```powershell
+$szoveg = ""
+
+Write-Host $szoveg.Length
+```
+
+Eredmény:
+
+```text
+0
+```
+
+---
+
+## Karakterek elérése index alapján
+
+A szöveg karakterei index alapján elérhetők.
+
+```powershell
+$szoveg = "PowerShell"
+
+$szoveg[0]
+$szoveg[1]
+$szoveg[2]
+```
+
+Eredmény:
+
+```text
+P
+o
+w
+```
+
+PowerShellben az indexelés nullától indul. Az első karakter indexe `0`.
+
+Utolsó karakter elérése:
+
+```powershell
+$szoveg[-1]
+```
+
+Eredmény:
+
+```text
+l
+```
+
+Több karakter kiválasztása indexekkel:
+
+```powershell
+$szoveg[0..4]
+```
+
+Eredmény karakterenként:
+
+```text
+P
+o
+w
+e
+r
+```
+
+Ha az eredményt újra szöveggé kell alakítani:
+
+```powershell
+-join $szoveg[0..4]
+```
+
+Eredmény:
+
+```text
+Power
+```
+
+---
+
+## Kis- és nagybetűs alak
+
+Szöveg nagybetűssé alakítása:
+
+```powershell
+$szoveg = "PowerShell"
+
+$szoveg.ToUpper()
+```
+
+Eredmény:
+
+```text
+POWERSHELL
+```
+
+Szöveg kisbetűssé alakítása:
+
+```powershell
+$szoveg.ToLower()
+```
+
+Eredmény:
+
+```text
+powershell
+```
+
+A `ToUpper()` és `ToLower()` metódus nem módosítja az eredeti változót, hanem új szöveges értéket ad vissza.
+
+```powershell
+$szoveg = "PowerShell"
+$nagy = $szoveg.ToUpper()
+
+Write-Host $szoveg
+Write-Host $nagy
+```
+
+Eredmény:
+
+```text
+PowerShell
+POWERSHELL
+```
+
+Ha az eredeti változó értékét is módosítani kell:
+
+```powershell
+$szoveg = $szoveg.ToUpper()
+```
+
+---
+
+## Szövegrész keresése
+
+A `Contains()` metódus ellenőrzi, hogy egy szöveg tartalmaz-e egy adott részszöveget.
+
+```powershell
+$szoveg = "PowerShell tananyag"
+
+$szoveg.Contains("Shell")
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A `StartsWith()` azt vizsgálja, hogy a szöveg adott részszöveggel kezdődik-e.
+
+```powershell
+$szoveg.StartsWith("Power")
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Az `EndsWith()` azt vizsgálja, hogy a szöveg adott részszöveggel végződik-e.
+
+```powershell
+$szoveg.EndsWith("anyag")
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A `IndexOf()` megadja, hogy egy részszöveg hol kezdődik.
+
+```powershell
+$szoveg.IndexOf("Shell")
+```
+
+Eredmény:
+
+```text
+5
+```
+
+Ha a keresett szöveg nem található, az `IndexOf()` eredménye `-1`.
+
+```powershell
+$szoveg.IndexOf("Python")
+```
+
+Eredmény:
+
+```text
+-1
+```
+
+---
+
+## Részszöveg kivágása
+
+A `Substring()` metódus egy adott részszöveget ad vissza.
+
+```powershell
+$szoveg = "PowerShell"
+
+$szoveg.Substring(0, 5)
+```
+
+Eredmény:
+
+```text
+Power
+```
+
+A `Substring(0, 5)` jelentése:
+
+```text
+0. indextől indul
+5 karaktert vesz ki
+```
+
+Másik példa:
+
+```powershell
+$szoveg.Substring(5)
+```
+
+Eredmény:
+
+```text
+Shell
+```
+
+Ha csak a kezdőindexet adjuk meg, a metódus a szöveg végétől számított összes további karaktert visszaadja.
+
+Indexek:
+
+```text
+P o w e r S h e l l
+0 1 2 3 4 5 6 7 8 9
+```
+
+---
+
+## Szöveg cseréje
+
+A `Replace()` metódus egy részszöveget másik részszövegre cserél.
+
+```powershell
+$szoveg = "PowerShell tananyag"
+
+$ujSzoveg = $szoveg.Replace("tananyag", "jegyzet")
+
+Write-Host $ujSzoveg
+```
+
+Eredmény:
+
+```text
+PowerShell jegyzet
+```
+
+A `Replace()` nem módosítja az eredeti szöveget, hanem új szöveget ad vissza.
+
+```powershell
+Write-Host $szoveg
+```
+
+Eredmény:
+
+```text
+PowerShell tananyag
+```
+
+Ha az eredeti változó értékét is módosítani kell:
+
+```powershell
+$szoveg = $szoveg.Replace("tananyag", "jegyzet")
+```
+
+PowerShellben használható a `-replace` operátor is.
+
+```powershell
+$szoveg = "adatok.txt"
+
+$szoveg -replace ".txt", ".log"
+```
+
+Eredmény:
+
+```text
+adatok.log
+```
+
+A `-replace` reguláris kifejezésekkel dolgozik, ezért speciális karaktereknél körültekintően kell használni.
+
+---
+
+## Szöveg darabolása
+
+A `Split()` metódus egy szöveget részekre bont.
+
+```powershell
+$szoveg = "Anna;Béla;Csaba"
+
+$nevek = $szoveg.Split(";")
+```
+
+A tömb elemei:
+
+```powershell
+$nevek[0]
+$nevek[1]
+$nevek[2]
+```
+
+Eredmény:
+
+```text
+Anna
+Béla
+Csaba
+```
+
+Szóköz mentén darabolás:
+
+```powershell
+$mondat = "PowerShell szöveges típus"
+
+$szavak = $mondat.Split(" ")
+```
+
+Eredmény:
+
+```text
+PowerShell
+szöveges
+típus
+```
+
+A `-split` operátor is használható.
+
+```powershell
+$szoveg = "Anna;Béla;Csaba"
+
+$szoveg -split ";"
+```
+
+A `-split` reguláris kifejezést használ elválasztóként.
+
+---
+
+## Szövegek összekapcsolása tömbből
+
+A `-join` operátor tömb elemeiből egyetlen szöveget készít.
+
+```powershell
+$nevek = @("Anna", "Béla", "Csaba")
+
+$eredmeny = $nevek -join ";"
+
+Write-Host $eredmeny
+```
+
+Eredmény:
+
+```text
+Anna;Béla;Csaba
+```
+
+Olvashatóbb felsorolás készítése:
+
+```powershell
+$eredmeny = $nevek -join ", "
+
+Write-Host $eredmeny
+```
+
+Eredmény:
+
+```text
+Anna, Béla, Csaba
+```
+
+---
+
+## Felesleges szóközök eltávolítása
+
+A `Trim()` eltávolítja a szöveg elejéről és végéről a felesleges szóközöket.
+
+```powershell
+$szoveg = "   Anna   "
+
+$szoveg.Trim()
+```
+
+Eredmény:
+
+```text
+Anna
+```
+
+Csak bal oldali szóközök eltávolítása:
+
+```powershell
+$szoveg.TrimStart()
+```
+
+Csak jobb oldali szóközök eltávolítása:
+
+```powershell
+$szoveg.TrimEnd()
+```
+
+A `Trim()` gyakran hasznos felhasználói bemenetek vagy fájlból beolvasott adatok feldolgozásánál.
+
+---
+
+## Üres és hiányzó szöveg ellenőrzése
+
+Üres szöveg:
+
+```powershell
+$szoveg = ""
+```
+
+Hiányzó érték:
+
+```powershell
+$szoveg = $null
+```
+
+A kettő nem ugyanaz.
+
+```powershell
+$szoveg = ""
+
+$szoveg -eq $null
+```
+
+Eredmény:
+
+```text
+False
+```
+
+Üres vagy `$null` szöveg ellenőrzésére használható a .NET `String` típusának statikus metódusa:
+
+```powershell
+[string]::IsNullOrEmpty($szoveg)
+```
+
+Ez igazat ad, ha az érték `$null` vagy üres szöveg.
+
+Szóközökből álló szöveg esetén:
+
+```powershell
+$szoveg = "   "
+
+[string]::IsNullOrEmpty($szoveg)
+```
+
+Eredmény:
+
+```text
+False
+```
+
+Ilyenkor a `IsNullOrWhiteSpace()` pontosabb.
+
+```powershell
+[string]::IsNullOrWhiteSpace($szoveg)
+```
+
+Eredmény:
+
+```text
+True
+```
+
+---
+
+## Szövegek összehasonlítása
+
+PowerShellben az összehasonlító operátorok szövegeknél alapértelmezetten nem kis- és nagybetű érzékenyek.
+
+```powershell
+"alma" -eq "ALMA"
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Kis- és nagybetű érzékeny összehasonlításhoz a `c` betűs alak használható.
+
+```powershell
+"alma" -ceq "ALMA"
+```
+
+Eredmény:
+
+```text
+False
+```
+
+Gyakori szöveges összehasonlító operátorok:
+
+| Operátor | Jelentés |
+|---|---|
+| `-eq` | egyenlő, alapértelmezetten nem kis- és nagybetű érzékeny |
+| `-ne` | nem egyenlő, alapértelmezetten nem kis- és nagybetű érzékeny |
+| `-ceq` | kis- és nagybetű érzékeny egyenlőség |
+| `-cne` | kis- és nagybetű érzékeny nem egyenlőség |
+| `-like` | wildcard mintára illesztés |
+| `-clike` | kis- és nagybetű érzékeny wildcard illesztés |
+| `-match` | reguláris kifejezéses illesztés |
+| `-cmatch` | kis- és nagybetű érzékeny reguláris illesztés |
+
+Példa wildcard illesztésre:
+
+```powershell
+$fajlNev = "naplo.txt"
+
+$fajlNev -like "*.txt"
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Példa reguláris illesztésre:
+
+```powershell
+$kod = "A123"
+
+$kod -match "^[A-Z][0-9]+$"
+```
+
+Eredmény:
+
+```text
+True
+```
+
+A `-like` egyszerűbb mintáknál használható, a `-match` reguláris kifejezést használ, ezért összetettebb ellenőrzésekre alkalmas.
+
+---
+
+## Escape karakterek
+
+PowerShellben az escape karakter a backtick:
+
+```text
+`
+```
+
+Új sor:
+
+```powershell
+Write-Host "Első sor`nMásodik sor"
+```
+
+Tabulátor:
+
+```powershell
+Write-Host "Név`tJegy"
+```
+
+Idézőjel dupla idézőjeles szövegben:
+
+```powershell
+Write-Host "A neve: `"Anna`""
+```
+
+Eredmény:
+
+```text
+A neve: "Anna"
+```
+
+A backtick használata nehezen olvashatóvá teheti a szöveget, ezért sok esetben egyszerűbb megfelelő idézőjelezést választani.
+
+```powershell
+Write-Host 'A neve: "Anna"'
+```
+
+---
+
+## Többsoros szöveg
+
+Többsoros szöveghez használható here-string.
+
+Dupla idézőjeles here-string:
+
+```powershell
+$szoveg = @"
+Első sor
+Második sor
+Harmadik sor
+"@
+```
+
+Egyszeres idézőjeles here-string:
+
+```powershell
+$nev = "Anna"
+
+$szoveg = @'
+A tanuló neve: $nev
+'@
+```
+
+Eredmény:
+
+```text
+A tanuló neve: $nev
+```
+
+Dupla idézőjeles here-string esetén a változóbehelyettesítés működik.
+
+```powershell
+$nev = "Anna"
+
+$szoveg = @"
+A tanuló neve: $nev
+"@
+```
+
+Eredmény:
+
+```text
+A tanuló neve: Anna
+```
+
+A here-string kezdő és záró jelölésének önálló sorban kell állnia.
+
+---
+
+## Szöveg beolvasása felhasználótól
+
+Felhasználói szöveg beolvasására a `Read-Host` használható.
+
+```powershell
+$nev = Read-Host "Add meg a neved"
+
+Write-Host "Szia, $nev!"
+```
+
+A `Read-Host` eredménye szövegként érkezik.
+
+```powershell
+$kor = Read-Host "Add meg az életkorod"
+
+$kor.GetType().Name
+```
+
+Lehetséges eredmény:
+
+```text
+String
+```
+
+Ha számként kell használni, típuskonverzió szükséges.
+
+```powershell
+$kor = [int](Read-Host "Add meg az életkorod")
+
+Write-Host "Jövőre ennyi éves leszel: $($kor + 1)"
+```
+
+---
+
+## Gyakorlati példa
+
+```powershell
+$vezetekNev = Read-Host "Add meg a vezetéknevet"
+$keresztNev = Read-Host "Add meg a keresztnevet"
+
+$vezetekNev = $vezetekNev.Trim()
+$keresztNev = $keresztNev.Trim()
+
+$teljesNev = "$vezetekNev $keresztNev"
+
+Write-Host "Teljes név: $teljesNev"
+Write-Host "Nagybetűs alak: $($teljesNev.ToUpper())"
+Write-Host "Karakterek száma: $($teljesNev.Length)"
+```
+
+A példa:
+
+```text
+1. Bekéri a vezetéknevet.
+2. Bekéri a keresztnevet.
+3. Eltávolítja a felesleges szóközöket.
+4. Összeállítja a teljes nevet.
+5. Kiírja a nagybetűs alakot.
+6. Kiírja a karakterek számát.
+```
+
+---
+
+## Összefoglalás
+
+A szöveges érték típusa PowerShellben általában `String`.
+
+```powershell
+$szoveg = "PowerShell"
+$szoveg.GetType().FullName
+```
+
+Lehetséges eredmény:
+
+```text
+System.String
+```
+
+Gyakori szöveges műveletek:
+
+| Művelet | PowerShell |
+|---|---|
+| Hossz lekérdezése | `$szoveg.Length` |
+| Nagybetűs alak | `$szoveg.ToUpper()` |
+| Kisbetűs alak | `$szoveg.ToLower()` |
+| Részszöveg keresése | `$szoveg.Contains("minta")` |
+| Kezdődés vizsgálata | `$szoveg.StartsWith("minta")` |
+| Végződés vizsgálata | `$szoveg.EndsWith("minta")` |
+| Részszöveg kivágása | `$szoveg.Substring(0, 5)` |
+| Csere | `$szoveg.Replace("régi", "új")` |
+| Darabolás | `$szoveg.Split(";")` |
+| Összefűzés tömbből | `$tomb -join ", "` |
+| Felesleges szóközök törlése | `$szoveg.Trim()` |
+| Üres szöveg ellenőrzése | `[string]::IsNullOrWhiteSpace($szoveg)` |
+
+Szöveg megadásánál:
+
+```text
+"..."    változóbehelyettesítést végez
+'...'    szó szerint kezeli a tartalmat
+```
+
+Szövegek összehasonlításánál a PowerShell operátorai alapértelmezetten nem kis- és nagybetű érzékenyek.
+
+```powershell
+"alma" -eq "ALMA"
+```
+
+Eredmény:
+
+```text
+True
+```
+
+Kis- és nagybetű érzékeny összehasonlítás:
+
+```powershell
+"alma" -ceq "ALMA"
+```
+
+Eredmény:
+
+```text
+False
+```

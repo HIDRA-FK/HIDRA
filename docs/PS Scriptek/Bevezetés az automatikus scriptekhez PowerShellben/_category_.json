@@ -1,0 +1,8 @@
+{
+  "label": "Bevezetés a rendszerüzemeltetésbe PowerShell segítségével",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Alapozó tananyagok a rendszerüzemeltetési feladatok PowerShellben történő értelmezéséhez, fájlrendszer-kezeléssel, folyamatokkal, szolgáltatásokkal és rendszerinformációk lekérdezésével."
+  }
+}
