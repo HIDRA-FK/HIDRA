@@ -1,0 +1,149 @@
+---
+title: 9. feladat
+sidebar_position: 9
+description: Hálózati alapbeállítások ellenőrzése parancssorból
+---
+
+## Hálózati kapcsolat ellenőrzése
+
+Dokumentáció neve
+
+`halozat_ellenorzes.txt`
+
+Feladat
+
+Egy munkaállomáson ellenőriznie kell a hálózati kapcsolat alapvető beállításait. A feladatot Windows parancssor használatával végezze el.
+
+
+A feladat:
+
+- ellenőrizze, hogy a munkaállomás rendelkezik-e érvényes IPv4-címmel,
+- azonosítsa a munkaállomás IPv4-címét,
+- ellenőrizze, hogy van-e beállított alapértelmezett átjáró,
+- azonosítsa az alapértelmezett átjáró címét,
+- vizsgálja meg, hogy a helyi hálózati átjáró elérhető-e,
+- vizsgálja meg, hogy a munkaállomás képes-e külső hálózati cím elérésére,
+- készítsen rövid szöveges összegzést a hálózati kapcsolat állapotáról a `halozat_ellenorzes.txt` állományban.
+
+
+<details>
+<summary>Megoldás</summary>
+
+## 1. IP-beállítások ellenőrzése
+
+```cmd
+ipconfig
+```
+
+Az `ipconfig` parancs a számítógép hálózati beállításait jeleníti meg.
+
+Ezzel ellenőrizhető többek között:
+
+- milyen IPv4-címet kapott a számítógép,
+- van-e beállított alapértelmezett átjáró,
+- milyen hálózati adapterek vannak a gépen,
+- kapott-e a gép hálózati címet a helyi hálózattól.
+
+A gyakorlatban ezt akkor használjuk, ha meg akarjuk nézni, hogy a számítógép egyáltalán rendelkezik-e érvényes hálózati címmel. Ha nincs IPv4-cím, vagy a cím például `169.254` kezdetű, akkor a gép valószínűleg nem kapott megfelelő címet a hálózattól.
+
+Példa kimenet:
+
+```text
+IPv4 Address. . . . . . . . . . . : 192.168.0.25
+Default Gateway . . . . . . . . . : 192.168.0.1
+```
+
+A példában:
+
+```text
+IPv4-cím: 192.168.0.25
+Alapértelmezett átjáró: 192.168.0.1
+```
+
+Az IPv4-cím a munkaállomás saját címe a helyi hálózaton.  
+Az alapértelmezett átjáró általában a router címe, amelyen keresztül a számítógép más hálózatokat, például az internetet eléri.
+
+## 2. Helyi hálózati átjáró elérésének ellenőrzése
+
+```cmd
+ping 192.168.0.1
+```
+
+A `ping` parancs azt vizsgálja meg, hogy egy adott hálózati cím elérhető-e.
+
+A `192.168.0.1` cím gyakran az alapértelmezett átjáró, vagyis a router címe. Ha az `ipconfig` más alapértelmezett átjárót mutat, akkor a gyakorlatban azt a címet kell ellenőrizni.
+
+Ezt a vizsgálatot akkor használjuk, ha meg akarjuk állapítani, hogy a számítógép eléri-e a helyi hálózat központi eszközét. Ha az átjáró nem válaszol, akkor lehet probléma például:
+
+- a hálózati kábellel,
+- a Wi-Fi kapcsolattal,
+- a routerrel,
+- a számítógép IP-beállításaival.
+
+Sikeres válasz esetén ehhez hasonló eredmény jelenik meg:
+
+```text
+Reply from 192.168.0.1: bytes=32 time<1ms TTL=64
+Reply from 192.168.0.1: bytes=32 time<1ms TTL=64
+Reply from 192.168.0.1: bytes=32 time<1ms TTL=64
+Reply from 192.168.0.1: bytes=32 time<1ms TTL=64
+
+Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
+```
+
+Ez azt jelenti, hogy a munkaállomás eléri a helyi hálózati átjárót.
+
+## 3. Külső hálózati kapcsolat ellenőrzése
+
+```cmd
+ping 1.1.1.1
+```
+
+Az `1.1.1.1` egy külső, interneten elérhető IP-cím. Ennek pingelésével azt lehet ellenőrizni, hogy a számítógép képes-e kilépni a helyi hálózatból, és elér-e külső hálózati címet.
+
+Ezt a vizsgálatot akkor használjuk, ha a helyi hálózati kapcsolat már működik, de ellenőrizni kell, hogy az internetkapcsolat is rendben van-e.
+
+Ha a helyi átjáró elérhető, de az `1.1.1.1` nem válaszol, akkor a probléma valószínűleg nem a számítógép és a router közötti kapcsolatban van, hanem például:
+
+- az internetkapcsolatban,
+- a szolgáltatói oldalon,
+- a router internetkapcsolatában,
+- tűzfal- vagy hálózati szabályokban.
+
+Sikeres válasz esetén ehhez hasonló eredmény jelenik meg:
+
+```text
+Reply from 1.1.1.1: bytes=32 time=12ms TTL=57
+Reply from 1.1.1.1: bytes=32 time=11ms TTL=57
+Reply from 1.1.1.1: bytes=32 time=13ms TTL=57
+Reply from 1.1.1.1: bytes=32 time=12ms TTL=57
+
+Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
+```
+
+Ez azt jelenti, hogy a munkaállomás képes külső hálózati cím elérésére.
+
+## A `halozat_ellenorzes.txt` lehetséges tartalma
+
+```text
+Hálózati ellenőrzés eredménye
+
+IPv4-cím: 192.168.0.25
+Alapértelmezett átjáró: 192.168.0.1
+
+A munkaállomás rendelkezik érvényes IPv4-címmel.
+Az alapértelmezett átjáró be van állítva.
+
+A helyi hálózati kapcsolat ellenőrzése megtörtént.
+A 192.168.0.1 cím elérhető, a csomagvesztés 0%.
+
+A külső hálózati kapcsolat ellenőrzése megtörtént.
+Az 1.1.1.1 cím elérhető, a csomagvesztés 0%.
+
+Összegzés:
+A munkaállomás hálózati beállításai megfelelőek.
+A helyi hálózati kapcsolat működik.
+A külső hálózati kapcsolat működik.
+```
+
+</details>

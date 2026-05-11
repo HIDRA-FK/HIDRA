@@ -1,0 +1,199 @@
+---
+title: 8. feladat
+sidebar_position: 8
+description: SQL csoportosítás és összesítő lekérdezések
+---
+
+## Eszközadatok lekérdezése
+
+SQL állomány neve
+
+`eszkozok.sql`
+
+Feladat
+
+Egy intézmény informatikai eszközöket tart nyilván. A feladat megoldásához használja az alábbi előkészítő SQL scriptet.
+
+A program:
+
+- kérdezze le az `Eszkozok` tábla összes adatát,
+- kérdezze le csak az eszközök nevét és állapotát,
+- kérdezze le az `Aktív` állapotú eszközöket,
+- kérdezze le a `Laptop` kategóriába tartozó eszközöket,
+- kérdezze le, hány eszköz szerepel a táblában,
+- kérdezze le, hány eszköz található kategóriánként,
+- kérdezze le, hány eszköz található állapotonként.
+
+## Előkészítő script
+
+```sql
+CREATE DATABASE EszkozDb;
+GO
+
+USE EszkozDb;
+GO
+
+CREATE TABLE Eszkozok (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nev NVARCHAR(100),
+    Kategoria NVARCHAR(50),
+    Allapot NVARCHAR(50)
+);
+
+INSERT INTO Eszkozok (Nev, Kategoria, Allapot)
+VALUES
+('Lenovo laptop', 'Laptop', 'Aktív'),
+('Acer laptop', 'Laptop', 'Inaktív'),
+('BenQ projektor', 'Projektor', 'Aktív'),
+('Microsoft egér', 'Periféria', 'Aktív'),
+('LG monitor', 'Monitor', 'Hibás'),
+('Brother nyomtató', 'Nyomtató', 'Aktív');
+```
+
+Expected output
+
+```text
+1. lekérdezés eredménye:
+
+Id  Nev               Kategoria   Allapot
+1   Lenovo laptop     Laptop      Aktív
+2   Acer laptop       Laptop      Inaktív
+3   BenQ projektor    Projektor   Aktív
+4   Microsoft egér    Periféria   Aktív
+5   LG monitor        Monitor     Hibás
+6   Brother nyomtató  Nyomtató    Aktív
+
+
+2. lekérdezés eredménye:
+
+Nev               Allapot
+Lenovo laptop     Aktív
+Acer laptop       Inaktív
+BenQ projektor    Aktív
+Microsoft egér    Aktív
+LG monitor        Hibás
+Brother nyomtató  Aktív
+
+
+3. lekérdezés eredménye:
+
+Id  Nev               Kategoria   Allapot
+1   Lenovo laptop     Laptop      Aktív
+3   BenQ projektor    Projektor   Aktív
+4   Microsoft egér    Periféria   Aktív
+6   Brother nyomtató  Nyomtató    Aktív
+
+
+4. lekérdezés eredménye:
+
+Id  Nev            Kategoria  Allapot
+1   Lenovo laptop  Laptop     Aktív
+2   Acer laptop    Laptop     Inaktív
+
+
+5. lekérdezés eredménye:
+
+EszkozokSzama
+6
+
+
+6. lekérdezés eredménye:
+
+Kategoria   EszkozokSzama
+Laptop      2
+Projektor   1
+Periféria   1
+Monitor     1
+Nyomtató    1
+
+
+7. lekérdezés eredménye:
+
+Allapot   EszkozokSzama
+Aktív     4
+Inaktív   1
+Hibás     1
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```sql
+-- Adatbázis létrehozása
+
+CREATE DATABASE EszkozDb;
+GO
+
+USE EszkozDb;
+GO
+
+
+-- Tábla létrehozása
+
+CREATE TABLE Eszkozok (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nev NVARCHAR(100),
+    Kategoria NVARCHAR(50),
+    Allapot NVARCHAR(50)
+);
+
+
+-- Adatok beszúrása
+
+INSERT INTO Eszkozok (Nev, Kategoria, Allapot)
+VALUES
+('Lenovo laptop', 'Laptop', 'Aktív'),
+('Acer laptop', 'Laptop', 'Inaktív'),
+('BenQ projektor', 'Projektor', 'Aktív'),
+('Microsoft egér', 'Periféria', 'Aktív'),
+('LG monitor', 'Monitor', 'Hibás'),
+('Brother nyomtató', 'Nyomtató', 'Aktív');
+
+
+-- 1. Az Eszkozok tábla összes adatának lekérdezése
+
+SELECT *
+FROM Eszkozok;
+
+
+-- 2. Csak az eszközök nevének és állapotának lekérdezése
+
+SELECT Nev, Allapot
+FROM Eszkozok;
+
+
+-- 3. Az Aktív állapotú eszközök lekérdezése
+
+SELECT *
+FROM Eszkozok
+WHERE Allapot = 'Aktív';
+
+
+-- 4. A Laptop kategóriába tartozó eszközök lekérdezése
+
+SELECT *
+FROM Eszkozok
+WHERE Kategoria = 'Laptop';
+
+
+-- 5. A táblában szereplő eszközök számának lekérdezése
+
+SELECT COUNT(*) AS EszkozokSzama
+FROM Eszkozok;
+
+
+-- 6. Az eszközök számának lekérdezése kategóriánként
+
+SELECT Kategoria, COUNT(*) AS EszkozokSzama
+FROM Eszkozok
+GROUP BY Kategoria;
+
+
+-- 7. Az eszközök számának lekérdezése állapotonként
+
+SELECT Allapot, COUNT(*) AS EszkozokSzama
+FROM Eszkozok
+GROUP BY Allapot;
+```
+
+</details>

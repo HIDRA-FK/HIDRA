@@ -1,0 +1,193 @@
+---
+title: 7. feladat
+sidebar_position: 7
+description: SQL szűrés, rendezés és összesítő függvények használata
+---
+
+## Termékadatok lekérdezése
+
+SQL állomány neve
+
+`termekek.sql`
+
+Feladat
+
+Egy informatikai üzlet termékadatait kell lekérdezésekkel feldolgozni. A feladat megoldásához használja az alábbi előkészítő SQL scriptet.
+
+A program:
+
+- kérdezze le a `Termekek` tábla összes adatát,
+- kérdezze le csak a termékek nevét és árát,
+- kérdezze le az `5000 Ft`-nál drágább termékeket,
+- kérdezze le a `Periféria` kategóriába tartozó termékeket,
+- kérdezze le a legolcsóbb termék nevét és árát,
+- kérdezze le a termékek átlagárát,
+- rendezze a termékeket ár szerint csökkenő sorrendbe.
+
+## Előkészítő script
+
+```sql
+CREATE DATABASE BoltDb;
+GO
+
+USE BoltDb;
+GO
+
+CREATE TABLE Termekek (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nev NVARCHAR(50),
+    Kategoria NVARCHAR(50),
+    Ar INT
+);
+
+INSERT INTO Termekek (Nev, Kategoria, Ar)
+VALUES
+('Monitor', 'Informatika', 72000),
+('Webkamera', 'Periféria', 14500),
+('SSD meghajtó', 'Adattárolás', 28500),
+('USB kábel', 'Kábel', 1800),
+('Fejhallgató', 'Periféria', 12500);
+```
+
+Expected output
+
+```text
+1. lekérdezés eredménye:
+
+Id  Nev           Kategoria      Ar
+1   Monitor       Informatika    72000
+2   Webkamera     Periféria      14500
+3   SSD meghajtó  Adattárolás    28500
+4   USB kábel     Kábel          1800
+5   Fejhallgató   Periféria      12500
+
+
+2. lekérdezés eredménye:
+
+Nev           Ar
+Monitor       72000
+Webkamera     14500
+SSD meghajtó  28500
+USB kábel     1800
+Fejhallgató   12500
+
+
+3. lekérdezés eredménye:
+
+Id  Nev           Kategoria      Ar
+1   Monitor       Informatika    72000
+2   Webkamera     Periféria      14500
+3   SSD meghajtó  Adattárolás    28500
+5   Fejhallgató   Periféria      12500
+
+
+4. lekérdezés eredménye:
+
+Id  Nev          Kategoria  Ar
+2   Webkamera    Periféria  14500
+5   Fejhallgató  Periféria  12500
+
+
+5. lekérdezés eredménye:
+
+Nev        Ar
+USB kábel  1800
+
+
+6. lekérdezés eredménye:
+
+AtlagAr
+25860
+
+
+7. lekérdezés eredménye:
+
+Id  Nev           Kategoria      Ar
+1   Monitor       Informatika    72000
+3   SSD meghajtó  Adattárolás    28500
+2   Webkamera     Periféria      14500
+5   Fejhallgató   Periféria      12500
+4   USB kábel     Kábel          1800
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```sql
+-- Adatbázis létrehozása
+
+CREATE DATABASE BoltDb;
+GO
+
+USE BoltDb;
+GO
+
+
+-- Tábla létrehozása
+
+CREATE TABLE Termekek (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nev NVARCHAR(50),
+    Kategoria NVARCHAR(50),
+    Ar INT
+);
+
+
+-- Adatok beszúrása
+
+INSERT INTO Termekek (Nev, Kategoria, Ar)
+VALUES
+('Monitor', 'Informatika', 72000),
+('Webkamera', 'Periféria', 14500),
+('SSD meghajtó', 'Adattárolás', 28500),
+('USB kábel', 'Kábel', 1800),
+('Fejhallgató', 'Periféria', 12500);
+
+
+-- 1. A Termekek tábla összes adatának lekérdezése
+
+SELECT *
+FROM Termekek;
+
+
+-- 2. Csak a termékek nevének és árának lekérdezése
+
+SELECT Nev, Ar
+FROM Termekek;
+
+
+-- 3. Az 5000 Ft-nál drágább termékek lekérdezése
+
+SELECT *
+FROM Termekek
+WHERE Ar > 5000;
+
+
+-- 4. A Periféria kategóriába tartozó termékek lekérdezése
+
+SELECT *
+FROM Termekek
+WHERE Kategoria = 'Periféria';
+
+
+-- 5. A legolcsóbb termék nevének és árának lekérdezése
+
+SELECT TOP 1 Nev, Ar
+FROM Termekek
+ORDER BY Ar ASC;
+
+
+-- 6. A termékek átlagárának lekérdezése
+
+SELECT AVG(Ar) AS AtlagAr
+FROM Termekek;
+
+
+-- 7. A termékek rendezése ár szerint csökkenő sorrendbe
+
+SELECT *
+FROM Termekek
+ORDER BY Ar DESC;
+```
+
+</details>

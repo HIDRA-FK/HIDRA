@@ -1,0 +1,173 @@
+---
+title: 4. feladat
+sidebar_position: 4
+description: PowerShell tömbkezelés és adattisztítás
+---
+
+## Akkumulátoradatok feldolgozása
+
+Script neve
+
+`laptop_akkuk.ps1`
+
+Feladat
+
+Egy informatikai szervizben több használt laptop akkumulátorának töltöttségét vizsgálják. Az adatokat százalékban rögzítették. A `0` érték hibás mérésnek számít.
+
+A rögzített adatok:
+
+```text
+67, 82, 0, 91, 100, 58, 74
+````
+
+Készíts PowerShell scriptet, amely feldolgozza a megadott akkumulátoradatokat.
+
+A program:
+
+* mentse el az akkumulátoradatokat egy tömbben,
+* vizsgálja meg, hogy a legkisebb érték `0`-e, és ha igen, törölje a hibás adatot,
+* szúrja be a lista második helyére a `88` értéket,
+* adja hozzá a tömb végéhez a `63` értéket,
+* készítsen másolatot a módosított sorrendről,
+* számítsa ki és írja ki az akkumulátorok számát, az átlagos töltöttséget, a legalacsonyabb és a legmagasabb értéket, valamint a teljesen feltöltött akkumulátorok számát,
+* írja ki, hogy van-e még töltésre szoruló laptop, vagy az eszközök kiadásra készek, illetve részleges előkészítést igényelnek.
+
+A laptop akkor számít töltésre szorulónak, ha az akkumulátor töltöttsége `60` százalék alatti.
+
+Expected output
+
+```text
+A hibás 0 érték eltávolítása után: 67 82 91 100 58 74
+A 88 érték beszúrása és a 63 érték hozzáadása után: 67 88 82 91 100 58 74 63
+A módosított eredeti sorrend másolata: 67 88 82 91 100 58 74 63
+Akkumulátorok száma: 8
+Átlagos töltöttség: 78
+Legalacsonyabb töltöttség: 58
+Legmagasabb töltöttség: 100
+Teljesen feltöltött akkumulátorok száma: 1
+Van még töltésre szoruló laptop.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+# 1. Az akkumulátoradatok eltárolása tömbben
+
+$akkuk = @(67, 82, 0, 91, 100, 58, 74)
+
+
+# 2. A hibás 0 érték eltávolítása, ha a legkisebb érték 0
+
+$minimum = $akkuk[0]
+
+foreach ($akku in $akkuk) {
+    if ($akku -lt $minimum) {
+        $minimum = $akku
+    }
+}
+
+if ($minimum -eq 0) {
+    $ujAkkuk = @()
+
+    foreach ($akku in $akkuk) {
+        if ($akku -ne 0) {
+            $ujAkkuk += $akku
+        }
+    }
+
+    $akkuk = $ujAkkuk
+}
+
+Write-Host "A hibás 0 érték eltávolítása után: $akkuk"
+
+
+# 3. A 88 érték beszúrása a lista második helyére
+
+$akkuk = @($akkuk[0], 88) + $akkuk[1..($akkuk.Length - 1)]
+
+
+# 4. A 63 érték hozzáadása a tömb végéhez
+
+$akkuk += 63
+
+Write-Host "A 88 érték beszúrása és a 63 érték hozzáadása után: $akkuk"
+
+
+# 5. Másolat készítése a módosított sorrendről
+
+$eredetiSorrend = @($akkuk)
+
+Write-Host "A módosított eredeti sorrend másolata: $eredetiSorrend"
+
+
+# 6. Az akkumulátorok számának és átlagos töltöttségének kiszámítása
+
+$osszeg = 0
+
+foreach ($akku in $akkuk) {
+    $osszeg += $akku
+}
+
+$darab = $akkuk.Length
+$atlag = [math]::Round($osszeg / $darab)
+
+Write-Host "Akkumulátorok száma: $darab"
+Write-Host "Átlagos töltöttség: $atlag"
+
+
+# 7. A legalacsonyabb és legmagasabb töltöttség meghatározása
+
+$legalacsonyabb = $akkuk[0]
+$legmagasabb = $akkuk[0]
+
+foreach ($akku in $akkuk) {
+    if ($akku -lt $legalacsonyabb) {
+        $legalacsonyabb = $akku
+    }
+
+    if ($akku -gt $legmagasabb) {
+        $legmagasabb = $akku
+    }
+}
+
+Write-Host "Legalacsonyabb töltöttség: $legalacsonyabb"
+Write-Host "Legmagasabb töltöttség: $legmagasabb"
+
+
+# 8. A teljesen feltöltött akkumulátorok megszámolása
+
+$teljesenFeltoltott = 0
+
+foreach ($akku in $akkuk) {
+    if ($akku -eq 100) {
+        $teljesenFeltoltott++
+    }
+}
+
+Write-Host "Teljesen feltöltött akkumulátorok száma: $teljesenFeltoltott"
+
+
+# 9. Az akkumulátorok állapotának kiértékelése
+
+$toltendoVan = $false
+
+foreach ($akku in $akkuk) {
+    if ($akku -lt 60) {
+        $toltendoVan = $true
+    }
+}
+
+if ($toltendoVan) {
+    Write-Host "Van még töltésre szoruló laptop."
+}
+elseif ($atlag -ge 80) {
+    Write-Host "Az eszközök kiadásra készek."
+}
+else {
+    Write-Host "Az eszközök részleges előkészítést igényelnek."
+}
+```
+
+</details>
+

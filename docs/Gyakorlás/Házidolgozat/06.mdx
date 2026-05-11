@@ -1,0 +1,191 @@
+---
+title: 6. feladat
+sidebar_position: 6
+description: SQL alaplekérdezések és feltételes szűrések
+---
+
+## Tanulói adatok lekérdezése
+
+SQL állomány neve
+
+`tanulok.sql`
+
+Feladat
+
+Egy iskola tanulói adatokat tárol adatbázisban. A feladat megoldásához használja az alábbi előkészítő SQL scriptet.
+
+A program:
+
+- kérdezze le a `Tanulok` tábla összes adatát,
+- kérdezze le csak a tanulók nevét és átlagát,
+- kérdezze le azoknak a tanulóknak az adatait, akik `18` évesek,
+- kérdezze le azoknak a tanulóknak az adatait, akiknek az átlaga legalább `4.0`,
+- kérdezze le a tanulók átlagának átlagát,
+- kérdezze le, hány tanuló szerepel a táblában,
+- rendezze a tanulókat átlag szerint csökkenő sorrendbe.
+
+## Előkészítő script
+
+```sql
+CREATE DATABASE IskolaDb;
+GO
+
+USE IskolaDb;
+GO
+
+CREATE TABLE Tanulok (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nev NVARCHAR(50),
+    Eletkor INT,
+    Atlag DECIMAL(3,1)
+);
+
+INSERT INTO Tanulok (Nev, Eletkor, Atlag)
+VALUES
+('Nóra', 16, 4.5),
+('Tamás', 17, 3.4),
+('Levente', 18, 4.7),
+('Júlia', 17, 4.0),
+('Márk', 18, 3.8);
+```
+
+Expected output
+
+```text
+1. lekérdezés eredménye:
+
+Id  Nev      Eletkor  Atlag
+1   Nóra     16       4.5
+2   Tamás    17       3.4
+3   Levente  18       4.7
+4   Júlia    17       4.0
+5   Márk     18       3.8
+
+
+2. lekérdezés eredménye:
+
+Nev      Atlag
+Nóra     4.5
+Tamás    3.4
+Levente  4.7
+Júlia    4.0
+Márk     3.8
+
+
+3. lekérdezés eredménye:
+
+Id  Nev      Eletkor  Atlag
+3   Levente  18       4.7
+5   Márk     18       3.8
+
+
+4. lekérdezés eredménye:
+
+Id  Nev      Eletkor  Atlag
+1   Nóra     16       4.5
+3   Levente  18       4.7
+4   Júlia    17       4.0
+
+
+5. lekérdezés eredménye:
+
+AtlagokAtlaga
+4.08
+
+
+6. lekérdezés eredménye:
+
+TanulokSzama
+5
+
+
+7. lekérdezés eredménye:
+
+Id  Nev      Eletkor  Atlag
+3   Levente  18       4.7
+1   Nóra     16       4.5
+4   Júlia    17       4.0
+5   Márk     18       3.8
+2   Tamás    17       3.4
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```sql
+-- Adatbázis létrehozása
+
+CREATE DATABASE IskolaDb;
+GO
+
+USE IskolaDb;
+GO
+
+
+-- Tábla létrehozása
+
+CREATE TABLE Tanulok (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Nev NVARCHAR(50),
+    Eletkor INT,
+    Atlag DECIMAL(3,1)
+);
+
+
+-- Adatok beszúrása
+
+INSERT INTO Tanulok (Nev, Eletkor, Atlag)
+VALUES
+('Nóra', 16, 4.5),
+('Tamás', 17, 3.4),
+('Levente', 18, 4.7),
+('Júlia', 17, 4.0),
+('Márk', 18, 3.8);
+
+
+-- 1. A Tanulok tábla összes adatának lekérdezése
+
+SELECT *
+FROM Tanulok;
+
+
+-- 2. Csak a tanulók nevének és átlagának lekérdezése
+
+SELECT Nev, Atlag
+FROM Tanulok;
+
+
+-- 3. A 18 éves tanulók adatainak lekérdezése
+
+SELECT *
+FROM Tanulok
+WHERE Eletkor = 18;
+
+
+-- 4. A legalább 4.0 átlagú tanulók adatainak lekérdezése
+
+SELECT *
+FROM Tanulok
+WHERE Atlag >= 4.0;
+
+
+-- 5. A tanulók átlagának átlagának lekérdezése
+
+SELECT CAST(AVG(Atlag) AS DECIMAL(4,2)) AS AtlagokAtlaga
+FROM Tanulok;
+
+
+-- 6. A táblában szereplő tanulók számának lekérdezése
+
+SELECT COUNT(*) AS TanulokSzama
+FROM Tanulok;
+
+
+-- 7. A tanulók rendezése átlag szerint csökkenő sorrendbe
+
+SELECT *
+FROM Tanulok
+ORDER BY Atlag DESC;
+```
+
+</details>

@@ -1,0 +1,208 @@
+---
+title: 5. feladat
+sidebar_position: 5
+description: PowerShell tömbműveletek és számított értékek kezelése
+---
+
+## Almatermés elszámolása
+
+Script neve
+
+`almatermes.ps1`
+
+Feladat
+
+Egy gyümölcstermesztő gazdaság az értékesítés előtt ládákba rendezve méri le az almát. A ládák tömegét kilogrammban rögzítették.
+
+A rögzített adatok:
+
+```text
+18.4, 12.7, 21.5, 9.8, 16.2, 7.3
+```
+
+Készíts PowerShell scriptet, amely elvégzi az értékesítés elszámolását.
+
+A program:
+
+- mentse el a ládatömegeket egy tömbben,
+- adja hozzá a tömb végéhez a `14.6` értéket, majd szúrja be a tömb elejére a `19.1` értéket,
+- távolítsa el a tömbből a `7.3` értéket, mert az a láda nem kerül értékesítésre,
+- számítsa ki és írja ki az összes eladható almamennyiséget, a ládák számát és az átlagos ládatömeget,
+- határozza meg és írja ki a legkönnyebb és a legnehezebb láda tömegét,
+- számítsa ki és írja ki a bruttó árbevételt, a csomagolási költséget, a szállítási költséget és a nettó eredményt,
+- írja ki, hogy van-e külön átvizsgálandó láda, külön jelölendő láda, illetve gazdaságosan értékesíthető-e a szállítmány.
+
+Az eladási ár `420 Ft/kg`, a csomagolási költség `35 Ft/kg`, egy láda szállítási költsége `900 Ft`.
+
+Az elszámoláshoz az alábbi képleteket használja:
+
+- `bruttó árbevétel = összes eladható almamennyiség * eladási ár`
+- `csomagolási költség = összes eladható almamennyiség * csomagolási költség kilogrammonként`
+- `szállítási költség = ládák száma * egy láda szállítási költsége`
+- `nettó eredmény = bruttó árbevétel - csomagolási költség - szállítási költség`
+
+Egy láda akkor igényel külön átvizsgálást, ha a tömege `10 kg` alatti.  
+Egy láda akkor igényel külön jelölést, ha a tömege `20 kg` feletti.  
+A szállítmány akkor tekinthető gazdaságosan értékesíthetőnek, ha a nettó eredmény legalább `30000 Ft`.
+
+Expected output
+
+```text
+A 14.6 kg-os láda hozzáadása után: 18.4 12.7 21.5 9.8 16.2 7.3 14.6
+A 19.1 kg-os láda beszúrása után: 19.1 18.4 12.7 21.5 9.8 16.2 7.3 14.6
+A 7.3 kg-os láda eltávolítása után: 19.1 18.4 12.7 21.5 9.8 16.2 14.6
+Összes eladható almamennyiség: 112.3 kg
+Ládák száma: 7
+Átlagos ládatömeg: 16.04 kg
+Legkönnyebb láda tömege: 9.8 kg
+Legnehezebb láda tömege: 21.5 kg
+Bruttó árbevétel: 47166 Ft
+Csomagolási költség: 3930.5 Ft
+Szállítási költség: 6300 Ft
+Nettó eredmény: 36935.5 Ft
+Van külön átvizsgálandó láda.
+Van külön jelölendő láda.
+A szállítmány gazdaságosan értékesíthető.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```powershell
+# 1. A ládatömegek eltárolása tömbben
+
+$ladak = @(18.4, 12.7, 21.5, 9.8, 16.2, 7.3)
+
+
+# 2. A 14.6 kg-os láda hozzáadása a tömb végéhez
+
+$ladak += 14.6
+
+Write-Host "A 14.6 kg-os láda hozzáadása után: $ladak"
+
+
+# 3. A 19.1 kg-os láda beszúrása a tömb elejére
+
+$ladak = @(19.1) + $ladak
+
+Write-Host "A 19.1 kg-os láda beszúrása után: $ladak"
+
+
+# 4. A 7.3 kg-os láda eltávolítása
+
+$ujLadak = @()
+
+foreach ($lada in $ladak) {
+    if ($lada -ne 7.3) {
+        $ujLadak += $lada
+    }
+}
+
+$ladak = $ujLadak
+
+Write-Host "A 7.3 kg-os láda eltávolítása után: $ladak"
+
+
+# 5. Az összes eladható almamennyiség kiszámítása
+
+$osszeg = 0
+
+foreach ($lada in $ladak) {
+    $osszeg += $lada
+}
+
+Write-Host "Összes eladható almamennyiség: $osszeg kg"
+
+
+# 6. A ládák számának és az átlagos ládatömegnek a kiszámítása
+
+$ladakSzama = $ladak.Length
+$atlag = [math]::Round($osszeg / $ladakSzama, 2)
+
+Write-Host "Ládák száma: $ladakSzama"
+Write-Host "Átlagos ládatömeg: $atlag kg"
+
+
+# 7. A legkönnyebb és legnehezebb láda meghatározása
+
+$legkonnyebb = $ladak[0]
+$legnehezebb = $ladak[0]
+
+foreach ($lada in $ladak) {
+    if ($lada -lt $legkonnyebb) {
+        $legkonnyebb = $lada
+    }
+
+    if ($lada -gt $legnehezebb) {
+        $legnehezebb = $lada
+    }
+}
+
+Write-Host "Legkönnyebb láda tömege: $legkonnyebb kg"
+Write-Host "Legnehezebb láda tömege: $legnehezebb kg"
+
+
+# 8. Az árbevétel és a költségek kiszámítása
+
+$eladasiAr = 420
+$csomagolasiDij = 35
+$szallitasiDij = 900
+
+$bruttoArbevetel = $osszeg * $eladasiAr
+$csomagolasiKoltseg = $osszeg * $csomagolasiDij
+$szallitasiKoltseg = $ladakSzama * $szallitasiDij
+$nettoEredmeny = $bruttoArbevetel - $csomagolasiKoltseg - $szallitasiKoltseg
+
+Write-Host "Bruttó árbevétel: $bruttoArbevetel Ft"
+Write-Host "Csomagolási költség: $csomagolasiKoltseg Ft"
+Write-Host "Szállítási költség: $szallitasiKoltseg Ft"
+Write-Host "Nettó eredmény: $nettoEredmeny Ft"
+
+
+# 9. Külön átvizsgálandó láda keresése
+
+$atvizsgalandoVan = $false
+
+foreach ($lada in $ladak) {
+    if ($lada -lt 10) {
+        $atvizsgalandoVan = $true
+    }
+}
+
+if ($atvizsgalandoVan) {
+    Write-Host "Van külön átvizsgálandó láda."
+}
+else {
+    Write-Host "Nincs külön átvizsgálandó láda."
+}
+
+
+# 10. Külön jelölendő láda keresése
+
+$jelolendoVan = $false
+
+foreach ($lada in $ladak) {
+    if ($lada -gt 20) {
+        $jelolendoVan = $true
+    }
+}
+
+if ($jelolendoVan) {
+    Write-Host "Van külön jelölendő láda."
+}
+else {
+    Write-Host "Nincs külön jelölendő láda."
+}
+
+
+# 11. A szállítmány gazdaságosságának kiértékelése
+
+if ($nettoEredmeny -ge 30000) {
+    Write-Host "A szállítmány gazdaságosan értékesíthető."
+}
+else {
+    Write-Host "A szállítmány nem értékesíthető gazdaságosan."
+}
+```
+
+</details>

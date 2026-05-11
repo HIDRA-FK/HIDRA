@@ -1,0 +1,138 @@
+---
+title: 2. feladat
+sidebar_position: 2
+description: Bash tömbkezelés, összegzés és feltételes kiértékelés
+---
+
+## Minőségi pontszámok feldolgozása
+
+Script neve
+
+`minoseg.sh`
+
+Feladat
+
+Egy gyártósoron a minőségellenőrzés során több terméket is értékeltek. Egy termék legfeljebb 20 minőségi pontot kaphatott.
+
+A rögzített pontszámok:
+
+```text
+16, 20, 13, 18, 15, 20, 11
+```
+
+Készíts Bash scriptet, amely feldolgozza a megadott minőségi pontszámokat.
+
+A program:
+
+- mentse el a minőségi pontszámokat egy tömbben,
+- írja ki, hány terméket vizsgáltak meg,
+- számítsa ki és írja ki az összes elért minőségi pontszámot,
+- számítsa ki és írja ki az átlagos minőségi pontszámot,
+- határozza meg és írja ki a legalacsonyabb és a legmagasabb pontszámot,
+- számolja meg, hány termék ért el maximális, vagyis `20` pontos eredményt,
+- adja hozzá a tömbhöz a késve rögzített `17` pontos eredményt,
+- írja ki, hogy az eredeti átlagos minőségi pontszám alapján a gyártási minőség `megfelelő` vagy `beavatkozást igényel`.
+
+A gyártási minőség akkor tekinthető `megfelelő` minőségűnek, ha az eredeti átlagos minőségi pontszám legalább `15`.
+
+Expected output
+
+```text
+Vizsgált termékek száma: 7
+Összes minőségi pontszám: 113
+Átlagos minőségi pontszám: 16
+Legalacsonyabb pontszám: 11
+Legmagasabb pontszám: 20
+Maximális pontszámot elért termékek száma: 2
+A 17 pontos eredmény hozzáadása után: 16 20 13 18 15 20 11 17
+A gyártási minőség megfelelő.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+# 1. A minőségi pontszámok eltárolása tömbben
+
+pontszamok=(16 20 13 18 15 20 11)
+
+
+# 2. A vizsgált termékek számának meghatározása
+
+termekek_szama=${#pontszamok[@]}
+
+echo "Vizsgált termékek száma: $termekek_szama"
+
+
+# 3. Az összes minőségi pontszám kiszámítása
+
+osszeg=0
+
+for pontszam in "${pontszamok[@]}"
+do
+    osszeg=$((osszeg + pontszam))
+done
+
+echo "Összes minőségi pontszám: $osszeg"
+
+
+# 4. Az átlagos minőségi pontszám kiszámítása
+
+atlag=$((osszeg / termekek_szama))
+
+echo "Átlagos minőségi pontszám: $atlag"
+
+
+# 5. A legalacsonyabb és legmagasabb pontszám meghatározása
+
+minimum=${pontszamok[0]}
+maximum=${pontszamok[0]}
+
+for pontszam in "${pontszamok[@]}"
+do
+    if [ "$pontszam" -lt "$minimum" ]; then
+        minimum=$pontszam
+    fi
+
+    if [ "$pontszam" -gt "$maximum" ]; then
+        maximum=$pontszam
+    fi
+done
+
+echo "Legalacsonyabb pontszám: $minimum"
+echo "Legmagasabb pontszám: $maximum"
+
+
+# 6. A maximális pontszámot elért termékek megszámolása
+
+maximalis_darab=0
+
+for pontszam in "${pontszamok[@]}"
+do
+    if [ "$pontszam" -eq 20 ]; then
+        maximalis_darab=$((maximalis_darab + 1))
+    fi
+done
+
+echo "Maximális pontszámot elért termékek száma: $maximalis_darab"
+
+
+# 7. A késve rögzített 17 pontos eredmény hozzáadása
+
+pontszamok+=(17)
+
+echo "A 17 pontos eredmény hozzáadása után: ${pontszamok[@]}"
+
+
+# 8. A gyártási minőség kiértékelése az eredeti átlag alapján
+
+if [ "$atlag" -ge 15 ]; then
+    echo "A gyártási minőség megfelelő."
+else
+    echo "A gyártási minőség beavatkozást igényel."
+fi
+```
+
+</details>

@@ -1,0 +1,138 @@
+---
+title: 1. feladat
+sidebar_position: 1
+description: Bash tömbkezelés és alapvető adatelemzés
+---
+
+## Napi csomagforgalom feldolgozása
+
+Script neve
+
+`csomagok.sh`
+
+Feladat
+
+Egy raktárban egy héten keresztül feljegyezték, hogy naponta hány csomag érkezett be az átvételi részlegre.
+
+A rögzített adatok:
+
+```text
+23, 31, 18, 27, 35, 29, 22
+```
+
+Készíts Bash scriptet, amely feldolgozza a megadott adatokat.
+
+A program:
+
+- mentse el a csomagszámokat egy tömbben,
+- írja ki, hány nap adata szerepel a tömbben,
+- számítsa ki és írja ki a beérkezett csomagok összesített számát,
+- számítsa ki és írja ki az átlagos napi csomagszámot,
+- határozza meg és írja ki a legalacsonyabb és a legmagasabb napi csomagszámot,
+- számolja meg, hányszor szerepel a tömbben a `35` csomagos érték,
+- adja hozzá a tömbhöz a később rögzített `26` csomagos adatot,
+- írja ki, hogy az eredeti átlagos csomagszám alapján a hét `forgalmas` vagy `mérsékelt` volt.
+
+A hét akkor tekinthető `forgalmas` hétnek, ha az eredeti átlagos napi csomagszám legalább `25`.
+
+Expected output
+
+```text
+Napok száma: 7
+Összes csomag: 185
+Átlagos napi csomagszám: 26
+Legalacsonyabb napi csomagszám: 18
+Legmagasabb napi csomagszám: 35
+A 35 csomagos érték előfordulása: 1
+A 26 csomagos adat hozzáadása után: 23 31 18 27 35 29 22 26
+A hét forgalmas volt.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+# 1. A csomagszámok eltárolása tömbben
+
+csomagok=(23 31 18 27 35 29 22)
+
+
+# 2. A napok számának meghatározása
+
+napok_szama=${#csomagok[@]}
+
+echo "Napok száma: $napok_szama"
+
+
+# 3. A csomagok összegének kiszámítása
+
+osszeg=0
+
+for csomag in "${csomagok[@]}"
+do
+    osszeg=$((osszeg + csomag))
+done
+
+echo "Összes csomag: $osszeg"
+
+
+# 4. Az átlagos napi csomagszám kiszámítása
+
+atlag=$((osszeg / napok_szama))
+
+echo "Átlagos napi csomagszám: $atlag"
+
+
+# 5. A legalacsonyabb és legmagasabb napi csomagszám meghatározása
+
+minimum=${csomagok[0]}
+maximum=${csomagok[0]}
+
+for csomag in "${csomagok[@]}"
+do
+    if [ "$csomag" -lt "$minimum" ]; then
+        minimum=$csomag
+    fi
+
+    if [ "$csomag" -gt "$maximum" ]; then
+        maximum=$csomag
+    fi
+done
+
+echo "Legalacsonyabb napi csomagszám: $minimum"
+echo "Legmagasabb napi csomagszám: $maximum"
+
+
+# 6. A 35 csomagos érték előfordulásainak megszámolása
+
+darab_35=0
+
+for csomag in "${csomagok[@]}"
+do
+    if [ "$csomag" -eq 35 ]; then
+        darab_35=$((darab_35 + 1))
+    fi
+done
+
+echo "A 35 csomagos érték előfordulása: $darab_35"
+
+
+# 7. A késve rögzített 26 csomagos adat hozzáadása
+
+csomagok+=(26)
+
+echo "A 26 csomagos adat hozzáadása után: ${csomagok[@]}"
+
+
+# 8. A hét forgalmának kiértékelése az eredeti átlag alapján
+
+if [ "$atlag" -ge 25 ]; then
+    echo "A hét forgalmas volt."
+else
+    echo "A hét mérsékelt volt."
+fi
+```
+
+</details>

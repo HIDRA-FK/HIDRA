@@ -1,0 +1,142 @@
+---
+title: 3. feladat
+sidebar_position: 3
+description: Bash tömbműveletek és adatsorok feldolgozása
+---
+
+## Férőhelyadatok feldolgozása
+
+Script neve
+
+`ferohelyek.sh`
+
+Feladat
+
+Egy rendezvényszervező cég felméri, hogy az egyes termekben hány szék áll rendelkezésre.
+
+A rögzített adatok:
+
+```text
+120, 80, 150, 200, 60, 170
+```
+
+Készíts Bash scriptet, amely feldolgozza a megadott férőhelyadatokat.
+
+A program:
+
+- mentse el a férőhelyadatokat egy tömbben,
+- adja hozzá a tömb végéhez az újonnan megnyitott terem `140` férőhelyes adatát,
+- szúrja be a tömb elejére a `250` értéket,
+- távolítsa el a tömbből a `60` értéket,
+- számítsa ki és írja ki az összes rendelkezésre álló férőhelyet,
+- számítsa ki és írja ki az átlagos teremkapacitást,
+- határozza meg és írja ki a legkisebb és a legnagyobb férőhelyszámot,
+- írja ki, hogy az átlagos teremkapacitás alapján a rendezvényhelyszín `megfelelő` vagy `bővítésre szorul`.
+
+A rendezvényhelyszín akkor tekinthető `megfelelő` kapacitásúnak, ha az átlagos teremkapacitás legalább `150`.
+
+Expected output
+
+```text
+A 140 férőhelyes terem hozzáadása után: 120 80 150 200 60 170 140
+A 250 férőhelyes főterem beszúrása után: 250 120 80 150 200 60 170 140
+A hibás 60 férőhelyes adat eltávolítása után: 250 120 80 150 200 170 140
+Összes férőhely: 1110
+Átlagos teremkapacitás: 158
+Legkisebb férőhelyszám: 80
+Legnagyobb férőhelyszám: 250
+A rendezvényhelyszín megfelelő.
+```
+
+<details>
+<summary>Megoldás</summary>
+
+```bash
+#!/bin/bash
+
+# 1. A férőhelyadatok eltárolása tömbben
+
+ferohelyek=(120 80 150 200 60 170)
+
+
+# 2. Az újonnan megnyitott terem adatának hozzáadása
+
+ferohelyek+=(140)
+
+echo "A 140 férőhelyes terem hozzáadása után: ${ferohelyek[@]}"
+
+
+# 3. A főterem adatának beszúrása a tömb elejére
+
+ferohelyek=(250 "${ferohelyek[@]}")
+
+echo "A 250 férőhelyes főterem beszúrása után: ${ferohelyek[@]}"
+
+
+# 4. A hibás 60 férőhelyes adat eltávolítása
+
+uj_ferohelyek=()
+
+for ferohely in "${ferohelyek[@]}"
+do
+    if [ "$ferohely" -ne 60 ]; then
+        uj_ferohelyek+=("$ferohely")
+    fi
+done
+
+ferohelyek=("${uj_ferohelyek[@]}")
+
+echo "A hibás 60 férőhelyes adat eltávolítása után: ${ferohelyek[@]}"
+
+
+# 5. Az összes férőhely kiszámítása
+
+osszeg=0
+
+for ferohely in "${ferohelyek[@]}"
+do
+    osszeg=$((osszeg + ferohely))
+done
+
+echo "Összes férőhely: $osszeg"
+
+
+# 6. Az átlagos teremkapacitás kiszámítása
+
+termek_szama=${#ferohelyek[@]}
+
+atlag=$((osszeg / termek_szama))
+
+echo "Átlagos teremkapacitás: $atlag"
+
+
+# 7. A legkisebb és legnagyobb férőhelyszám meghatározása
+
+minimum=${ferohelyek[0]}
+maximum=${ferohelyek[0]}
+
+for ferohely in "${ferohelyek[@]}"
+do
+    if [ "$ferohely" -lt "$minimum" ]; then
+        minimum=$ferohely
+    fi
+
+    if [ "$ferohely" -gt "$maximum" ]; then
+        maximum=$ferohely
+    fi
+done
+
+echo "Legkisebb férőhelyszám: $minimum"
+echo "Legnagyobb férőhelyszám: $maximum"
+
+
+# 8. A rendezvényhelyszín kapacitásának kiértékelése
+
+if [ "$atlag" -ge 150 ]; then
+    echo "A rendezvényhelyszín megfelelő."
+else
+    echo "A rendezvényhelyszín bővítésre szorul."
+fi
+```
+
+</details>
