@@ -1,0 +1,1035 @@
+---
+title: SQL feladat 2
+sidebar_position: 4
+description: MySQL feladat karbantartási bejelentések adatainak lekérdezésére
+---
+
+# 4. feladat – Karbantartási bejelentések adatainak vizsgálata
+
+Egy középiskola belső karbantartási bejelentő rendszert használ az épületben és a tantermekben jelentkező problémák nyilvántartására. A dolgozók bejelentést adhatnak le például világítási hiba, fűtési probléma, bútorhiba vagy teremtechnikai probléma esetén.
+
+A feladatot a vizsgán biztosított MySQL adatbázis-szerveren kell elvégeznie.
+
+A feladat megoldásának megkezdése előtt futtassa le az `elokeszites.sql` nevű előkészítő scriptet! A script létrehozza a `JuniorKarbantartasDB` adatbázist, a `Bejelentesek` táblát, valamint feltölti azt a szükséges adatokkal.
+
+A lekérdezéseket az előkészített `JuniorKarbantartasDB` adatbázison készítse el!
+
+Az adatbázisban a `Bejelentesek` tábla áll rendelkezésre.
+
+| Mező neve | Típus | Tartalma |
+|---|---|---|
+| `Id` | Egész szám | A bejelentés egyedi azonosítója |
+| `BejelentoNev` | Szöveg | A bejelentést leadó dolgozó neve |
+| `Helyszin` | Szöveg | Az a helyszín, ahonnan a bejelentést leadták |
+| `Kategoria` | Szöveg | A bejelentett probléma típusa vagy témaköre |
+| `Prioritas` | Szöveg | A bejelentés sürgőssége, például `Alacsony`, `Közepes` vagy `Magas` |
+| `Allapot` | Szöveg | A bejelentés aktuális feldolgozási állapota, például `Nyitott`, `Folyamatban` vagy `Lezárt` |
+| `LetrehozasDatuma` | Dátum | A bejelentés létrehozásának dátuma |
+
+A megoldásokat `karbantartas.sql` néven készítse el!
+
+## Feladatok
+
+1. Kérdezze le az összes bejelentés minden adatát!
+
+2. Kérdezze le azokat a bejelentéseket, amelyek állapota `Nyitott`!
+
+3. Kérdezze le a `Magas` prioritású bejelentések bejelentőjét, kategóriáját és létrehozási dátumát!
+
+4. Kérdezze le azokat a bejelentéseket, amelyeket az `Informatika terem` helyszínről adtak le!
+
+5. Határozza meg, hogy kategóriánként hány bejelentés szerepel a rendszerben!
+
+6. Határozza meg, hogy helyszínenként hány nyitott bejelentés van!
+
+7. Kérdezze le a nyitott bejelentéseket létrehozási dátum szerint növekvő sorrendben, hogy a legrégebbi megoldatlan ügyek jelenjenek meg elöl!
+
+---
+
+<details>
+<summary>Előkészítő állomány – elokeszites.sql</summary>
+
+A feladat megoldása előtt létre kell hozni és le kell futtatni az `elokeszites.sql` nevű fájlt.
+
+Ez az állomány létrehozza a `JuniorKarbantartasDB` adatbázist, a `Bejelentesek` táblát, majd feltölti azt a feladat megoldásához szükséges adatokkal.
+
+Az `elokeszites.sql` tartalma:
+
+```sql
+DROP DATABASE IF EXISTS JuniorKarbantartasDB;
+
+CREATE DATABASE JuniorKarbantartasDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_hungarian_ci;
+
+USE JuniorKarbantartasDB;
+
+CREATE TABLE Bejelentesek (
+    Id INT PRIMARY KEY,
+    BejelentoNev VARCHAR(100),
+    Helyszin VARCHAR(50),
+    Kategoria VARCHAR(50),
+    Prioritas VARCHAR(20),
+    Allapot VARCHAR(20),
+    LetrehozasDatuma DATE
+);
+
+INSERT INTO Bejelentesek
+(Id, BejelentoNev, Helyszin, Kategoria, Prioritas, Allapot, LetrehozasDatuma)
+VALUES
+(1, 'Kovács Anna', 'Tanári szoba', 'Világítási hiba', 'Közepes', 'Nyitott', '2026-04-02'),
+(2, 'Nagy Péter', 'Informatika terem', 'Teremtechnikai probléma', 'Magas', 'Nyitott', '2026-03-28'),
+(3, 'Szabó Dóra', 'Könyvtár', 'Fűtési probléma', 'Magas', 'Lezárt', '2026-03-14'),
+(4, 'Tóth Gábor', 'Aula', 'Bútorhiba', 'Alacsony', 'Nyitott', '2026-04-10'),
+(5, 'Varga László', 'Informatika terem', 'Világítási hiba', 'Magas', 'Nyitott', '2026-03-19'),
+(6, 'Kiss Júlia', 'Titkárság', 'Teremtechnikai probléma', 'Közepes', 'Folyamatban', '2026-04-01'),
+(7, 'Molnár Tamás', 'Tanári szoba', 'Bútorhiba', 'Alacsony', 'Lezárt', '2026-02-25'),
+(8, 'Horváth Eszter', 'Gazdasági iroda', 'Világítási hiba', 'Közepes', 'Nyitott', '2026-03-30'),
+(9, 'Farkas Máté', 'Informatika terem', 'Hálózati végpont hiba', 'Magas', 'Folyamatban', '2026-03-22'),
+(10, 'Balogh Réka', 'Aula', 'Teremtechnikai probléma', 'Közepes', 'Nyitott', '2026-04-07'),
+(11, 'Papp András', 'Tornaterem', 'Fűtési probléma', 'Magas', 'Nyitott', '2026-03-11'),
+(12, 'Lakatos Gergő', 'Könyvtár', 'Bútorhiba', 'Alacsony', 'Lezárt', '2026-02-18'),
+(13, 'Németh Zsófia', 'Tanári szoba', 'Teremtechnikai probléma', 'Közepes', 'Nyitott', '2026-04-05'),
+(14, 'Oláh Márk', 'Informatika terem', 'Áramellátási probléma', 'Magas', 'Nyitott', '2026-03-09'),
+(15, 'Fehér Lilla', 'Gazdasági iroda', 'Világítási hiba', 'Alacsony', 'Lezárt', '2026-01-27');
+```
+
+Az előkészítő script lefuttatása után kell elkészíteni a `karbantartas.sql` állományt.
+
+</details>
+
+---
+
+<details>
+<summary>Teljes megoldás</summary>
+
+```sql
+USE JuniorKarbantartasDB;
+
+-- 1. Az összes bejelentés minden adatának lekérdezése
+SELECT 
+    *
+FROM Bejelentesek;
+
+-- 2. A Nyitott állapotú bejelentések lekérdezése
+SELECT 
+    *
+FROM Bejelentesek
+WHERE Allapot = 'Nyitott';
+
+-- 3. A Magas prioritású bejelentések bejelentőjének, kategóriájának és létrehozási dátumának lekérdezése
+SELECT 
+    BejelentoNev,
+    Kategoria,
+    LetrehozasDatuma
+FROM Bejelentesek
+WHERE Prioritas = 'Magas';
+
+-- 4. Az Informatika terem helyszínről leadott bejelentések lekérdezése
+SELECT 
+    *
+FROM Bejelentesek
+WHERE Helyszin = 'Informatika terem';
+
+-- 5. Bejelentések számának meghatározása kategóriánként
+SELECT 
+    Kategoria,
+    COUNT(*) AS BejelentesekSzama
+FROM Bejelentesek
+GROUP BY Kategoria
+ORDER BY Kategoria;
+
+-- 6. Nyitott bejelentések számának meghatározása helyszínenként
+SELECT 
+    Helyszin,
+    COUNT(*) AS NyitottBejelentesekSzama
+FROM Bejelentesek
+WHERE Allapot = 'Nyitott'
+GROUP BY Helyszin
+ORDER BY Helyszin;
+
+-- 7. Nyitott bejelentések lekérdezése létrehozási dátum szerint növekvő sorrendben
+SELECT 
+    *
+FROM Bejelentesek
+WHERE Allapot = 'Nyitott'
+ORDER BY LetrehozasDatuma ASC;
+```
+
+A megoldást `karbantartas.sql` néven kell menteni.
+
+A megoldás futtatása előtt az `elokeszites.sql` állományt kell lefuttatni, hogy az adatbázis és a tábla rendelkezésre álljon.
+
+</details>
+
+---
+
+<details className="magyarazat-resz">
+<summary>Megoldás részletes magyarázata</summary>
+
+<div className="magyarazat-doboz">
+
+## A feladat célja
+
+A feladat célja egy karbantartási bejelentéseket tartalmazó adatbázis lekérdezése MySQL utasításokkal.
+
+Az adatokat a `JuniorKarbantartasDB` nevű adatbázis tartalmazza.
+
+Az adatbázison belül a `Bejelentesek` nevű tábla áll rendelkezésre.
+
+A tábla minden sora egy karbantartási bejelentést jelöl. A sorokban megtalálható többek között:
+
+- a bejelentés azonosítója,
+- a bejelentő dolgozó neve,
+- a helyszín,
+- a probléma kategóriája,
+- a prioritás,
+- az állapot,
+- a létrehozás dátuma.
+
+---
+
+## Az előkészítő SQL script szerepe
+
+Az `elokeszites.sql` script azért szükséges, mert ez hozza létre a feladat megoldásához szükséges adatbázist és táblát.
+
+A lekérdezések csak akkor működnek megfelelően, ha az előkészítő script korábban már lefutott.
+
+---
+
+## Az adatbázis törlése, ha már létezik
+
+```sql
+DROP DATABASE IF EXISTS JuniorKarbantartasDB;
+```
+
+Ez az utasítás törli a `JuniorKarbantartasDB` adatbázist, ha az már létezik.
+
+### A DROP DATABASE szerepe
+
+```sql
+DROP DATABASE
+```
+
+A `DROP DATABASE` adatbázis törlésére szolgál.
+
+Ha egy adatbázist törlünk, akkor az adatbázisban található táblák és adatok is törlődnek.
+
+---
+
+### Az IF EXISTS szerepe
+
+```sql
+IF EXISTS
+```
+
+Az `IF EXISTS` azt jelenti, hogy a törlés csak akkor történjen meg, ha az adatbázis valóban létezik.
+
+Ez azért hasznos, mert ha az adatbázis még nem létezik, a parancs nem okoz hibát.
+
+A teljes utasítás jelentése:
+
+```text
+Töröld a JuniorKarbantartasDB adatbázist, ha már létezik.
+```
+
+Ez biztosítja, hogy az előkészítő script minden futtatáskor tiszta állapotból induljon.
+
+---
+
+## Az adatbázis létrehozása
+
+```sql
+CREATE DATABASE JuniorKarbantartasDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_hungarian_ci;
+```
+
+A `CREATE DATABASE` új adatbázist hoz létre.
+
+Ebben az esetben az adatbázis neve:
+
+```text
+JuniorKarbantartasDB
+```
+
+---
+
+### A CHARACTER SET szerepe
+
+```sql
+CHARACTER SET utf8mb4
+```
+
+A `CHARACTER SET` karakterkódolást állít be.
+
+Az `utf8mb4` olyan karakterkódolás, amely alkalmas magyar ékezetes karakterek tárolására is.
+
+Ez azért fontos, mert a feladatban sok magyar szöveg szerepel, például:
+
+```text
+Kovács Anna
+Fűtési probléma
+Világítási hiba
+Áramellátási probléma
+```
+
+---
+
+### A COLLATE szerepe
+
+```sql
+COLLATE utf8mb4_hungarian_ci
+```
+
+A `COLLATE` az összehasonlítási és rendezési szabályokat határozza meg.
+
+Az `utf8mb4_hungarian_ci` magyar nyelvhez illeszkedő rendezési szabályokat használ.
+
+A `ci` jelentése case-insensitive, vagyis kis- és nagybetűket nem különböztet meg az összehasonlításnál.
+
+---
+
+## Az adatbázis kiválasztása
+
+```sql
+USE JuniorKarbantartasDB;
+```
+
+A `USE` utasítás kiválasztja, hogy a további SQL parancsok melyik adatbázison fussanak.
+
+Ez azért fontos, mert a táblát és az adatokat a `JuniorKarbantartasDB` adatbázisban kell létrehozni.
+
+A megoldásfájl elején is szerepel:
+
+```sql
+USE JuniorKarbantartasDB;
+```
+
+Ez biztosítja, hogy a lekérdezések a megfelelő adatbázison fussanak.
+
+---
+
+## A Bejelentesek tábla létrehozása
+
+```sql
+CREATE TABLE Bejelentesek (
+    Id INT PRIMARY KEY,
+    BejelentoNev VARCHAR(100),
+    Helyszin VARCHAR(50),
+    Kategoria VARCHAR(50),
+    Prioritas VARCHAR(20),
+    Allapot VARCHAR(20),
+    LetrehozasDatuma DATE
+);
+```
+
+A `CREATE TABLE` új táblát hoz létre.
+
+A tábla neve:
+
+```text
+Bejelentesek
+```
+
+A zárójelek között a mezők, vagyis oszlopok meghatározása szerepel.
+
+---
+
+### Az Id mező
+
+```sql
+Id INT PRIMARY KEY
+```
+
+Az `Id` a bejelentés egyedi azonosítója.
+
+Az `INT` egész szám típus.
+
+A `PRIMARY KEY` elsődleges kulcsot jelent.
+
+Ez azt jelenti, hogy az `Id` mező értéke egyedileg azonosítja a sorokat. Két különböző bejelentés nem kaphatja ugyanazt az `Id` értéket.
+
+---
+
+### A BejelentoNev mező
+
+```sql
+BejelentoNev VARCHAR(100)
+```
+
+A `BejelentoNev` mező a bejelentést leadó dolgozó nevét tárolja.
+
+A `VARCHAR(100)` változó hosszúságú szöveget jelent, legfeljebb 100 karakter hosszúságban.
+
+---
+
+### A Helyszin mező
+
+```sql
+Helyszin VARCHAR(50)
+```
+
+A `Helyszin` mező azt tárolja, hogy honnan adták le a bejelentést.
+
+Példák:
+
+```text
+Tanári szoba
+Informatika terem
+Könyvtár
+Aula
+```
+
+A `VARCHAR(50)` legfeljebb 50 karakter hosszú szöveget enged.
+
+---
+
+### A Kategoria mező
+
+```sql
+Kategoria VARCHAR(50)
+```
+
+A `Kategoria` mező a bejelentett probléma típusát tárolja.
+
+Példák:
+
+```text
+Világítási hiba
+Fűtési probléma
+Bútorhiba
+Teremtechnikai probléma
+```
+
+---
+
+### A Prioritas mező
+
+```sql
+Prioritas VARCHAR(20)
+```
+
+A `Prioritas` mező a bejelentés sürgősségét tárolja.
+
+Példák:
+
+```text
+Alacsony
+Közepes
+Magas
+```
+
+---
+
+### Az Allapot mező
+
+```sql
+Allapot VARCHAR(20)
+```
+
+Az `Allapot` mező azt mutatja meg, hogy a bejelentés milyen feldolgozási állapotban van.
+
+Példák:
+
+```text
+Nyitott
+Folyamatban
+Lezárt
+```
+
+---
+
+### A LetrehozasDatuma mező
+
+```sql
+LetrehozasDatuma DATE
+```
+
+A `LetrehozasDatuma` mező dátum típusú adatot tárol.
+
+Azt jelzi, hogy mikor hozták létre a bejelentést.
+
+A dátumok a következő formában szerepelnek:
+
+```text
+YYYY-MM-DD
+```
+
+Például:
+
+```text
+2026-04-02
+```
+
+---
+
+## Adatok beszúrása a táblába
+
+```sql
+INSERT INTO Bejelentesek
+(Id, BejelentoNev, Helyszin, Kategoria, Prioritas, Allapot, LetrehozasDatuma)
+VALUES
+...
+```
+
+Az `INSERT INTO` új sorokat szúr be egy táblába.
+
+A `Bejelentesek` után felsorolt mezőnevek jelzik, hogy milyen sorrendben adjuk meg az adatokat.
+
+A `VALUES` után szerepelnek a beszúrandó rekordok.
+
+Egy rekord például:
+
+```sql
+(1, 'Kovács Anna', 'Tanári szoba', 'Világítási hiba', 'Közepes', 'Nyitott', '2026-04-02')
+```
+
+Ebben:
+
+- `1` az azonosító,
+- `'Kovács Anna'` a bejelentő neve,
+- `'Tanári szoba'` a helyszín,
+- `'Világítási hiba'` a kategória,
+- `'Közepes'` a prioritás,
+- `'Nyitott'` az állapot,
+- `'2026-04-02'` a létrehozás dátuma.
+
+A szöveges és dátum jellegű értékek aposztrófok között szerepelnek.
+
+---
+
+## A megoldásfájl első sora
+
+```sql
+USE JuniorKarbantartasDB;
+```
+
+A megoldásfájl elején ki kell választani a megfelelő adatbázist.
+
+A `USE JuniorKarbantartasDB;` biztosítja, hogy a lekérdezések nem egy másik adatbázison, hanem a feladatban megadott `JuniorKarbantartasDB` adatbázison fussanak.
+
+---
+
+## Kommentek az SQL fájlban
+
+```sql
+-- 1. Az összes bejelentés minden adatának lekérdezése
+```
+
+A `--` két kötőjellel kezdődő rész megjegyzés.
+
+A megjegyzéseket a MySQL nem hajtja végre.
+
+Ezek célja, hogy olvashatóbbá tegyék a megoldást, és egyértelműen jelezzék, melyik lekérdezés melyik feladatrészhez tartozik.
+
+---
+
+## 1. lekérdezés – Az összes bejelentés minden adatának lekérdezése
+
+```sql
+SELECT 
+    *
+FROM Bejelentesek;
+```
+
+Ez a lekérdezés a `Bejelentesek` tábla összes sorát és összes oszlopát megjeleníti.
+
+---
+
+### A SELECT szerepe
+
+```sql
+SELECT
+```
+
+A `SELECT` lekérdezést indít.
+
+Azt határozza meg, hogy milyen oszlopokat szeretnénk megjeleníteni.
+
+---
+
+### A csillag szerepe
+
+```sql
+*
+```
+
+A `*` azt jelenti, hogy minden oszlopot meg szeretnénk jeleníteni.
+
+Mivel a feladat az összes bejelentés minden adatát kéri, ezért itt megfelelő a `SELECT *` használata.
+
+---
+
+### A FROM szerepe
+
+```sql
+FROM Bejelentesek
+```
+
+A `FROM` azt adja meg, hogy melyik táblából kérdezzük le az adatokat.
+
+Ebben az esetben a tábla neve:
+
+```text
+Bejelentesek
+```
+
+Ez a lekérdezés teljesíti az 1. feladatrészt.
+
+---
+
+## 2. lekérdezés – Nyitott állapotú bejelentések lekérdezése
+
+```sql
+SELECT 
+    *
+FROM Bejelentesek
+WHERE Allapot = 'Nyitott';
+```
+
+Ez a lekérdezés azokat a bejelentéseket jeleníti meg, amelyek állapota `Nyitott`.
+
+---
+
+### A WHERE szerepe
+
+```sql
+WHERE Allapot = 'Nyitott'
+```
+
+A `WHERE` feltételt ad meg.
+
+Csak azok a sorok kerülnek az eredménybe, amelyek megfelelnek a feltételnek.
+
+Ebben az esetben a feltétel:
+
+```text
+Az Allapot mező értéke legyen Nyitott.
+```
+
+---
+
+### Az egyenlőségjel szerepe
+
+```sql
+=
+```
+
+Az `=` összehasonlító operátor.
+
+Azt vizsgálja, hogy két érték egyenlő-e.
+
+Ebben a lekérdezésben azt vizsgáljuk, hogy az `Allapot` mező értéke pontosan `Nyitott`-e.
+
+---
+
+### A szöveges érték szerepe
+
+```sql
+'Nyitott'
+```
+
+SQL-ben a szöveges értékeket aposztrófok közé kell írni.
+
+Ezért szerepel az állapot értéke így:
+
+```sql
+'Nyitott'
+```
+
+Ez a lekérdezés teljesíti a 2. feladatrészt.
+
+---
+
+## 3. lekérdezés – Magas prioritású bejelentések kiválasztott adatainak lekérdezése
+
+```sql
+SELECT 
+    BejelentoNev,
+    Kategoria,
+    LetrehozasDatuma
+FROM Bejelentesek
+WHERE Prioritas = 'Magas';
+```
+
+Ez a lekérdezés a `Magas` prioritású bejelentésekből csak három adatot jelenít meg:
+
+- a bejelentő nevét,
+- a kategóriát,
+- a létrehozási dátumot.
+
+---
+
+### A kiválasztott mezők
+
+```sql
+BejelentoNev,
+Kategoria,
+LetrehozasDatuma
+```
+
+A feladat nem minden oszlopot kér, hanem csak a bejelentőt, a kategóriát és a létrehozási dátumot.
+
+Ezért a `SELECT` után ez a három mező szerepel.
+
+---
+
+### A Prioritas mező szerinti szűrés
+
+```sql
+WHERE Prioritas = 'Magas'
+```
+
+Ez a feltétel csak azokat a sorokat hagyja meg, ahol a `Prioritas` mező értéke `Magas`.
+
+Ez a lekérdezés teljesíti a 3. feladatrészt.
+
+---
+
+## 4. lekérdezés – Informatika terem helyszínről leadott bejelentések lekérdezése
+
+```sql
+SELECT 
+    *
+FROM Bejelentesek
+WHERE Helyszin = 'Informatika terem';
+```
+
+Ez a lekérdezés azokat a bejelentéseket jeleníti meg, amelyeket az `Informatika terem` helyszínről adtak le.
+
+---
+
+### A Helyszin mező szerinti szűrés
+
+```sql
+WHERE Helyszin = 'Informatika terem'
+```
+
+A `WHERE` feltétel itt a `Helyszin` mező alapján szűr.
+
+A feltétel jelentése:
+
+```text
+Csak azok a sorok jelenjenek meg, ahol a Helyszin mező értéke Informatika terem.
+```
+
+Mivel a feladat minden adatot kér ezekről a bejelentésekről, ezért a lekérdezésben `SELECT *` szerepel.
+
+Ez a lekérdezés teljesíti a 4. feladatrészt.
+
+---
+
+## 5. lekérdezés – Bejelentések száma kategóriánként
+
+```sql
+SELECT 
+    Kategoria,
+    COUNT(*) AS BejelentesekSzama
+FROM Bejelentesek
+GROUP BY Kategoria
+ORDER BY Kategoria;
+```
+
+Ez a lekérdezés megszámolja, hogy az egyes kategóriákhoz hány bejelentés tartozik.
+
+---
+
+### A COUNT függvény
+
+```sql
+COUNT(*)
+```
+
+A `COUNT` összesítő függvény.
+
+A `COUNT(*)` megszámolja, hány sor tartozik az adott csoportba.
+
+Ebben a feladatban azt számolja meg, hogy egy-egy kategóriához hány bejelentés tartozik.
+
+---
+
+### Az AS szerepe
+
+```sql
+AS BejelentesekSzama
+```
+
+Az `AS` alias, vagyis ideiglenes oszlopnév megadására szolgál.
+
+A `COUNT(*)` eredménye így nem névtelen vagy nehezen olvasható oszlopként jelenik meg, hanem `BejelentesekSzama` néven.
+
+---
+
+### A GROUP BY szerepe
+
+```sql
+GROUP BY Kategoria
+```
+
+A `GROUP BY` csoportosítja a sorokat.
+
+Ebben az esetben a csoportosítás a `Kategoria` mező alapján történik.
+
+Ez azt jelenti, hogy az azonos kategóriához tartozó sorokat egy csoportként kezeli a lekérdezés.
+
+Például minden `Világítási hiba` kategóriájú sor egy csoportba kerül, és a `COUNT(*)` megszámolja, hány ilyen sor van.
+
+---
+
+### Az ORDER BY szerepe
+
+```sql
+ORDER BY Kategoria
+```
+
+Az `ORDER BY` az eredmény rendezésére szolgál.
+
+Ebben a lekérdezésben a kategóriák neve szerint rendezve jelennek meg az eredmények.
+
+Ez a lekérdezés teljesíti az 5. feladatrészt.
+
+---
+
+## 6. lekérdezés – Nyitott bejelentések száma helyszínenként
+
+```sql
+SELECT 
+    Helyszin,
+    COUNT(*) AS NyitottBejelentesekSzama
+FROM Bejelentesek
+WHERE Allapot = 'Nyitott'
+GROUP BY Helyszin
+ORDER BY Helyszin;
+```
+
+Ez a lekérdezés azt határozza meg, hogy helyszínenként hány nyitott bejelentés van.
+
+---
+
+### A WHERE és GROUP BY együttes használata
+
+```sql
+WHERE Allapot = 'Nyitott'
+GROUP BY Helyszin
+```
+
+Ebben a lekérdezésben először a `WHERE` feltétel szűri a sorokat.
+
+Csak azok a sorok maradnak meg, ahol:
+
+```text
+Allapot = Nyitott
+```
+
+Ezután a megmaradt nyitott bejelentéseket a `GROUP BY Helyszin` csoportosítja helyszín szerint.
+
+---
+
+### Miért fontos a sorrend?
+
+A lekérdezés logikája:
+
+1. a `FROM Bejelentesek` megadja a táblát,
+2. a `WHERE Allapot = 'Nyitott'` kiszűri a nyitott bejelentéseket,
+3. a `GROUP BY Helyszin` helyszínenként csoportosít,
+4. a `COUNT(*)` megszámolja a csoportok elemeit,
+5. az `AS NyitottBejelentesekSzama` elnevezi a darabszám oszlopát,
+6. az `ORDER BY Helyszin` rendezi az eredményt helyszín szerint.
+
+Ez azért fontos, mert a feladat nem az összes bejelentést kéri helyszínenként, hanem csak a nyitott állapotú bejelentéseket.
+
+Ez a lekérdezés teljesíti a 6. feladatrészt.
+
+---
+
+## 7. lekérdezés – Nyitott bejelentések rendezése létrehozási dátum szerint
+
+```sql
+SELECT 
+    *
+FROM Bejelentesek
+WHERE Allapot = 'Nyitott'
+ORDER BY LetrehozasDatuma ASC;
+```
+
+Ez a lekérdezés a nyitott bejelentéseket jeleníti meg létrehozási dátum szerint növekvő sorrendben.
+
+---
+
+### A nyitott bejelentések szűrése
+
+```sql
+WHERE Allapot = 'Nyitott'
+```
+
+Ez a feltétel csak a nyitott bejelentéseket hagyja meg.
+
+A lezárt vagy folyamatban lévő bejelentések nem kerülnek bele az eredménybe.
+
+---
+
+### Az ORDER BY szerepe
+
+```sql
+ORDER BY LetrehozasDatuma ASC
+```
+
+Az `ORDER BY` az eredmény rendezésére szolgál.
+
+Ebben az esetben a `LetrehozasDatuma` mező alapján rendezzük az eredményt.
+
+---
+
+### Az ASC szerepe
+
+```sql
+ASC
+```
+
+Az `ASC` növekvő sorrendet jelent.
+
+Dátumok esetében ez azt jelenti, hogy a legkorábbi dátum jelenik meg elöl, majd utána következnek az egyre későbbi dátumok.
+
+Ez azért felel meg a feladatnak, mert így a legrégebbi megoldatlan ügyek jelennek meg elöl.
+
+Ez a lekérdezés teljesíti a 7. feladatrészt.
+
+---
+
+## A megoldásban használt fontosabb SQL-elemek összefoglalása
+
+| Elem | Megnevezés | Magyarázat |
+|---|---|---|
+| `DROP DATABASE IF EXISTS` | Adatbázis törlése feltétellel | Törli az adatbázist, ha az már létezik |
+| `CREATE DATABASE` | Adatbázis létrehozása | Új adatbázist hoz létre |
+| `CHARACTER SET` | Karakterkódolás | Megadja az adatbázis karakterkódolását |
+| `COLLATE` | Rendezési szabály | Megadja a szövegek összehasonlításának és rendezésének szabályát |
+| `USE` | Adatbázis kiválasztása | Megadja, hogy a további utasítások melyik adatbázison fussanak |
+| `CREATE TABLE` | Tábla létrehozása | Új táblát hoz létre |
+| `PRIMARY KEY` | Elsődleges kulcs | Egyedileg azonosítja a tábla sorait |
+| `INSERT INTO` | Adatbeszúrás | Új sorokat szúr be a táblába |
+| `VALUES` | Beszúrandó értékek | Az `INSERT INTO` utasításhoz tartozó adatokat tartalmazza |
+| `--` | Megjegyzés | Olyan szöveg, amelyet a MySQL nem hajt végre |
+| `SELECT` | Lekérdezés kezdete | Megadja, mely oszlopokat szeretnénk megjeleníteni |
+| `FROM` | Forrástábla megadása | Megadja, melyik táblából történjen a lekérdezés |
+| `*` | Minden oszlop | A tábla minden mezőjét megjeleníti |
+| `WHERE` | Feltétel | Csak a feltételnek megfelelő sorokat jeleníti meg |
+| `=` | Egyenlőségvizsgálat | Azt vizsgálja, hogy két érték egyenlő-e |
+| `COUNT(*)` | Darabszám meghatározása | Megszámolja a sorokat |
+| `AS` | Alias | Ideiglenes, beszédes oszlopnevet ad az eredményben |
+| `GROUP BY` | Csoportosítás | Az azonos értékű sorokat csoportokba rendezi |
+| `ORDER BY` | Rendezés | Megadja, hogy az eredmény milyen mező szerint legyen rendezve |
+| `ASC` | Növekvő sorrend | A rendezést növekvő irányba állítja |
+| `VARCHAR` | Szöveges adattípus | Változó hosszúságú szöveg tárolására szolgál |
+| `INT` | Egész szám típus | Egész számok tárolására szolgál |
+| `DATE` | Dátum típus | Dátumértékek tárolására szolgál |
+
+</div>
+
+</details>
+
+---
+
+<details>
+<summary>Példa kimenetek</summary>
+
+## 1. lekérdezés kimenete
+
+```text
+Id  BejelentoNev      Helyszin           Kategoria                 Prioritas   Allapot       LetrehozasDatuma
+1   Kovács Anna       Tanári szoba       Világítási hiba           Közepes     Nyitott       2026-04-02
+2   Nagy Péter        Informatika terem  Teremtechnikai probléma   Magas       Nyitott       2026-03-28
+3   Szabó Dóra        Könyvtár           Fűtési probléma           Magas       Lezárt        2026-03-14
+4   Tóth Gábor        Aula               Bútorhiba                 Alacsony    Nyitott       2026-04-10
+5   Varga László      Informatika terem  Világítási hiba           Magas       Nyitott       2026-03-19
+6   Kiss Júlia        Titkárság          Teremtechnikai probléma   Közepes     Folyamatban   2026-04-01
+7   Molnár Tamás      Tanári szoba       Bútorhiba                 Alacsony    Lezárt        2026-02-25
+8   Horváth Eszter    Gazdasági iroda    Világítási hiba           Közepes     Nyitott       2026-03-30
+9   Farkas Máté       Informatika terem  Hálózati végpont hiba     Magas       Folyamatban   2026-03-22
+10  Balogh Réka       Aula               Teremtechnikai probléma   Közepes     Nyitott       2026-04-07
+11  Papp András       Tornaterem         Fűtési probléma           Magas       Nyitott       2026-03-11
+12  Lakatos Gergő     Könyvtár           Bútorhiba                 Alacsony    Lezárt        2026-02-18
+13  Németh Zsófia     Tanári szoba       Teremtechnikai probléma   Közepes     Nyitott       2026-04-05
+14  Oláh Márk         Informatika terem  Áramellátási probléma     Magas       Nyitott       2026-03-09
+15  Fehér Lilla       Gazdasági iroda    Világítási hiba           Alacsony    Lezárt        2026-01-27
+```
+
+## 2. lekérdezés kimenete
+
+```text
+Id  BejelentoNev      Helyszin           Kategoria                 Prioritas   Allapot   LetrehozasDatuma
+1   Kovács Anna       Tanári szoba       Világítási hiba           Közepes     Nyitott   2026-04-02
+2   Nagy Péter        Informatika terem  Teremtechnikai probléma   Magas       Nyitott   2026-03-28
+4   Tóth Gábor        Aula               Bútorhiba                 Alacsony    Nyitott   2026-04-10
+5   Varga László      Informatika terem  Világítási hiba           Magas       Nyitott   2026-03-19
+8   Horváth Eszter    Gazdasági iroda    Világítási hiba           Közepes     Nyitott   2026-03-30
+10  Balogh Réka       Aula               Teremtechnikai probléma   Közepes     Nyitott   2026-04-07
+11  Papp András       Tornaterem         Fűtési probléma           Magas       Nyitott   2026-03-11
+13  Németh Zsófia     Tanári szoba       Teremtechnikai probléma   Közepes     Nyitott   2026-04-05
+14  Oláh Márk         Informatika terem  Áramellátási probléma     Magas       Nyitott   2026-03-09
+```
+
+## 3. lekérdezés kimenete
+
+```text
+BejelentoNev      Kategoria                 LetrehozasDatuma
+Nagy Péter        Teremtechnikai probléma   2026-03-28
+Szabó Dóra        Fűtési probléma           2026-03-14
+Varga László      Világítási hiba           2026-03-19
+Farkas Máté       Hálózati végpont hiba     2026-03-22
+Papp András       Fűtési probléma           2026-03-11
+Oláh Márk         Áramellátási probléma     2026-03-09
+```
+
+## 4. lekérdezés kimenete
+
+```text
+Id  BejelentoNev    Helyszin           Kategoria                 Prioritas   Allapot      LetrehozasDatuma
+2   Nagy Péter      Informatika terem  Teremtechnikai probléma   Magas       Nyitott      2026-03-28
+5   Varga László    Informatika terem  Világítási hiba           Magas       Nyitott      2026-03-19
+9   Farkas Máté     Informatika terem  Hálózati végpont hiba     Magas       Folyamatban  2026-03-22
+14  Oláh Márk       Informatika terem  Áramellátási probléma     Magas       Nyitott      2026-03-09
+```
+
+## 5. lekérdezés kimenete
+
+```text
+Kategoria                 BejelentesekSzama
+Áramellátási probléma     1
+Bútorhiba                 3
+Fűtési probléma           2
+Hálózati végpont hiba     1
+Teremtechnikai probléma   4
+Világítási hiba           4
+```
+
+## 6. lekérdezés kimenete
+
+```text
+Helyszin           NyitottBejelentesekSzama
+Aula               2
+Gazdasági iroda    1
+Informatika terem  3
+Tanári szoba       2
+Tornaterem         1
+```
+
+## 7. lekérdezés kimenete
+
+```text
+Id  BejelentoNev    Helyszin           Kategoria                 Prioritas   Allapot   LetrehozasDatuma
+14  Oláh Márk       Informatika terem  Áramellátási probléma     Magas       Nyitott   2026-03-09
+11  Papp András     Tornaterem         Fűtési probléma           Magas       Nyitott   2026-03-11
+5   Varga László    Informatika terem  Világítási hiba           Magas       Nyitott   2026-03-19
+2   Nagy Péter      Informatika terem  Teremtechnikai probléma   Magas       Nyitott   2026-03-28
+8   Horváth Eszter  Gazdasági iroda    Világítási hiba           Közepes     Nyitott   2026-03-30
+1   Kovács Anna     Tanári szoba       Világítási hiba           Közepes     Nyitott   2026-04-02
+13  Németh Zsófia   Tanári szoba       Teremtechnikai probléma   Közepes     Nyitott   2026-04-05
+10  Balogh Réka     Aula               Teremtechnikai probléma   Közepes     Nyitott   2026-04-07
+4   Tóth Gábor      Aula               Bútorhiba                 Alacsony    Nyitott   2026-04-10
+```
+
+A pontos megjelenés a használt MySQL-kliensprogramtól függhet. Az oszlopok szélessége, igazítása és a hosszabb szövegek tördelése eltérhet, de a lekérdezett rekordoknak és mezőknek ezeknek kell megfelelniük.
+
+</details>

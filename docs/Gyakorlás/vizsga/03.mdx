@@ -1,0 +1,1080 @@
+---
+title: SQL feladat 1
+sidebar_position: 3
+description: MySQL feladat szoftverlicenc-nyilvántartás lekérdezésére
+---
+
+# 3. feladat – Szoftverlicenc-nyilvántartás lekérdezése
+
+Az intézmény informatikai részlege adatbázisban tartja nyilván a használatban lévő szoftverlicenceket. A nyilvántartásban többek között irodai programcsomagok, fejlesztői környezetek, vírusvédelmi szoftverek és grafikai programok adatai szerepelnek.
+
+A feladatot a vizsgán biztosított MySQL adatbázis-szerveren kell elvégeznie.
+
+A feladat megoldásának megkezdése előtt futtassa le az `elokeszites.sql` nevű előkészítő scriptet! A script létrehozza a `JuniorLicencDB` adatbázist, a `Licencek` táblát, valamint feltölti azt a szükséges adatokkal.
+
+A lekérdezéseket az előkészített `JuniorLicencDB` adatbázison készítse el!
+
+Az adatbázisban a `Licencek` tábla áll rendelkezésre.
+
+| Mező neve | Típus | Tartalma |
+|---|---|---|
+| `Id` | Egész szám | A licenc egyedi azonosítója |
+| `Nev` | Szöveg | A szoftver megnevezése |
+| `Tipus` | Szöveg | A szoftver típusa vagy kategóriája |
+| `Helyiseg` | Szöveg | Az a helyiség, ahol a szoftvert használják |
+| `Aktiv` | Logikai érték | Azt jelzi, hogy a licenc jelenleg használatban van-e. Az `1` érték használatban lévő licencet, a `0` érték használaton kívüli licencet jelent |
+| `BeszerzesEve` | Egész szám | A beszerzés éve |
+| `UtolsoEllenorzes` | Dátum | A licenc legutóbbi ellenőrzésének dátuma |
+
+A megoldásokat `licencnyilvantartas.sql` néven készítse el!
+
+## Feladatok
+
+1. Kérdezze le az összes szoftver nevét, típusát, helyiségét és beszerzési évét!
+
+2. Kérdezze le azoknak a licenceknek minden adatát, amelyek jelenleg aktívak!
+
+3. Kérdezze le a `Fejlesztői környezet` típusú szoftverek nevét és helyiségét!
+
+4. Kérdezze le azokat a licenceket, amelyeket 2020 előtt szereztek be!
+
+5. Határozza meg, hogy helyiségenként hány licenc található az adatbázisban!
+
+6. Határozza meg, hogy típusonként hány aktív licenc van használatban!
+
+7. Kérdezze le azokat a licenceket, amelyek utolsó ellenőrzése 2026. január 1. előtt történt! Az eredmény az ellenőrzés dátuma szerint növekvő sorrendben jelenjen meg!
+
+---
+
+<details>
+<summary>Előkészítő állomány – elokeszites.sql</summary>
+
+A feladat megoldása előtt létre kell hozni és le kell futtatni az `elokeszites.sql` nevű fájlt.
+
+Ez az állomány létrehozza a `JuniorLicencDB` adatbázist, a `Licencek` táblát, majd feltölti azt a feladat megoldásához szükséges adatokkal.
+
+Az `elokeszites.sql` tartalma:
+
+```sql
+DROP DATABASE IF EXISTS JuniorLicencDB;
+
+CREATE DATABASE JuniorLicencDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_hungarian_ci;
+
+USE JuniorLicencDB;
+
+CREATE TABLE Licencek (
+    Id INT PRIMARY KEY,
+    Nev VARCHAR(100),
+    Tipus VARCHAR(50),
+    Helyiseg VARCHAR(50),
+    Aktiv BOOLEAN,
+    BeszerzesEve INT,
+    UtolsoEllenorzes DATE
+);
+
+INSERT INTO Licencek
+(Id, Nev, Tipus, Helyiseg, Aktiv, BeszerzesEve, UtolsoEllenorzes)
+VALUES
+(1, 'Microsoft Office 2021', 'Irodai programcsomag', 'Informatika terem', 1, 2021, '2026-02-10'),
+(2, 'LibreOffice támogatási csomag', 'Irodai programcsomag', 'Tanári szoba', 1, 2019, '2025-11-12'),
+(3, 'Visual Studio Professional', 'Fejlesztői környezet', 'Informatika terem', 1, 2022, '2026-03-04'),
+(4, 'JetBrains IntelliJ IDEA', 'Fejlesztői környezet', 'Fejlesztői labor', 1, 2021, '2026-01-19'),
+(5, 'Eclipse oktatási licenc', 'Fejlesztői környezet', 'Fejlesztői labor', 1, 2018, '2025-09-23'),
+(6, 'Adobe Photoshop', 'Grafikai program', 'Média labor', 1, 2019, '2025-10-30'),
+(7, 'Adobe Illustrator', 'Grafikai program', 'Média labor', 1, 2020, '2026-01-15'),
+(8, 'GIMP oktatási csomag', 'Grafikai program', 'Könyvtár', 1, 2023, '2026-02-20'),
+(9, 'ESET Endpoint Security', 'Vírusvédelem', 'Szerverterem', 1, 2021, '2026-04-02'),
+(10, 'Kaspersky Endpoint', 'Vírusvédelem', 'Titkárság', 0, 2017, '2024-12-18'),
+(11, 'Windows Server CAL', 'Rendszerlicenc', 'Szerverterem', 1, 2022, '2026-03-28'),
+(12, 'SQL Server Standard', 'Rendszerlicenc', 'Szerverterem', 1, 2018, '2025-08-16'),
+(13, 'AutoCAD oktatási licenc', 'Tervezőprogram', 'Műszaki terem', 1, 2019, '2025-12-05'),
+(14, 'CorelDRAW Graphics Suite', 'Grafikai program', 'Média labor', 0, 2016, '2024-10-21'),
+(15, 'PyCharm Professional', 'Fejlesztői környezet', 'Informatika terem', 1, 2023, '2026-04-11');
+```
+
+Az előkészítő script lefuttatása után kell elkészíteni a `licencnyilvantartas.sql` állományt.
+
+</details>
+
+---
+
+<details>
+<summary>Teljes megoldás</summary>
+
+```sql
+USE JuniorLicencDB;
+
+-- 1. Az összes szoftver nevének, típusának, helyiségének és beszerzési évének lekérdezése
+SELECT 
+    Nev,
+    Tipus,
+    Helyiseg,
+    BeszerzesEve
+FROM Licencek;
+
+-- 2. Az aktív licencek minden adatának lekérdezése
+SELECT 
+    *
+FROM Licencek
+WHERE Aktiv = 1;
+
+-- 3. A Fejlesztői környezet típusú szoftverek nevének és helyiségének lekérdezése
+SELECT 
+    Nev,
+    Helyiseg
+FROM Licencek
+WHERE Tipus = 'Fejlesztői környezet';
+
+-- 4. A 2020 előtt beszerzett licencek lekérdezése
+SELECT 
+    *
+FROM Licencek
+WHERE BeszerzesEve < 2020;
+
+-- 5. Licencek számának meghatározása helyiségenként
+SELECT 
+    Helyiseg,
+    COUNT(*) AS LicencekSzama
+FROM Licencek
+GROUP BY Helyiseg
+ORDER BY Helyiseg;
+
+-- 6. Aktív licencek számának meghatározása típusonként
+SELECT 
+    Tipus,
+    COUNT(*) AS AktivLicencekSzama
+FROM Licencek
+WHERE Aktiv = 1
+GROUP BY Tipus
+ORDER BY Tipus;
+
+-- 7. A 2026. január 1. előtt ellenőrzött licencek lekérdezése
+SELECT 
+    *
+FROM Licencek
+WHERE UtolsoEllenorzes < '2026-01-01'
+ORDER BY UtolsoEllenorzes ASC;
+```
+
+A megoldást `licencnyilvantartas.sql` néven kell menteni.
+
+A megoldás futtatása előtt az `elokeszites.sql` állományt kell lefuttatni, hogy az adatbázis és a tábla rendelkezésre álljon.
+
+</details>
+
+---
+
+<details className="magyarazat-resz">
+<summary>Megoldás részletes magyarázata</summary>
+
+<div className="magyarazat-doboz">
+
+## A feladat célja
+
+A feladat célja egy szoftverlicenc-nyilvántartás adatainak lekérdezése MySQL utasításokkal.
+
+Az adatokat a `JuniorLicencDB` nevű adatbázis tartalmazza.
+
+Az adatbázison belül a `Licencek` nevű tábla áll rendelkezésre.
+
+A tábla minden sora egy szoftverlicencet jelöl. A sorokban megtalálható többek között:
+
+- a szoftver neve,
+- a szoftver típusa,
+- a használat helyisége,
+- az aktív állapot,
+- a beszerzés éve,
+- az utolsó ellenőrzés dátuma.
+
+---
+
+## Az előkészítő SQL script szerepe
+
+Az `elokeszites.sql` script azért szükséges, mert ez hozza létre a feladat megoldásához szükséges adatbázist és táblát.
+
+A lekérdezések csak akkor fognak megfelelően működni, ha az előkészítő script korábban már lefutott.
+
+---
+
+## Az adatbázis törlése, ha már létezik
+
+```sql
+DROP DATABASE IF EXISTS JuniorLicencDB;
+```
+
+Ez az utasítás törli a `JuniorLicencDB` adatbázist, ha az már létezik.
+
+### A DROP DATABASE szerepe
+
+```sql
+DROP DATABASE
+```
+
+A `DROP DATABASE` adatbázis törlésére szolgál.
+
+Ha egy adatbázist törlünk, akkor az adatbázisban található táblák és adatok is törlődnek.
+
+---
+
+### Az IF EXISTS szerepe
+
+```sql
+IF EXISTS
+```
+
+Az `IF EXISTS` azt jelenti, hogy a törlés csak akkor történjen meg, ha az adatbázis valóban létezik.
+
+Ez azért hasznos, mert ha az adatbázis még nem létezik, a parancs nem okoz hibát.
+
+A teljes utasítás jelentése:
+
+```text
+Töröld a JuniorLicencDB adatbázist, ha már létezik.
+```
+
+Ez biztosítja, hogy az előkészítő script minden futtatáskor tiszta állapotból induljon.
+
+---
+
+## Az adatbázis létrehozása
+
+```sql
+CREATE DATABASE JuniorLicencDB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_hungarian_ci;
+```
+
+A `CREATE DATABASE` új adatbázist hoz létre.
+
+Ebben az esetben az adatbázis neve:
+
+```text
+JuniorLicencDB
+```
+
+---
+
+### A CHARACTER SET szerepe
+
+```sql
+CHARACTER SET utf8mb4
+```
+
+A `CHARACTER SET` karakterkódolást állít be.
+
+Az `utf8mb4` olyan karakterkódolás, amely alkalmas magyar ékezetes karakterek tárolására is.
+
+Ez azért fontos, mert a feladatban sok magyar szöveg szerepel, például:
+
+```text
+Fejlesztői környezet
+Média labor
+Könyvtár
+Vírusvédelem
+```
+
+---
+
+### A COLLATE szerepe
+
+```sql
+COLLATE utf8mb4_hungarian_ci
+```
+
+A `COLLATE` az összehasonlítási és rendezési szabályokat határozza meg.
+
+Az `utf8mb4_hungarian_ci` magyar nyelvhez illeszkedő rendezési szabályokat használ.
+
+A `ci` jelentése case-insensitive, vagyis kis- és nagybetűket nem különböztet meg az összehasonlításnál.
+
+---
+
+## Az adatbázis kiválasztása
+
+```sql
+USE JuniorLicencDB;
+```
+
+A `USE` utasítás kiválasztja, hogy a további SQL parancsok melyik adatbázison fussanak.
+
+Ez azért fontos, mert a táblát és az adatokat a `JuniorLicencDB` adatbázisban kell létrehozni.
+
+A megoldásfájl elején is szerepel:
+
+```sql
+USE JuniorLicencDB;
+```
+
+Ez biztosítja, hogy a lekérdezések a megfelelő adatbázison fussanak.
+
+---
+
+## A Licencek tábla létrehozása
+
+```sql
+CREATE TABLE Licencek (
+    Id INT PRIMARY KEY,
+    Nev VARCHAR(100),
+    Tipus VARCHAR(50),
+    Helyiseg VARCHAR(50),
+    Aktiv BOOLEAN,
+    BeszerzesEve INT,
+    UtolsoEllenorzes DATE
+);
+```
+
+A `CREATE TABLE` új táblát hoz létre.
+
+A tábla neve:
+
+```text
+Licencek
+```
+
+A zárójelek között a mezők, vagyis oszlopok meghatározása szerepel.
+
+---
+
+### Az Id mező
+
+```sql
+Id INT PRIMARY KEY
+```
+
+Az `Id` a licenc egyedi azonosítója.
+
+Az `INT` egész szám típus.
+
+A `PRIMARY KEY` elsődleges kulcsot jelent.
+
+Ez azt jelenti, hogy az `Id` mező értéke egyedileg azonosítja a sorokat. Két különböző licenc nem kaphatja ugyanazt az `Id` értéket.
+
+---
+
+### A Nev mező
+
+```sql
+Nev VARCHAR(100)
+```
+
+A `Nev` mező a szoftver nevét tárolja.
+
+A `VARCHAR(100)` változó hosszúságú szöveget jelent, legfeljebb 100 karakter hosszúságban.
+
+---
+
+### A Tipus mező
+
+```sql
+Tipus VARCHAR(50)
+```
+
+A `Tipus` mező a szoftver kategóriáját vagy típusát tárolja.
+
+Példák:
+
+```text
+Irodai programcsomag
+Fejlesztői környezet
+Grafikai program
+Vírusvédelem
+```
+
+A `VARCHAR(50)` legfeljebb 50 karakter hosszú szöveget enged.
+
+---
+
+### A Helyiseg mező
+
+```sql
+Helyiseg VARCHAR(50)
+```
+
+A `Helyiseg` mező azt tárolja, hogy melyik helyiségben használják a szoftvert.
+
+Példák:
+
+```text
+Informatika terem
+Szerverterem
+Média labor
+```
+
+---
+
+### Az Aktiv mező
+
+```sql
+Aktiv BOOLEAN
+```
+
+Az `Aktiv` mező logikai jellegű adatot tárol.
+
+MySQL-ben a `BOOLEAN` valójában a `TINYINT(1)` megfelelőjeként működik.
+
+Ebben a feladatban:
+
+- az `1` azt jelenti, hogy a licenc aktív,
+- a `0` azt jelenti, hogy a licenc nem aktív.
+
+---
+
+### A BeszerzesEve mező
+
+```sql
+BeszerzesEve INT
+```
+
+A `BeszerzesEve` mező a beszerzés évét tárolja.
+
+Mivel ez évszám, ezért egész számként szerepel.
+
+Például:
+
+```text
+2021
+2019
+2018
+```
+
+---
+
+### Az UtolsoEllenorzes mező
+
+```sql
+UtolsoEllenorzes DATE
+```
+
+Az `UtolsoEllenorzes` mező dátum típusú adatot tárol.
+
+Azt jelzi, hogy mikor ellenőrizték utoljára az adott licencet.
+
+A dátumok a következő formában szerepelnek:
+
+```text
+YYYY-MM-DD
+```
+
+Például:
+
+```text
+2026-02-10
+```
+
+---
+
+## Adatok beszúrása a táblába
+
+```sql
+INSERT INTO Licencek
+(Id, Nev, Tipus, Helyiseg, Aktiv, BeszerzesEve, UtolsoEllenorzes)
+VALUES
+...
+```
+
+Az `INSERT INTO` új sorokat szúr be egy táblába.
+
+A `Licencek` után felsorolt mezőnevek jelzik, hogy milyen sorrendben adjuk meg az adatokat.
+
+A `VALUES` után szerepelnek a beszúrandó rekordok.
+
+Egy rekord például:
+
+```sql
+(1, 'Microsoft Office 2021', 'Irodai programcsomag', 'Informatika terem', 1, 2021, '2026-02-10')
+```
+
+Ebben:
+
+- `1` az azonosító,
+- `'Microsoft Office 2021'` a szoftver neve,
+- `'Irodai programcsomag'` a típus,
+- `'Informatika terem'` a helyiség,
+- `1` az aktív állapot,
+- `2021` a beszerzés éve,
+- `'2026-02-10'` az utolsó ellenőrzés dátuma.
+
+A szöveges és dátum jellegű értékek aposztrófok között szerepelnek.
+
+---
+
+## A megoldásfájl első sora
+
+```sql
+USE JuniorLicencDB;
+```
+
+A megoldásfájl elején ki kell választani a megfelelő adatbázist.
+
+A `USE JuniorLicencDB;` biztosítja, hogy a lekérdezések nem egy másik adatbázison, hanem a feladatban megadott `JuniorLicencDB` adatbázison fussanak.
+
+---
+
+## Kommentek az SQL fájlban
+
+```sql
+-- 1. Az összes szoftver nevének, típusának, helyiségének és beszerzési évének lekérdezése
+```
+
+A `--` két kötőjellel kezdődő rész megjegyzés.
+
+A megjegyzéseket a MySQL nem hajtja végre.
+
+Ezek célja, hogy olvashatóbbá tegyék a megoldást, és egyértelműen jelezzék, melyik lekérdezés melyik feladatrészhez tartozik.
+
+---
+
+## 1. lekérdezés – Az összes szoftver kiválasztott adatainak lekérdezése
+
+```sql
+SELECT 
+    Nev,
+    Tipus,
+    Helyiseg,
+    BeszerzesEve
+FROM Licencek;
+```
+
+Ez a lekérdezés az összes licencből csak négy mezőt jelenít meg:
+
+- `Nev`,
+- `Tipus`,
+- `Helyiseg`,
+- `BeszerzesEve`.
+
+---
+
+### A SELECT szerepe
+
+```sql
+SELECT
+```
+
+A `SELECT` lekérdezést indít.
+
+Azt határozza meg, hogy milyen oszlopokat szeretnénk megjeleníteni.
+
+---
+
+### A mezőnevek felsorolása
+
+```sql
+Nev,
+Tipus,
+Helyiseg,
+BeszerzesEve
+```
+
+Itt azok az oszlopok szerepelnek, amelyeket az eredményben látni szeretnénk.
+
+A mezőneveket vesszővel kell elválasztani egymástól.
+
+Az utolsó mező után nem kell vessző.
+
+---
+
+### A FROM szerepe
+
+```sql
+FROM Licencek
+```
+
+A `FROM` azt adja meg, hogy melyik táblából kérdezzük le az adatokat.
+
+Ebben az esetben a tábla neve:
+
+```text
+Licencek
+```
+
+Ez a lekérdezés teljesíti az 1. feladatrészt.
+
+---
+
+## 2. lekérdezés – Az aktív licencek minden adatának lekérdezése
+
+```sql
+SELECT 
+    *
+FROM Licencek
+WHERE Aktiv = 1;
+```
+
+Ez a lekérdezés azokat a sorokat jeleníti meg, ahol az `Aktiv` mező értéke `1`.
+
+---
+
+### A csillag szerepe
+
+```sql
+*
+```
+
+A `*` azt jelenti, hogy minden oszlopot meg szeretnénk jeleníteni.
+
+Mivel a feladat azt kéri, hogy az aktív licencek minden adata jelenjen meg, ezért itt megfelelő a `SELECT *` használata.
+
+---
+
+### A WHERE szerepe
+
+```sql
+WHERE Aktiv = 1
+```
+
+A `WHERE` feltételt ad meg.
+
+Csak azok a sorok kerülnek az eredménybe, amelyek megfelelnek a feltételnek.
+
+Ebben az esetben a feltétel:
+
+```text
+Az Aktiv mező értéke legyen 1
+```
+
+---
+
+### Az egyenlőségjel szerepe
+
+```sql
+=
+```
+
+Az `=` összehasonlító operátor.
+
+Azt vizsgálja, hogy két érték egyenlő-e.
+
+Ebben a lekérdezésben azt vizsgáljuk, hogy az `Aktiv` mező értéke pontosan `1`-e.
+
+Ez a lekérdezés teljesíti a 2. feladatrészt.
+
+---
+
+## 3. lekérdezés – Fejlesztői környezet típusú szoftverek lekérdezése
+
+```sql
+SELECT 
+    Nev,
+    Helyiseg
+FROM Licencek
+WHERE Tipus = 'Fejlesztői környezet';
+```
+
+Ez a lekérdezés azoknak a szoftvereknek a nevét és helyiségét jeleníti meg, amelyek típusa `Fejlesztői környezet`.
+
+---
+
+### A kiválasztott mezők
+
+```sql
+Nev,
+Helyiseg
+```
+
+A feladat csak a szoftver nevét és helyiségét kéri, ezért csak ez a két oszlop szerepel a `SELECT` részben.
+
+---
+
+### Szöveges feltétel
+
+```sql
+WHERE Tipus = 'Fejlesztői környezet'
+```
+
+A `Tipus` mező szöveges adatot tartalmaz.
+
+SQL-ben a szöveges értékeket aposztrófok közé kell írni.
+
+Ezért szerepel így:
+
+```sql
+'Fejlesztői környezet'
+```
+
+A feltétel jelentése:
+
+```text
+Csak azok a sorok jelenjenek meg, ahol a Tipus mező értéke Fejlesztői környezet
+```
+
+Ez a lekérdezés teljesíti a 3. feladatrészt.
+
+---
+
+## 4. lekérdezés – 2020 előtt beszerzett licencek lekérdezése
+
+```sql
+SELECT 
+    *
+FROM Licencek
+WHERE BeszerzesEve < 2020;
+```
+
+Ez a lekérdezés azokat a licenceket jeleníti meg, amelyeket 2020 előtt szereztek be.
+
+---
+
+### A kisebb mint operátor
+
+```sql
+<
+```
+
+A `<` operátor azt jelenti, hogy kisebb mint.
+
+A feltétel:
+
+```sql
+BeszerzesEve < 2020
+```
+
+jelentése:
+
+```text
+A beszerzés éve kisebb legyen, mint 2020
+```
+
+Ez alapján megjelennek például a 2019-ben, 2018-ban, 2017-ben vagy 2016-ban beszerzett licencek.
+
+A 2020-ban beszerzett licencek már nem felelnek meg ennek a feltételnek, mert a feladat kifejezetten azt kéri, hogy 2020 előtt beszerzett licenceket kell lekérdezni.
+
+Ez a lekérdezés teljesíti a 4. feladatrészt.
+
+---
+
+## 5. lekérdezés – Licencek száma helyiségenként
+
+```sql
+SELECT 
+    Helyiseg,
+    COUNT(*) AS LicencekSzama
+FROM Licencek
+GROUP BY Helyiseg
+ORDER BY Helyiseg;
+```
+
+Ez a lekérdezés megszámolja, hogy az egyes helyiségekhez hány licenc tartozik.
+
+---
+
+### A COUNT függvény
+
+```sql
+COUNT(*)
+```
+
+A `COUNT` összesítő függvény.
+
+A `COUNT(*)` megszámolja, hány sor tartozik az adott csoportba.
+
+Ebben a feladatban azt számolja meg, hogy egy-egy helyiséghez hány licenc tartozik.
+
+---
+
+### Az AS szerepe
+
+```sql
+AS LicencekSzama
+```
+
+Az `AS` alias, vagyis ideiglenes oszlopnév megadására szolgál.
+
+A `COUNT(*)` eredménye így nem névtelen vagy nehezen olvasható oszlopként jelenik meg, hanem `LicencekSzama` néven.
+
+---
+
+### A GROUP BY szerepe
+
+```sql
+GROUP BY Helyiseg
+```
+
+A `GROUP BY` csoportosítja a sorokat.
+
+Ebben az esetben a csoportosítás a `Helyiseg` mező alapján történik.
+
+Ez azt jelenti, hogy az azonos helyiséghez tartozó sorokat egy csoportként kezeli a lekérdezés.
+
+Például minden `Média labor` helyiséghez tartozó sor egy csoportba kerül, és a `COUNT(*)` megszámolja, hány ilyen sor van.
+
+---
+
+### Az ORDER BY szerepe
+
+```sql
+ORDER BY Helyiseg
+```
+
+Az `ORDER BY` az eredmény rendezésére szolgál.
+
+Ebben a lekérdezésben a helyiségek neve szerint rendezve jelennek meg az eredmények.
+
+Ez a lekérdezés teljesíti az 5. feladatrészt.
+
+---
+
+## 6. lekérdezés – Aktív licencek száma típusonként
+
+```sql
+SELECT 
+    Tipus,
+    COUNT(*) AS AktivLicencekSzama
+FROM Licencek
+WHERE Aktiv = 1
+GROUP BY Tipus
+ORDER BY Tipus;
+```
+
+Ez a lekérdezés azt határozza meg, hogy típusonként hány aktív licenc van használatban.
+
+---
+
+### A WHERE és GROUP BY együttes használata
+
+```sql
+WHERE Aktiv = 1
+GROUP BY Tipus
+```
+
+Ebben a lekérdezésben először a `WHERE` feltétel szűri a sorokat.
+
+Csak azok a sorok maradnak meg, ahol:
+
+```text
+Aktiv = 1
+```
+
+Ezután a megmaradt aktív licenceket a `GROUP BY Tipus` csoportosítja típus szerint.
+
+---
+
+### Miért fontos a sorrend?
+
+A lekérdezés logikája:
+
+1. a `FROM Licencek` megadja a táblát,
+2. a `WHERE Aktiv = 1` kiszűri az aktív licenceket,
+3. a `GROUP BY Tipus` típusonként csoportosít,
+4. a `COUNT(*)` megszámolja a csoportok elemeit,
+5. az `AS AktivLicencekSzama` elnevezi a darabszám oszlopát,
+6. az `ORDER BY Tipus` rendezi az eredményt típus szerint.
+
+Ez azért fontos, mert a feladat nem az összes licencet kéri típusonként, hanem csak az aktív licenceket.
+
+Ez a lekérdezés teljesíti a 6. feladatrészt.
+
+---
+
+## 7. lekérdezés – 2026. január 1. előtt ellenőrzött licencek lekérdezése
+
+```sql
+SELECT 
+    *
+FROM Licencek
+WHERE UtolsoEllenorzes < '2026-01-01'
+ORDER BY UtolsoEllenorzes ASC;
+```
+
+Ez a lekérdezés azokat a licenceket jeleníti meg, amelyek utolsó ellenőrzése 2026. január 1. előtt történt.
+
+---
+
+### Dátum szerinti feltétel
+
+```sql
+WHERE UtolsoEllenorzes < '2026-01-01'
+```
+
+Az `UtolsoEllenorzes` mező dátum típusú adat.
+
+A feltétel azt jelenti, hogy csak azok a sorok jelenjenek meg, ahol az utolsó ellenőrzés dátuma korábbi, mint:
+
+```text
+2026-01-01
+```
+
+Mivel a feltételben kisebb mint jel szerepel, a `2026-01-01` dátum már nem kerül bele az eredménybe. Csak az annál korábbi dátumok jelennek meg.
+
+---
+
+### Az ORDER BY szerepe
+
+```sql
+ORDER BY UtolsoEllenorzes ASC
+```
+
+Az `ORDER BY` az eredmény rendezésére szolgál.
+
+Ebben az esetben az `UtolsoEllenorzes` mező alapján rendezzük az eredményt.
+
+---
+
+### Az ASC szerepe
+
+```sql
+ASC
+```
+
+Az `ASC` növekvő sorrendet jelent.
+
+Dátumok esetében ez azt jelenti, hogy a legkorábbi dátum jelenik meg elöl, majd utána következnek az egyre későbbi dátumok.
+
+Például:
+
+```text
+2024-10-21
+2024-12-18
+2025-08-16
+2025-09-23
+```
+
+Ez a lekérdezés teljesíti a 7. feladatrészt.
+
+---
+
+## A megoldásban használt fontosabb SQL-elemek összefoglalása
+
+| Elem | Megnevezés | Magyarázat |
+|---|---|---|
+| `DROP DATABASE IF EXISTS` | Adatbázis törlése feltétellel | Törli az adatbázist, ha az már létezik |
+| `CREATE DATABASE` | Adatbázis létrehozása | Új adatbázist hoz létre |
+| `CHARACTER SET` | Karakterkódolás | Megadja az adatbázis karakterkódolását |
+| `COLLATE` | Rendezési szabály | Megadja a szövegek összehasonlításának és rendezésének szabályát |
+| `USE` | Adatbázis kiválasztása | Megadja, hogy a további utasítások melyik adatbázison fussanak |
+| `CREATE TABLE` | Tábla létrehozása | Új táblát hoz létre |
+| `PRIMARY KEY` | Elsődleges kulcs | Egyedileg azonosítja a tábla sorait |
+| `INSERT INTO` | Adatbeszúrás | Új sorokat szúr be a táblába |
+| `VALUES` | Beszúrandó értékek | Az `INSERT INTO` utasításhoz tartozó adatokat tartalmazza |
+| `--` | Megjegyzés | Olyan szöveg, amelyet a MySQL nem hajt végre |
+| `SELECT` | Lekérdezés kezdete | Megadja, mely oszlopokat szeretnénk megjeleníteni |
+| `FROM` | Forrástábla megadása | Megadja, melyik táblából történjen a lekérdezés |
+| `*` | Minden oszlop | A tábla minden mezőjét megjeleníti |
+| `WHERE` | Feltétel | Csak a feltételnek megfelelő sorokat jeleníti meg |
+| `=` | Egyenlőségvizsgálat | Azt vizsgálja, hogy két érték egyenlő-e |
+| <code>&lt;</code> | Kisebb mint | Azt vizsgálja, hogy egy érték kisebb-e a megadott értéknél |
+| `COUNT(*)` | Darabszám meghatározása | Megszámolja a sorokat |
+| `AS` | Alias | Ideiglenes, beszédes oszlopnevet ad az eredményben |
+| `GROUP BY` | Csoportosítás | Az azonos értékű sorokat csoportokba rendezi |
+| `ORDER BY` | Rendezés | Megadja, hogy az eredmény milyen mező szerint legyen rendezve |
+| `ASC` | Növekvő sorrend | A rendezést növekvő irányba állítja |
+| `VARCHAR` | Szöveges adattípus | Változó hosszúságú szöveg tárolására szolgál |
+| `INT` | Egész szám típus | Egész számok tárolására szolgál |
+| `BOOLEAN` | Logikai jellegű típus | MySQL-ben 0 vagy 1 értékkel használható |
+| `DATE` | Dátum típus | Dátumértékek tárolására szolgál |
+
+</div>
+
+</details>
+
+---
+
+<details>
+<summary>Példa kimenetek</summary>
+
+## 1. lekérdezés kimenete
+
+```text
+Nev                            Tipus                    Helyiseg             BeszerzesEve
+Microsoft Office 2021           Irodai programcsomag     Informatika terem    2021
+LibreOffice támogatási csomag   Irodai programcsomag     Tanári szoba         2019
+Visual Studio Professional      Fejlesztői környezet     Informatika terem    2022
+JetBrains IntelliJ IDEA         Fejlesztői környezet     Fejlesztői labor     2021
+Eclipse oktatási licenc         Fejlesztői környezet     Fejlesztői labor     2018
+Adobe Photoshop                 Grafikai program         Média labor          2019
+Adobe Illustrator               Grafikai program         Média labor          2020
+GIMP oktatási csomag            Grafikai program         Könyvtár             2023
+ESET Endpoint Security          Vírusvédelem             Szerverterem         2021
+Kaspersky Endpoint              Vírusvédelem             Titkárság            2017
+Windows Server CAL              Rendszerlicenc           Szerverterem         2022
+SQL Server Standard             Rendszerlicenc           Szerverterem         2018
+AutoCAD oktatási licenc         Tervezőprogram           Műszaki terem        2019
+CorelDRAW Graphics Suite        Grafikai program         Média labor          2016
+PyCharm Professional            Fejlesztői környezet     Informatika terem    2023
+```
+
+## 2. lekérdezés kimenete
+
+```text
+Id  Nev                            Tipus                    Helyiseg             Aktiv  BeszerzesEve  UtolsoEllenorzes
+1   Microsoft Office 2021           Irodai programcsomag     Informatika terem    1      2021          2026-02-10
+2   LibreOffice támogatási csomag   Irodai programcsomag     Tanári szoba         1      2019          2025-11-12
+3   Visual Studio Professional      Fejlesztői környezet     Informatika terem    1      2022          2026-03-04
+4   JetBrains IntelliJ IDEA         Fejlesztői környezet     Fejlesztői labor     1      2021          2026-01-19
+5   Eclipse oktatási licenc         Fejlesztői környezet     Fejlesztői labor     1      2018          2025-09-23
+6   Adobe Photoshop                 Grafikai program         Média labor          1      2019          2025-10-30
+7   Adobe Illustrator               Grafikai program         Média labor          1      2020          2026-01-15
+8   GIMP oktatási csomag            Grafikai program         Könyvtár             1      2023          2026-02-20
+9   ESET Endpoint Security          Vírusvédelem             Szerverterem         1      2021          2026-04-02
+11  Windows Server CAL              Rendszerlicenc           Szerverterem         1      2022          2026-03-28
+12  SQL Server Standard             Rendszerlicenc           Szerverterem         1      2018          2025-08-16
+13  AutoCAD oktatási licenc         Tervezőprogram           Műszaki terem        1      2019          2025-12-05
+15  PyCharm Professional            Fejlesztői környezet     Informatika terem    1      2023          2026-04-11
+```
+
+## 3. lekérdezés kimenete
+
+```text
+Nev                         Helyiseg
+Visual Studio Professional   Informatika terem
+JetBrains IntelliJ IDEA      Fejlesztői labor
+Eclipse oktatási licenc      Fejlesztői labor
+PyCharm Professional         Informatika terem
+```
+
+## 4. lekérdezés kimenete
+
+```text
+Id  Nev                            Tipus                    Helyiseg             Aktiv  BeszerzesEve  UtolsoEllenorzes
+2   LibreOffice támogatási csomag   Irodai programcsomag     Tanári szoba         1      2019          2025-11-12
+5   Eclipse oktatási licenc         Fejlesztői környezet     Fejlesztői labor     1      2018          2025-09-23
+6   Adobe Photoshop                 Grafikai program         Média labor          1      2019          2025-10-30
+10  Kaspersky Endpoint              Vírusvédelem             Titkárság            0      2017          2024-12-18
+12  SQL Server Standard             Rendszerlicenc           Szerverterem         1      2018          2025-08-16
+13  AutoCAD oktatási licenc         Tervezőprogram           Műszaki terem        1      2019          2025-12-05
+14  CorelDRAW Graphics Suite        Grafikai program         Média labor          0      2016          2024-10-21
+```
+
+## 5. lekérdezés kimenete
+
+```text
+Helyiseg             LicencekSzama
+Fejlesztői labor     2
+Informatika terem    3
+Könyvtár             1
+Média labor          3
+Műszaki terem        1
+Szerverterem         3
+Tanári szoba         1
+Titkárság            1
+```
+
+## 6. lekérdezés kimenete
+
+```text
+Tipus                    AktivLicencekSzama
+Fejlesztői környezet     4
+Grafikai program         3
+Irodai programcsomag     2
+Rendszerlicenc           2
+Tervezőprogram           1
+Vírusvédelem             1
+```
+
+## 7. lekérdezés kimenete
+
+```text
+Id  Nev                            Tipus                    Helyiseg             Aktiv  BeszerzesEve  UtolsoEllenorzes
+14  CorelDRAW Graphics Suite        Grafikai program         Média labor          0      2016          2024-10-21
+10  Kaspersky Endpoint              Vírusvédelem             Titkárság            0      2017          2024-12-18
+12  SQL Server Standard             Rendszerlicenc           Szerverterem         1      2018          2025-08-16
+5   Eclipse oktatási licenc         Fejlesztői környezet     Fejlesztői labor     1      2018          2025-09-23
+6   Adobe Photoshop                 Grafikai program         Média labor          1      2019          2025-10-30
+2   LibreOffice támogatási csomag   Irodai programcsomag     Tanári szoba         1      2019          2025-11-12
+13  AutoCAD oktatási licenc         Tervezőprogram           Műszaki terem        1      2019          2025-12-05
+```
+
+A pontos megjelenés a használt MySQL-kliensprogramtól függhet. Az oszlopok szélessége, igazítása és a hosszabb szövegek tördelése eltérhet, de a lekérdezett rekordoknak és mezőknek ezeknek kell megfelelniük.
+
+</details>

@@ -1,0 +1,1144 @@
+---
+title: Bash feladat 2
+sidebar_position: 2
+description: Bash feladat naplóállomány feldolgozására és sikertelen belépések mentésére
+---
+
+# 2. feladat – Tananyagportál hozzáférési naplójának feldolgozása
+
+Egy középiskola belső digitális tananyagportált használ, amelyen a tanulók és a tanárok oktatási anyagokat érnek el. A rendszer minden hozzáférési kísérletet naplóz, így a rendszergazda ellenőrizni tudja, hogy történt-e sikertelen belépési próbálkozás, illetve mely felhasználók próbálták használni a portált.
+
+A feladatot a vizsgán biztosított lokális Linux gépen kell elvégeznie.
+
+A forrásállomány neve `portal_belepesek.log`. Az állomány a munkakönyvtárban található.
+
+A fájl sorai pontosvesszővel tagolt adatokat tartalmaznak az alábbi formában:
+
+```text
+datum;felhasznalo;ip_cim;eredmeny
+```
+
+A megoldást `portal_elemzes.sh` néven készítse el!
+
+## Feladatok
+
+1. Ellenőrizze, hogy a `portal_belepesek.log` fájl megtalálható-e a munkakönyvtárban! Ha a fájl megtalálható, írja ki, hogy: `A portal_belepesek.log fájl megtalálható.` Ha a fájl nem található, írja ki, hogy: `Hiba: a portal_belepesek.log fájl nem található!`
+
+2. Határozza meg, hány hozzáférési kísérlet szerepel összesen a naplóállományban!
+
+3. Határozza meg a legelső hozzáférési kísérlet időpontját!
+
+4. Határozza meg a sikertelen hozzáférési kísérletek számát!
+
+5. Jelenítse meg a sikertelen hozzáférési kísérletek adatait! Az adatok között szerepeljen a dátum és idő, a felhasználónév, az IP-cím és a hozzáférés eredménye!
+
+6. Készítse el a `hibas_portal_belepesek.txt` nevű fájlt, amelybe a sikertelen hozzáférési kísérletek teljes eredeti sorai kerüljenek!
+
+7. A `hibas_portal_belepesek.txt` fájlba ne kerüljön fejléc, magyarázó szöveg vagy táblázatos formázás, csak az eredeti naplósorok szerepeljenek változatlan formában!
+
+8. Formázza a kiírásokat a mintának megfelelően!  
+   a) Minden feladatnál jelenjen meg a mintának megfelelően a feladat sorszáma és megnevezése!  
+   b) A jelentés elején és végén legyen a mintának megfelelő bevezető, illetve lezáró kiírás!  
+   c) Az egyes eredményeket a mintának megfelelően szerkessze meg! Ahol a minta táblázatszerű megjelenítést tartalmaz, ott a script kimenete is ilyen formában jelenjen meg!
+
+---
+
+<details>
+<summary>Forrásállomány – portal_belepesek.log</summary>
+
+A feladat megoldásához a munkakönyvtárban létre kell hozni a `portal_belepesek.log` nevű fájlt.
+
+A fájl ne tartalmazzon fejlécsort. Minden sor egy hozzáférési kísérletet jelöl.
+
+A `portal_belepesek.log` tartalma:
+
+```text
+2026-05-18 07:45:12;tanar01;192.168.1.20;SIKERES
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+2026-05-18 07:52:04;diak03;192.168.1.44;SIKERES
+2026-05-18 08:03:19;tanar02;192.168.1.25;SIKERES
+2026-05-18 08:15:42;diak22;192.168.1.71;SIKERTELEN
+2026-05-18 08:18:10;diak11;192.168.1.59;SIKERES
+2026-05-18 08:24:55;diak18;192.168.1.62;SIKERTELEN
+2026-05-18 08:40:03;tanar01;192.168.1.20;SIKERES
+2026-05-18 08:55:27;diak09;192.168.1.47;SIKERES
+2026-05-18 09:02:49;vendeg;192.168.1.88;SIKERTELEN
+```
+
+A fájl létrehozása terminálból:
+
+```bash
+nano portal_belepesek.log
+```
+
+Ezután a fenti tartalmat be kell másolni, majd menteni kell a fájlt.
+
+</details>
+
+---
+
+<details>
+<summary>Teljes megoldás</summary>
+
+```bash
+#!/bin/bash
+
+echo "1. Tananyagportál hozzáférési naplójának feldolgozása"
+echo
+
+echo "2. Fájl ellenőrzése"
+
+if [ -f "portal_belepesek.log" ]
+then
+    echo "A portal_belepesek.log fájl megtalálható."
+else
+    echo "Hiba: a portal_belepesek.log fájl nem található!"
+    exit 1
+fi
+
+echo
+
+echo "3. Hozzáférési kísérletek száma"
+ossz=$(wc -l < portal_belepesek.log)
+echo "Összes hozzáférési kísérlet: $ossz"
+
+echo
+
+echo "4. Legelső hozzáférési kísérlet időpontja"
+elso_idopont=$(head -n 1 portal_belepesek.log | cut -d';' -f1)
+echo "Legelső hozzáférési kísérlet időpontja: $elso_idopont"
+
+echo
+
+echo "5. Sikertelen hozzáférési kísérletek száma"
+sikertelen=$(grep -c ";SIKERTELEN$" portal_belepesek.log)
+echo "Sikertelen hozzáférési kísérletek: $sikertelen"
+
+echo
+
+echo "6. Sikertelen hozzáférési kísérletek adatai"
+echo
+printf "%-20s %-12s %-15s %-10s\n" "Dátum és idő" "Felhasználó" "IP-cím" "Eredmény"
+echo "---------------------------------------------------------------"
+
+grep ";SIKERTELEN$" portal_belepesek.log | while IFS=';' read datum felhasznalo ip eredmeny
+do
+    printf "%-20s %-12s %-15s %-10s\n" "$datum" "$felhasznalo" "$ip" "$eredmeny"
+done
+
+echo
+
+echo "7. Fájlba mentés"
+grep ";SIKERTELEN$" portal_belepesek.log > hibas_portal_belepesek.txt
+echo "A sikertelen hozzáférési kísérletek mentése megtörtént a hibas_portal_belepesek.txt fájlba."
+
+echo
+
+echo "8. Összegzés"
+echo "A tananyagportál hozzáférési naplójának feldolgozása befejeződött."
+```
+
+A script futtathatóvá tétele:
+
+```bash
+chmod +x portal_elemzes.sh
+```
+
+A script futtatása:
+
+```bash
+./portal_elemzes.sh
+```
+
+</details>
+
+---
+
+<details className="magyarazat-resz">
+<summary>Megoldás részletes magyarázata</summary>
+
+<div className="magyarazat-doboz">
+
+## A script célja
+
+A `portal_elemzes.sh` script célja, hogy feldolgozza a `portal_belepesek.log` nevű naplóállományt.
+
+A naplóállomány a tananyagportál hozzáférési kísérleteit tartalmazza. Minden sor egy belépési vagy hozzáférési próbálkozást jelöl.
+
+A sorok pontosvesszővel tagolt adatokból állnak:
+
+```text
+datum;felhasznalo;ip_cim;eredmeny
+```
+
+Egy példa sor:
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+```
+
+Ebben a sorban:
+
+- `2026-05-18 07:48:31` a hozzáférési kísérlet dátuma és ideje,
+- `diak15` a felhasználónév,
+- `192.168.1.56` az IP-cím,
+- `SIKERTELEN` a hozzáférés eredménye.
+
+A script feladata, hogy ellenőrizze a fájl meglétét, megszámolja a hozzáférési kísérleteket, kigyűjtse a sikertelen belépéseket, majd azokat külön fájlba is elmentse.
+
+---
+
+## A script első sora
+
+```bash
+#!/bin/bash
+```
+
+Ez a sor a script elején található.
+
+A `#!` jelet shebangnek nevezzük.
+
+Ez mondja meg az operációs rendszernek, hogy a fájlban lévő utasításokat melyik parancsértelmezővel kell végrehajtani.
+
+A `/bin/bash` a Bash parancsértelmező elérési útja.
+
+Ez azért fontos, mert így a rendszer Bash scriptként fogja értelmezni a fájlt.
+
+---
+
+## 1. rész – A jelentés címének kiírása
+
+```bash
+echo "1. Tananyagportál hozzáférési naplójának feldolgozása"
+echo
+```
+
+Az `echo` parancs szöveget ír ki a terminálra.
+
+Az első sor kiírja a jelentés főcímét:
+
+```text
+1. Tananyagportál hozzáférési naplójának feldolgozása
+```
+
+A második `echo` után nem szerepel szöveg, ezért egy üres sort jelenít meg.
+
+Az üres sor célja, hogy a kimenet tagoltabb és könnyebben olvasható legyen.
+
+Ez a rész a jelentés bevezető kiírását adja meg.
+
+---
+
+## 2. rész – A forrásfájl ellenőrzése
+
+```bash
+echo "2. Fájl ellenőrzése"
+
+if [ -f "portal_belepesek.log" ]
+then
+    echo "A portal_belepesek.log fájl megtalálható."
+else
+    echo "Hiba: a portal_belepesek.log fájl nem található!"
+    exit 1
+fi
+```
+
+Ez a rész ellenőrzi, hogy a `portal_belepesek.log` fájl megtalálható-e a munkakönyvtárban.
+
+---
+
+### A cím kiírása
+
+```bash
+echo "2. Fájl ellenőrzése"
+```
+
+Ez a sor kiírja a második rész címét.
+
+---
+
+### Az if szerkezet
+
+```bash
+if
+then
+else
+fi
+```
+
+Az `if` feltételes elágazást indít.
+
+A `then` után azok az utasítások szerepelnek, amelyek akkor futnak le, ha a feltétel igaz.
+
+Az `else` után azok az utasítások szerepelnek, amelyek akkor futnak le, ha a feltétel hamis.
+
+A `fi` zárja le az `if` szerkezetet.
+
+A `fi` az `if` fordítottja, és Bashben ezzel kell lezárni a feltételes szerkezetet.
+
+---
+
+### A feltétel
+
+```bash
+[ -f "portal_belepesek.log" ]
+```
+
+A szögletes zárójelek közötti rész maga a feltétel.
+
+A `-f` fájlvizsgáló operátor.
+
+Azt ellenőrzi, hogy a megadott néven létezik-e normál fájl.
+
+Ebben az esetben azt vizsgáljuk, hogy létezik-e a `portal_belepesek.log` fájl.
+
+Fontos, hogy a fájlnév idézőjelben szerepel:
+
+```bash
+"portal_belepesek.log"
+```
+
+Az idézőjelek használata akkor is biztonságosabb, ha a fájlnévben szóköz vagy különleges karakter lenne.
+
+---
+
+### Igaz ág
+
+```bash
+echo "A portal_belepesek.log fájl megtalálható."
+```
+
+Ez akkor fut le, ha a `portal_belepesek.log` fájl megtalálható.
+
+A script ekkor folytatja a további feldolgozást.
+
+---
+
+### Hamis ág
+
+```bash
+echo "Hiba: a portal_belepesek.log fájl nem található!"
+exit 1
+```
+
+Ez akkor fut le, ha a fájl nem található.
+
+Az `echo` kiírja a hibaüzenetet:
+
+```text
+Hiba: a portal_belepesek.log fájl nem található!
+```
+
+Az `exit 1` leállítja a script futását.
+
+Az `1` hibakódot jelent. Ez azt jelzi, hogy a program nem sikeresen, hanem hibával fejeződött be.
+
+Erre azért van szükség, mert ha nincs meg a forrásállomány, akkor a további parancsok nem tudnák feldolgozni a naplóadatokat.
+
+Ez a rész teljesíti az 1. feladatrészt.
+
+---
+
+## 3. rész – Hozzáférési kísérletek számának meghatározása
+
+```bash
+echo
+
+echo "3. Hozzáférési kísérletek száma"
+ossz=$(wc -l < portal_belepesek.log)
+echo "Összes hozzáférési kísérlet: $ossz"
+```
+
+Ez a rész megszámolja, hogy hány sor található a naplóállományban.
+
+Mivel a fájl minden sora egy hozzáférési kísérletet jelöl, a sorok száma megegyezik a hozzáférési kísérletek számával.
+
+---
+
+### Üres sor kiírása
+
+```bash
+echo
+```
+
+Ez az üres `echo` egy üres sort jelenít meg.
+
+A célja a kimenet tagolása.
+
+---
+
+### A cím kiírása
+
+```bash
+echo "3. Hozzáférési kísérletek száma"
+```
+
+Ez a sor kiírja a harmadik rész címét.
+
+---
+
+### A wc parancs
+
+```bash
+wc -l
+```
+
+A `wc` parancs szövegállományok statisztikai adatait tudja megjeleníteni.
+
+A `-l` kapcsoló azt jelenti, hogy a sorok számát kell meghatározni.
+
+Tehát a `wc -l` megszámolja, hány sorból áll egy fájl.
+
+---
+
+### Bemeneti átirányítás
+
+```bash
+wc -l < portal_belepesek.log
+```
+
+A `<` jel bemeneti átirányítást jelent.
+
+Ez azt jelenti, hogy a `wc -l` parancs a `portal_belepesek.log` fájl tartalmát kapja bemenetként.
+
+A megoldás előnye, hogy így csak a sorok száma kerül az eredménybe, a fájlnév nem.
+
+Példa:
+
+```text
+10
+```
+
+Ha így írnánk:
+
+```bash
+wc -l portal_belepesek.log
+```
+
+akkor az eredmény általában ez lenne:
+
+```text
+10 portal_belepesek.log
+```
+
+A feladatban csak a számra van szükség, ezért használjuk a `<` átirányítást.
+
+---
+
+### Parancshelyettesítés
+
+```bash
+ossz=$(wc -l < portal_belepesek.log)
+```
+
+A `$(...)` szerkezet neve parancshelyettesítés.
+
+A zárójelek között lévő parancs először lefut, majd az eredménye bekerül a változóba.
+
+Ebben az esetben a `wc -l < portal_belepesek.log` eredménye bekerül az `ossz` változóba.
+
+Ha a fájl 10 soros, akkor:
+
+```bash
+ossz=10
+```
+
+---
+
+### A változó kiírása
+
+```bash
+echo "Összes hozzáférési kísérlet: $ossz"
+```
+
+A `$ossz` a változó értékére hivatkozik.
+
+Ha az `ossz` értéke `10`, akkor a kimenet:
+
+```text
+Összes hozzáférési kísérlet: 10
+```
+
+Ez a rész teljesíti a 2. feladatrészt.
+
+---
+
+## 4. rész – A legelső hozzáférési kísérlet időpontjának meghatározása
+
+```bash
+echo
+
+echo "4. Legelső hozzáférési kísérlet időpontja"
+elso_idopont=$(head -n 1 portal_belepesek.log | cut -d';' -f1)
+echo "Legelső hozzáférési kísérlet időpontja: $elso_idopont"
+```
+
+Ez a rész kiolvassa a naplóállomány első sorából a dátumot és időpontot.
+
+A feladat abból indul ki, hogy a napló sorai időrendben szerepelnek a fájlban. Emiatt a legelső sor tartalmazza a legelső hozzáférési kísérletet.
+
+---
+
+### A head parancs
+
+```bash
+head -n 1 portal_belepesek.log
+```
+
+A `head` parancs egy fájl elejéről jelenít meg sorokat.
+
+A `-n 1` azt jelenti, hogy csak az első sort kérjük.
+
+Példa első sor:
+
+```text
+2026-05-18 07:45:12;tanar01;192.168.1.20;SIKERES
+```
+
+---
+
+### A pipe jel szerepe
+
+A parancsban szereplő pipe jel azt jelenti, hogy az egyik parancs kimenete a következő parancs bemenete lesz.
+
+Ebben a részben a `head -n 1 portal_belepesek.log` eredményét a `cut` parancs dolgozza tovább.
+
+A feldolgozás lényege:
+
+1. a `head` kiválasztja az első sort,
+2. a `cut` ebből az első mezőt választja ki.
+
+---
+
+### A cut parancs
+
+```bash
+cut -d';' -f1
+```
+
+A `cut` parancs szöveg darabolására használható.
+
+A `-d';'` azt jelenti, hogy az elválasztó karakter a pontosvessző.
+
+A `-f1` azt jelenti, hogy az első mezőt kérjük.
+
+A fájl soraiban az első mező a dátum és idő.
+
+Példa:
+
+```text
+2026-05-18 07:45:12;tanar01;192.168.1.20;SIKERES
+```
+
+Pontosvessző alapján a sor mezői:
+
+```text
+2026-05-18 07:45:12
+tanar01
+192.168.1.20
+SIKERES
+```
+
+Az első mező:
+
+```text
+2026-05-18 07:45:12
+```
+
+---
+
+### A változó értéke
+
+```bash
+elso_idopont=$(head -n 1 portal_belepesek.log | cut -d';' -f1)
+```
+
+A parancs eredménye bekerül az `elso_idopont` változóba.
+
+Ha az első sor dátuma `2026-05-18 07:45:12`, akkor:
+
+```bash
+elso_idopont="2026-05-18 07:45:12"
+```
+
+---
+
+### A változó kiírása
+
+```bash
+echo "Legelső hozzáférési kísérlet időpontja: $elso_idopont"
+```
+
+A `$elso_idopont` a változó értékére hivatkozik.
+
+A kimenet:
+
+```text
+Legelső hozzáférési kísérlet időpontja: 2026-05-18 07:45:12
+```
+
+Ez a rész teljesíti a 3. feladatrészt.
+
+---
+
+## 5. rész – Sikertelen hozzáférési kísérletek számának meghatározása
+
+```bash
+echo
+
+echo "5. Sikertelen hozzáférési kísérletek száma"
+sikertelen=$(grep -c ";SIKERTELEN$" portal_belepesek.log)
+echo "Sikertelen hozzáférési kísérletek: $sikertelen"
+```
+
+Ez a rész megszámolja, hogy hány sikertelen hozzáférési kísérlet szerepel a naplóállományban.
+
+---
+
+### A grep parancs
+
+```bash
+grep -c ";SIKERTELEN$" portal_belepesek.log
+```
+
+A `grep` parancs szöveg keresésére szolgál.
+
+Ebben az esetben olyan sorokat keresünk, amelyek végén a hozzáférés eredménye `SIKERTELEN`.
+
+---
+
+### A -c kapcsoló
+
+```bash
+grep -c
+```
+
+A `-c` kapcsoló azt jelenti, hogy a `grep` ne magukat a találati sorokat írja ki, hanem a találatok számát.
+
+Tehát ez a parancs megszámolja a sikertelen hozzáférési kísérleteket.
+
+---
+
+### A keresési minta
+
+```bash
+";SIKERTELEN$"
+```
+
+A keresési minta két fontos részből áll.
+
+A `;SIKERTELEN` azt jelenti, hogy olyan részt keresünk, ahol a pontosvessző után az eredmény mező értéke `SIKERTELEN`.
+
+A `$` jel a sor végét jelöli reguláris kifejezésben.
+
+Ez azért fontos, mert így a script csak azokat a sorokat számolja, amelyeknek a legvégén szerepel a `SIKERTELEN` érték.
+
+Példa találat:
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+```
+
+Ez a sor megfelel a mintának, mert a végén ez áll:
+
+```text
+;SIKERTELEN
+```
+
+---
+
+### Parancshelyettesítés és változó
+
+```bash
+sikertelen=$(grep -c ";SIKERTELEN$" portal_belepesek.log)
+```
+
+A parancs megszámolja a találatokat, majd az eredményt eltárolja a `sikertelen` változóban.
+
+Ha négy sikertelen sor van, akkor:
+
+```bash
+sikertelen=4
+```
+
+---
+
+### A változó kiírása
+
+```bash
+echo "Sikertelen hozzáférési kísérletek: $sikertelen"
+```
+
+A kimenet:
+
+```text
+Sikertelen hozzáférési kísérletek: 4
+```
+
+Ez a rész teljesíti a 4. feladatrészt.
+
+---
+
+## 6. rész – Sikertelen hozzáférési kísérletek adatainak megjelenítése
+
+```bash
+echo
+
+echo "6. Sikertelen hozzáférési kísérletek adatai"
+echo
+printf "%-20s %-12s %-15s %-10s\n" "Dátum és idő" "Felhasználó" "IP-cím" "Eredmény"
+echo "---------------------------------------------------------------"
+```
+
+Ez a rész előkészíti a sikertelen hozzáférési kísérletek táblázatos megjelenítését.
+
+---
+
+### Cím és üres sorok
+
+```bash
+echo "6. Sikertelen hozzáférési kísérletek adatai"
+echo
+```
+
+Az első sor kiírja a hatodik rész címét.
+
+A második sor egy üres sort jelenít meg, hogy a táblázat jobban elkülönüljön.
+
+---
+
+### A printf parancs
+
+```bash
+printf "%-20s %-12s %-15s %-10s\n" "Dátum és idő" "Felhasználó" "IP-cím" "Eredmény"
+```
+
+A `printf` formázott kiírásra szolgál.
+
+Az `echo` egyszerű szövegkiírásra alkalmas, a `printf` viszont pontosabban tudja szabályozni az oszlopok szélességét és igazítását.
+
+---
+
+### A formátumszöveg
+
+```bash
+"%-20s %-12s %-15s %-10s\n"
+```
+
+Ez határozza meg, hogyan jelenjenek meg az adatok.
+
+A `%s` szöveges értéket jelent.
+
+A szám azt jelzi, hogy hány karakter szélességű helyet kap az adott oszlop.
+
+A `-` jel balra igazítást jelent.
+
+Ezért:
+
+- `%-20s` egy balra igazított, 20 karakter széles szöveges oszlop,
+- `%-12s` egy balra igazított, 12 karakter széles szöveges oszlop,
+- `%-15s` egy balra igazított, 15 karakter széles szöveges oszlop,
+- `%-10s` egy balra igazított, 10 karakter széles szöveges oszlop.
+
+A `\n` sortörést jelent. Ennek hatására a kiírás végén új sor kezdődik.
+
+---
+
+### A fejléc értékei
+
+```bash
+"Dátum és idő" "Felhasználó" "IP-cím" "Eredmény"
+```
+
+Ezek azok az értékek, amelyek a formátumszöveg alapján megjelennek.
+
+A kiírt fejléc:
+
+```text
+Dátum és idő          Felhasználó  IP-cím          Eredmény
+```
+
+---
+
+### Elválasztó vonal
+
+```bash
+echo "---------------------------------------------------------------"
+```
+
+Ez a sor egy elválasztó vonalat ír ki a fejléc alá.
+
+A célja az, hogy a táblázat áttekinthetőbb legyen.
+
+---
+
+## 7. rész – A sikertelen sorok beolvasása és táblázatos kiírása
+
+```bash
+grep ";SIKERTELEN$" portal_belepesek.log | while IFS=';' read datum felhasznalo ip eredmeny
+do
+    printf "%-20s %-12s %-15s %-10s\n" "$datum" "$felhasznalo" "$ip" "$eredmeny"
+done
+```
+
+Ez a rész megkeresi a sikertelen hozzáférési kísérleteket, mezőkre bontja a sorokat, majd táblázatos formában kiírja őket.
+
+---
+
+### Sikertelen sorok kiválasztása
+
+```bash
+grep ";SIKERTELEN$" portal_belepesek.log
+```
+
+Ez a parancs kiírja azokat a sorokat, amelyek végén `;SIKERTELEN` szerepel.
+
+Példa találati sor:
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+```
+
+---
+
+### A pipe jel szerepe
+
+A pipe jel az egyik parancs kimenetét átadja a következő parancsnak.
+
+Ebben az esetben a `grep` által megtalált sorokat a `while` ciklus kapja meg feldolgozásra.
+
+A feldolgozás menete:
+
+1. a `grep` kiválasztja a sikertelen sorokat,
+2. a `while` ciklus soronként beolvassa őket,
+3. a `read` mezőkre bontja a sorokat,
+4. a `printf` formázva kiírja az adatokat.
+
+---
+
+### A while ciklus
+
+```bash
+while
+do
+done
+```
+
+A `while` ciklus addig fut, amíg van beolvasható sor.
+
+Ebben a feladatban a `while` ciklus a `grep` által átadott sikertelen naplósorokat dolgozza fel.
+
+A `do` után találhatóak azok az utasítások, amelyek minden beolvasott sorra lefutnak.
+
+A `done` zárja le a ciklust.
+
+---
+
+### Az IFS változó
+
+```bash
+IFS=';'
+```
+
+Az `IFS` jelentése: Internal Field Separator.
+
+Ez határozza meg, hogy a Bash milyen karakter mentén bontsa mezőkre a beolvasott sort.
+
+Alapértelmezetten a Bash többnyire szóközök és tabulátorok mentén választja szét az adatokat.
+
+Ebben a feladatban viszont a naplóállomány pontosvesszővel tagolt, ezért az `IFS` értékét pontosvesszőre állítjuk.
+
+Ez alapján a sor:
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+```
+
+négy mezőre bontható:
+
+```text
+2026-05-18 07:48:31
+diak15
+192.168.1.56
+SIKERTELEN
+```
+
+---
+
+### A read parancs
+
+```bash
+read datum felhasznalo ip eredmeny
+```
+
+A `read` parancs beolvas egy sort, majd az `IFS` alapján mezőkre bontja.
+
+A mezők sorban a megadott változókba kerülnek:
+
+- az első mező a `datum` változóba,
+- a második mező a `felhasznalo` változóba,
+- a harmadik mező az `ip` változóba,
+- a negyedik mező az `eredmeny` változóba.
+
+Példa:
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+```
+
+Ebből:
+
+```bash
+datum="2026-05-18 07:48:31"
+felhasznalo="diak15"
+ip="192.168.1.56"
+eredmeny="SIKERTELEN"
+```
+
+---
+
+### Az adatok formázott kiírása
+
+```bash
+printf "%-20s %-12s %-15s %-10s\n" "$datum" "$felhasznalo" "$ip" "$eredmeny"
+```
+
+Ez a sor ugyanazt a formátumot használja, mint a fejléc.
+
+A változók értékei a megfelelő oszlopokba kerülnek.
+
+Az idézőjelek használata fontos:
+
+```bash
+"$datum"
+```
+
+A dátum és idő között szóköz van, például:
+
+```text
+2026-05-18 07:48:31
+```
+
+Ha a változó nem lenne idézőjelben, a Bash külön szavakként kezelhetné a dátumot és az időt. Az idézőjelek biztosítják, hogy a dátum és idő egyben maradjon.
+
+Ez a rész teljesíti az 5. feladatrészt.
+
+---
+
+## 8. rész – Sikertelen hozzáférési kísérletek fájlba mentése
+
+```bash
+echo
+
+echo "7. Fájlba mentés"
+grep ";SIKERTELEN$" portal_belepesek.log > hibas_portal_belepesek.txt
+echo "A sikertelen hozzáférési kísérletek mentése megtörtént a hibas_portal_belepesek.txt fájlba."
+```
+
+Ez a rész létrehozza a `hibas_portal_belepesek.txt` nevű fájlt.
+
+A fájlba csak a sikertelen hozzáférési kísérletek teljes eredeti sorai kerülnek.
+
+---
+
+### A cím kiírása
+
+```bash
+echo "7. Fájlba mentés"
+```
+
+Ez kiírja a hetedik rész címét.
+
+---
+
+### A sikertelen sorok kiválasztása
+
+```bash
+grep ";SIKERTELEN$" portal_belepesek.log
+```
+
+Ez ugyanazokat a sorokat választja ki, amelyeknél az eredmény mező `SIKERTELEN`.
+
+---
+
+### Kimeneti átirányítás
+
+```bash
+grep ";SIKERTELEN$" portal_belepesek.log > hibas_portal_belepesek.txt
+```
+
+A `>` jel kimeneti átirányítást jelent.
+
+Ez azt jelenti, hogy a parancs eredménye nem a terminálra kerül, hanem a megadott fájlba.
+
+Ebben az esetben a `grep` által megtalált sorok a `hibas_portal_belepesek.txt` fájlba kerülnek.
+
+Ha a fájl még nem létezik, a parancs létrehozza.
+
+Ha a fájl már létezik, a parancs felülírja annak korábbi tartalmát.
+
+Ez a feladat szempontjából megfelelő, mert mindig az aktuális futás eredményeit kell elmenteni.
+
+---
+
+### Miért nincs fejléc a mentett fájlban?
+
+A feladat külön kimondja, hogy a `hibas_portal_belepesek.txt` fájlba nem kerülhet:
+
+- fejléc,
+- magyarázó szöveg,
+- táblázatos formázás.
+
+Ezért a script nem `printf` paranccsal írja a fájlba az adatokat, hanem közvetlenül a `grep` eredményét menti el.
+
+Így a fájlban az eredeti naplósorok változatlan formában szerepelnek.
+
+Példa:
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+```
+
+Ez a rész teljesíti a 6. és 7. feladatrészt.
+
+---
+
+## 9. rész – Összegzés kiírása
+
+```bash
+echo
+
+echo "8. Összegzés"
+echo "A tananyagportál hozzáférési naplójának feldolgozása befejeződött."
+```
+
+Ez a rész lezárja a jelentést.
+
+Az első `echo` egy üres sort ír ki.
+
+Ezután megjelenik az összegzés címe:
+
+```text
+8. Összegzés
+```
+
+Végül a script kiírja a záró üzenetet:
+
+```text
+A tananyagportál hozzáférési naplójának feldolgozása befejeződött.
+```
+
+Ez jelzi, hogy a script futása sikeresen befejeződött.
+
+Ez a rész teljesíti a 8. feladatrészt, mert a jelentés végén szerepel lezáró kiírás.
+
+---
+
+## A scriptben használt fontosabb elemek összefoglalása
+
+| Elem | Megnevezés | Magyarázat |
+|---|---|---|
+| `#!/bin/bash` | Shebang | Megadja, hogy a scriptet Bash parancsértelmező futtassa |
+| `echo` | Kiírás | Szöveget ír ki a terminálra |
+| `echo` üresen | Üres sor | Tagoltabbá és olvashatóbbá teszi a kimenetet |
+| `if` | Feltételes elágazás kezdete | Feltétel alapján dönt a program futása |
+| `[ ... ]` | Feltételvizsgálat | Bash feltétel megadására szolgál |
+| `-f` | Fájlvizsgálat | Azt ellenőrzi, hogy létezik-e normál fájl |
+| `then` | Igaz ág kezdete | Akkor fut le, ha a feltétel igaz |
+| `else` | Hamis ág kezdete | Akkor fut le, ha a feltétel nem igaz |
+| `fi` | Feltételes szerkezet lezárása | Lezárja az `if` szerkezetet |
+| `exit 1` | Hibás kilépés | Leállítja a scriptet hibakóddal |
+| `wc -l` | Sorszámlálás | Megszámolja a sorok számát |
+| <code>&lt;</code> | Bemeneti átirányítás | Egy fájl tartalmát adja bemenetként a parancsnak |
+| `$(...)` | Parancshelyettesítés | Lefuttatja a zárójelek közötti parancsot, majd annak eredményét beilleszti |
+| `ossz=...` | Változó létrehozása | Eltárolja az összes hozzáférési kísérlet számát |
+| `$ossz` | Változó használata | Az `ossz` változó értékére hivatkozik |
+| `head -n 1` | Első sor kiválasztása | A fájl első sorát jeleníti meg |
+| <code>&#124;</code> | Pipe jel | Az egyik parancs kimenetét továbbadja a következő parancsnak |
+| `cut` | Szöveg darabolása | Szöveget mezőkre bont |
+| `-d';'` | Elválasztó megadása | A pontosvesszőt állítja be elválasztóként |
+| `-f1` | Első mező | Az első mezőt választja ki |
+| `grep` | Szövegkeresés | Megkeres egy adott mintát egy fájlban |
+| `grep -c` | Találatok számlálása | Nem a sorokat írja ki, hanem a találatok számát |
+| `$` | Sor vége | Reguláris kifejezésben a sor végét jelöli |
+| `printf` | Formázott kiírás | Oszlopokba rendezett, szabályozott szélességű kiírást tesz lehetővé |
+| `%s` | Szöveges mező | A `printf` formátumszövegében szöveges adat helyét jelöli |
+| `%-20s` | Balra igazított mező | 20 karakter széles, balra igazított szöveges oszlopot jelent |
+| `\n` | Sortörés | Új sort kezd a `printf` kiírásában |
+| `while` | Ciklus kezdete | Addig dolgozza fel a sorokat, amíg van beolvasható adat |
+| `do` | Ciklustörzs kezdete | Itt kezdődnek a ciklusban ismétlődő utasítások |
+| `done` | Ciklus lezárása | Lezárja a `while` ciklust |
+| `IFS=';'` | Mezőelválasztó beállítása | Megadja, hogy a beolvasott sort pontosvessző mentén kell darabolni |
+| `read` | Sor beolvasása | Beolvas egy sort, majd változókba teszi annak mezőit |
+| `datum` | Változó | A naplósor dátum és idő mezőjét tárolja |
+| `felhasznalo` | Változó | A naplósor felhasználónév mezőjét tárolja |
+| `ip` | Változó | A naplósor IP-cím mezőjét tárolja |
+| `eredmeny` | Változó | A naplósor eredmény mezőjét tárolja |
+| <code>&gt;</code> | Kimeneti átirányítás | A parancs eredményét fájlba írja |
+| `hibas_portal_belepesek.txt` | Kimeneti fájl | A sikertelen hozzáférési kísérletek eredeti sorait tartalmazza |
+
+</div>
+
+</details>
+
+---
+
+<details>
+<summary>Minta kimenetek</summary>
+
+## Minta kimenet sikeres futás esetén
+
+```text
+1. Tananyagportál hozzáférési naplójának feldolgozása
+
+2. Fájl ellenőrzése
+A portal_belepesek.log fájl megtalálható.
+
+3. Hozzáférési kísérletek száma
+Összes hozzáférési kísérlet: 10
+
+4. Legelső hozzáférési kísérlet időpontja
+Legelső hozzáférési kísérlet időpontja: 2026-05-18 07:45:12
+
+5. Sikertelen hozzáférési kísérletek száma
+Sikertelen hozzáférési kísérletek: 4
+
+6. Sikertelen hozzáférési kísérletek adatai
+
+Dátum és idő          Felhasználó  IP-cím          Eredmény
+---------------------------------------------------------------
+2026-05-18 07:48:31  diak15       192.168.1.56    SIKERTELEN
+2026-05-18 08:15:42  diak22       192.168.1.71    SIKERTELEN
+2026-05-18 08:24:55  diak18       192.168.1.62    SIKERTELEN
+2026-05-18 09:02:49  vendeg       192.168.1.88    SIKERTELEN
+
+7. Fájlba mentés
+A sikertelen hozzáférési kísérletek mentése megtörtént a hibas_portal_belepesek.txt fájlba.
+
+8. Összegzés
+A tananyagportál hozzáférési naplójának feldolgozása befejeződött.
+```
+
+## Minta kimenet hiányzó forrásfájl esetén
+
+```text
+1. Tananyagportál hozzáférési naplójának feldolgozása
+
+2. Fájl ellenőrzése
+Hiba: a portal_belepesek.log fájl nem található!
+```
+
+Ebben az esetben a script az `exit 1` utasítás miatt leáll, ezért a további részek már nem futnak le.
+
+## A létrejövő hibas_portal_belepesek.txt fájl tartalma
+
+```text
+2026-05-18 07:48:31;diak15;192.168.1.56;SIKERTELEN
+2026-05-18 08:15:42;diak22;192.168.1.71;SIKERTELEN
+2026-05-18 08:24:55;diak18;192.168.1.62;SIKERTELEN
+2026-05-18 09:02:49;vendeg;192.168.1.88;SIKERTELEN
+```
+
+A `hibas_portal_belepesek.txt` fájlban nem szerepel fejléc, magyarázó szöveg vagy táblázatos formázás. Csak az eredeti naplósorok kerülnek bele változatlan formában.
+
+</details>
